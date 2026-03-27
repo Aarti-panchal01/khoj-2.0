@@ -23,6 +23,7 @@ const PostItem = () => {
     date: new Date().toISOString().split('T')[0],
     images: [],
     urgent: false,
+    reward: 'none',
     contactPreference: 'both',
   });
   const [error, setError] = useState('');
@@ -45,6 +46,7 @@ const PostItem = () => {
           date: item.date ? item.date.split('T')[0] : new Date().toISOString().split('T')[0],
           images: item.images || [],
           urgent: item.urgent,
+          reward: item.reward || 'none',
           contactPreference: item.contactPreference || 'both',
         });
       } catch (err) {
@@ -338,22 +340,69 @@ const PostItem = () => {
 
             {/* Urgent Checkbox */}
             {formData.type === 'lost' && (
-              <label className="flex items-center gap-3 p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
-                <input
-                  type="checkbox"
-                  name="urgent"
-                  checked={formData.urgent}
-                  onChange={handleChange}
-                  className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                />
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5 text-warning-600" />
-                    <span className="font-medium text-gray-900">Mark as Urgent</span>
+              <>
+                <label className="flex items-center gap-3 p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                  <input
+                    type="checkbox"
+                    name="urgent"
+                    checked={formData.urgent}
+                    onChange={handleChange}
+                    className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="w-5 h-5 text-warning-600" />
+                      <span className="font-medium text-gray-900">Mark as Urgent</span>
+                    </div>
+                    <p className="text-sm text-gray-500">For important items like ID cards, keys, or wallets</p>
                   </div>
-                  <p className="text-sm text-gray-500">For important items like ID cards, keys, or wallets</p>
+                </label>
+
+                {/* Reward Offering */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    <span className="text-lg">🎁</span> Reward Offering
+                  </label>
+                  <p className="text-sm text-gray-600 mb-4">Offer a reward to incentivize people to help find your item</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    {[
+                      { value: 'gratitude', label: 'Gratitude', icon: '🙏', color: 'purple' },
+                      { value: 'food_treat', label: 'Food Treat', icon: '🍕', color: 'orange' },
+                      { value: 'coffee', label: 'Coffee', icon: '☕', color: 'amber' },
+                      { value: 'cash_reward', label: 'Cash Reward', icon: '💵', color: 'green' },
+                      { value: 'gift', label: 'Gift', icon: '🎁', color: 'pink' },
+                      { value: 'none', label: 'No Reward', icon: '—', color: 'gray' },
+                    ].map((reward) => (
+                      <label
+                        key={reward.value}
+                        className={`relative flex flex-col items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                          formData.reward === reward.value
+                            ? `border-${reward.color}-500 bg-${reward.color}-50 shadow-lg scale-105`
+                            : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="reward"
+                          value={reward.value}
+                          checked={formData.reward === reward.value}
+                          onChange={handleChange}
+                          className="sr-only"
+                        />
+                        <span className="text-3xl mb-2">{reward.icon}</span>
+                        <span className="text-xs font-medium text-gray-900 text-center">{reward.label}</span>
+                        {formData.reward === reward.value && (
+                          <div className={`absolute -top-2 -right-2 w-6 h-6 bg-${reward.color}-500 rounded-full flex items-center justify-center`}>
+                            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                        )}
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </label>
+              </>
             )}
 
             {/* Contact Preference */}
