@@ -3,15 +3,17 @@ const { z } = require('zod');
 const signupSchema = z.object({
   name: z.string().min(2).max(100),
   email: z.string().email().max(254),
-  password: z.string().min(8).max(128), // raised from 6 to 8
+  password: z.string().min(6).max(128),
   phone: z.string().min(8).max(20),
   college: z.string().min(2).max(200),
   campus: z.string().max(200).optional(),
 });
 
 const loginSchema = z.object({
+  name: z.string().min(2).max(100),
   email: z.string().email().max(254),
-  password: z.string().min(8).max(128),
+  phone: z.string().min(8).max(20),
+  password: z.string().min(6).max(128),
   college: z.string().min(2).max(200),
   campus: z.string().max(200).optional(),
 });

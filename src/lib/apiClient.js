@@ -1,5 +1,8 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
+// Public endpoints that should never trigger auth:expired on 401 (defense-in-depth)
+const PUBLIC_PATHS = ['/universities'];
+
 let authToken = localStorage.getItem('khoj_token') || null;
 let isRefreshing = false;
 let refreshQueue = []; // queued requests waiting for a new token
@@ -50,8 +53,8 @@ export const apiRequest = async (path, { method = 'GET', body, headers, auth = t
 
   let response = await doFetch(authToken);
 
-  // Auto-refresh on 401 — only for authenticated requests, not auth endpoints themselves
-  if (response.status === 401 && auth && !path.startsWith('/auth/')) {
+  // Auto-refresh on 401 — only for authenticated requests, not auth endpoints or public paths
+  if (response.status === 401 && auth && !path.startsWith('/auth/') && !PUBLIC_PATHS.some(p => path.startsWith(p))) {
     if (isRefreshing) {
       // Queue this request until the in-flight refresh completes
       const newToken = await new Promise((resolve, reject) => {
