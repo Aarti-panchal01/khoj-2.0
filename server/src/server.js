@@ -28,6 +28,8 @@ const authRoutes = require('./routes/authRoutes');
 const itemRoutes = require('./routes/itemRoutes');
 const universityRoutes = require('./routes/universityRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const claimRoutes = require('./routes/claimRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
@@ -133,6 +135,8 @@ app.use('/api/items', searchLimiter);
 app.use('/api/items', itemRoutes);
 app.use('/api/universities', universityRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/claims', claimRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // ─── Error handler ────────────────────────────────────────────────────────────
 app.use((err, _req, res, _next) => {
