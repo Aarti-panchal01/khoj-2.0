@@ -149,3 +149,18 @@ export const UploadAPI = {
     return response.json();
   },
 };
+
+export const ClaimsAPI = {
+  create: (payload) => apiRequest('/claims', { method: 'POST', body: payload }),
+  getForItem: (itemId) => apiRequest(`/claims/item/${itemId}`),
+  getMine: () => apiRequest('/claims/mine'),
+  approve: (claimId) => apiRequest(`/claims/${claimId}/approve`, { method: 'PUT' }),
+  reject: (claimId) => apiRequest(`/claims/${claimId}/reject`, { method: 'PUT' }),
+};
+
+export const NotificationsAPI = {
+  list: () => apiRequest('/notifications'),
+  getUnreadCount: () => apiRequest('/notifications/unread'),
+  markAsRead: (notificationId) => apiRequest(`/notifications/${notificationId}/read`, { method: 'PUT' }),
+  markAllAsRead: () => apiRequest('/notifications/read-all', { method: 'PUT' }),
+};

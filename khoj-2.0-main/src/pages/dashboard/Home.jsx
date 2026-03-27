@@ -391,6 +391,26 @@ const Home = () => {
                     <Badge variant="default">{item.category}</Badge>
                   </div>
 
+                  {/* Reward Badge for Lost Items */}
+                  {item.type === 'lost' && item.reward && item.reward !== 'none' && (
+                    <div className="mb-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-full">
+                      <span className="text-base">
+                        {item.reward === 'gratitude' && '🙏'}
+                        {item.reward === 'food_treat' && '🍕'}
+                        {item.reward === 'coffee' && '☕'}
+                        {item.reward === 'cash_reward' && '💵'}
+                        {item.reward === 'gift' && '🎁'}
+                      </span>
+                      <span className="text-xs font-semibold text-amber-800">
+                        {item.reward === 'gratitude' && 'Gratitude'}
+                        {item.reward === 'food_treat' && 'Food Treat'}
+                        {item.reward === 'coffee' && 'Coffee'}
+                        {item.reward === 'cash_reward' && 'Cash Reward'}
+                        {item.reward === 'gift' && 'Gift'}
+                      </span>
+                    </div>
+                  )}
+
                   <p className="text-sm text-gray-600 line-clamp-2 mb-3">{item.description}</p>
 
                   <div className="space-y-2">
