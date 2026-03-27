@@ -79,8 +79,9 @@ export const AuthProvider = ({ children }) => {
   const signup = async (userData) => {
     try {
       const result = await AuthAPI.signup(userData);
-      // Signup no longer returns a token — user must verify email first
-      return { success: true, userId: result.userId };
+      setAuthToken(result.token);
+      setUser(result.user);
+      return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
     }

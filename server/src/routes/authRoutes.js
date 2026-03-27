@@ -116,8 +116,6 @@ router.post('/signup', async (req, res) => {
     }
 
     const passwordHash = await bcrypt.hash(payload.password, 10);
-    const otp = generateOtp();
-    const otpHash = await bcrypt.hash(otp, 8);
 
     const user = await User.create({
       name: payload.name,
@@ -128,17 +126,18 @@ router.post('/signup', async (req, res) => {
       campusId: campus?._id || null,
       universityName: university.name,
       campusName: campus?.name || '',
-      emailOtp: otpHash,
-      emailOtpExpiry: new Date(Date.now() + 10 * 60 * 1000),
+      isEmailVerified: true,
     });
 
-    sendVerificationEmail(user.email, otp, user.name).catch((err) =>
-      console.error('Failed to send verification email:', err.message)
-    );
+    const accessToken = createAccessToken(user);
+    const refreshToken = createRefreshToken(user);
+    await User.findByIdAndUpdate(user._id, { refreshTokenHash: hashToken(refreshToken) });
 
+    res.cookie(REFRESH_COOKIE_NAME, refreshToken, COOKIE_OPTS);
     return res.status(201).json({
-      message: 'Account created. Check your email for a 6-digit verification code.',
-      userId: user._id,
+      message: 'Account created successfully.',
+      token: accessToken,
+      user: formatUser(user),
     });
   } catch (error) {
     console.error('Signup error:', error.name);
@@ -278,14 +277,6 @@ router.post('/login', async (req, res) => {
     if (!user.universityId.equals(university._id)) {
       await user.incLoginAttempts();
       return res.status(403).json({ message: 'University mismatch' });
-    }
-
-    if (!user.isEmailVerified) {
-      return res.status(403).json({
-        message: 'Email not verified. Please check your inbox for the verification code.',
-        requiresVerification: true,
-        userId: user._id,
-      });
     }
 
     await user.resetLoginAttempts();
