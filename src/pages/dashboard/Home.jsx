@@ -140,7 +140,7 @@ const Home = () => {
       subtitle: `${totalActive} active posts`,
     },
     {
-      label: filterCampus ? filterCampus : 'All Campuses',
+      label: filterCampus ? (campusOptions.find(c => c.value === filterCampus)?.label || 'Campus') : 'All Campuses',
       value: filteredItems.length,
       icon: MapPin,
       color: 'warning',
