@@ -10,6 +10,7 @@ const itemSchema = new mongoose.Schema(
     date: { type: Date, required: true },
     images: [{ type: String }],
     urgent: { type: Boolean, default: false },
+    reward: { type: String, enum: ['gratitude', 'food_treat', 'coffee', 'cash_reward', 'gift', 'none'], default: 'none' },
     contactPreference: { type: String, enum: ['both', 'email', 'phone'], default: 'both' },
     status: { type: String, enum: ['active', 'resolved'], default: 'active', index: true },
 
