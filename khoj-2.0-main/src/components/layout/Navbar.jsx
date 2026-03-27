@@ -1,12 +1,15 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { Plus, User, LogOut, Home, Bell } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { NotificationsAPI } from '../../lib/apiClient';
 import Badge from '../ui/Badge';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const handleLogout = () => {
     logout();
@@ -16,6 +19,25 @@ const Navbar = () => {
   const isActive = (path) => {
     return location.pathname === path;
   };
+
+  // Fetch unread notification count
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const { count } = await NotificationsAPI.getUnreadCount();
+        setUnreadCount(count);
+      } catch (error) {
+        console.error('Failed to fetch unread count', error);
+        // Fail silently - don't disrupt user experience
+      }
+    };
+
+    if (user) {
+      fetchUnreadCount(); // Initial fetch
+      const interval = setInterval(fetchUnreadCount, 30000); // Poll every 30 seconds
+      return () => clearInterval(interval); // Cleanup
+    }
+  }, [user]);
 
   return (
     <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-30 shadow-sm">
@@ -93,9 +115,16 @@ const Navbar = () => {
 
           {/* Right Side */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <button className="relative p-1.5 sm:p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+            <button 
+              onClick={() => navigate('/notifications')}
+              className="relative p-1.5 sm:p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            >
               <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 w-2 h-2 bg-danger-500 rounded-full"></span>
+              {unreadCount > 0 && (
+                <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 min-w-[18px] h-[18px] bg-danger-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
             </button>
 
             <div className="hidden md:flex items-center gap-3 pl-3 border-l border-gray-200">

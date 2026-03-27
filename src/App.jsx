@@ -6,6 +6,8 @@ import Signup from './pages/auth/Signup';
 import Home from './pages/dashboard/Home';
 import PostItem from './pages/dashboard/PostItem';
 import Profile from './pages/dashboard/Profile';
+import Notifications from './pages/dashboard/Notifications';
+import ClaimsManagement from './pages/dashboard/ClaimsManagement';
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/post" element={<PostItem />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/claims" element={<ClaimsManagement />} />
           </Route>
 
           {/* Fallback */}

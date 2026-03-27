@@ -92,11 +92,12 @@ router.get('/item/:itemId', async (req, res) => {
   }
 });
 
-// GET /claims/mine - Get all claims made by the current user
+// GET /claims/mine - Get all claims for items owned by the current user
 router.get('/mine', async (req, res) => {
   try {
-    const claims = await Claim.find({ claimerId: req.user._id })
+    const claims = await Claim.find({ ownerId: req.user._id })
       .populate('itemId', 'title type category images')
+      .populate('claimerId', 'name email phone')
       .sort({ createdAt: -1 })
       .lean();
 
