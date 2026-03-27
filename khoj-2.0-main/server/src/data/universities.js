@@ -10,7 +10,6 @@ module.exports = [
     campuses: [
       { name: 'Electronic City Campus' },
       { name: 'Ring Road Campus' },
-      { name: 'Hanumanth Nagar Campus' },
     ],
   },
   {

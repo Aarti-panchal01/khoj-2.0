@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Building2, MapPin, Search } from 'lucide-react';
+import { Mail, Lock, Building2, MapPin, Search, User, Phone } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
@@ -9,10 +9,12 @@ import { motion } from 'framer-motion';
 
 const Login = () => {
   const [formData, setFormData] = useState({
+    name: '',
     email: '',
-    password: '',
+    phone: '',
     college: '',
     campus: '',
+    password: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -66,10 +68,12 @@ const Login = () => {
 
     setLoading(true);
     const result = await login({
+      name: formData.name,
       email: formData.email,
-      password: formData.password,
+      phone: formData.phone,
       college: formData.college,
       campus: formData.campus,
+      password: formData.password,
     });
 
     if (result.success) {
@@ -119,6 +123,17 @@ const Login = () => {
             )}
 
             <Input
+              label="Full Name"
+              type="text"
+              name="name"
+              placeholder="John Doe"
+              value={formData.name}
+              onChange={handleChange}
+              icon={User}
+              required
+            />
+
+            <Input
               label="Email"
               type="email"
               name="email"
@@ -126,6 +141,17 @@ const Login = () => {
               value={formData.email}
               onChange={handleChange}
               icon={Mail}
+              required
+            />
+
+            <Input
+              label="Phone Number"
+              type="tel"
+              name="phone"
+              placeholder="+91 98765 43210"
+              value={formData.phone}
+              onChange={handleChange}
+              icon={Phone}
               required
             />
 
