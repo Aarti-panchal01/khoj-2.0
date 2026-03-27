@@ -47,21 +47,23 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          initial={{ opacity: 0, scale: 0.95, y: 100 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ duration: 0.2 }}
-          className="bg-white rounded-xl shadow-2xl w-full max-w-3xl my-8 max-h-[90vh] overflow-hidden flex flex-col"
+          exit={{ opacity: 0, scale: 0.95, y: 100 }}
+          transition={{ duration: 0.3, type: 'spring' }}
+          className="bg-white rounded-t-3xl sm:rounded-xl shadow-2xl w-full max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header with Close Button */}
-          <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between z-10">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Item Details</h2>
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-5 sm:px-6 py-4 flex items-center justify-between z-10">
+            {/* Mobile drag indicator */}
+            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-gray-300 rounded-full sm:hidden"></div>
+            <h2 className="text-lg sm:text-2xl font-bold text-gray-900 mt-2 sm:mt-0">Item Details</h2>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+              className="p-2.5 sm:p-2 hover:bg-gray-100 rounded-xl sm:rounded-lg transition-colors flex-shrink-0 touch-manipulation min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center"
               aria-label="Close modal"
             >
               <X className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" />
@@ -69,7 +71,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
           </div>
 
           {/* Scrollable Content */}
-          <div className="overflow-y-auto flex-1 p-4 sm:p-6">
+          <div className="overflow-y-auto flex-1 p-5 sm:p-6 pb-safe">
             {/* Image Gallery */}
             {item.images && item.images.length > 0 ? (
               <div className="mb-6">
