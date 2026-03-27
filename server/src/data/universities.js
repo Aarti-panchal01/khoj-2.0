@@ -14,13 +14,13 @@ module.exports = [
     ],
   },
   {
-    name: 'Dayananda Sagar University',
-    slug: 'dayananda-sagar-university',
+    name: 'Dayananda Sagar Institutions',
+    slug: 'dayananda-sagar-institutions',
     campuses: [
-      { name: 'Dayananda Sagar Institute of Technology (DSIT)' },
       { name: 'Dayananda Sagar University (DSU)' },
       { name: 'Dayananda Sagar College of Engineering (DSCE)' },
       { name: 'Dayananda Sagar Academy of Technology and Management (DSATM)' },
+      { name: 'Dayananda Sagar Institute of Technology (DSIT)' },
     ],
   },
   {
