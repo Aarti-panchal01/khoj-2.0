@@ -129,9 +129,8 @@ router.put('/:id/approve', async (req, res) => {
     // Update item status to resolved
     await Item.findByIdAndUpdate(claim.itemId, { status: 'resolved' });
 
-    // Award reputation points: +10 for both owner and claimer
+    // Award reputation points: +10 for finder (claimer) only
     const User = require('../models/User');
-    await User.findByIdAndUpdate(claim.ownerId, { $inc: { reputation: 10 } });
     await User.findByIdAndUpdate(claim.claimerId, { $inc: { reputation: 10 } });
 
     // Create notification for claimer
@@ -140,7 +139,7 @@ router.put('/:id/approve', async (req, res) => {
       type: 'claim_approved',
       itemId: claim.itemId,
       claimId: claim._id,
-      message: 'Your claim has been approved. +10 reputation points!',
+      message: 'Your claim has been approved! You earned +10 reputation points.',
       read: false,
     });
 
