@@ -125,8 +125,8 @@ const Profile = () => {
                   <div className="flex items-center justify-center sm:justify-start gap-2 text-white/90">
                     <Building2 className="w-4 h-4" />
                     <span className="text-sm">
-                      {user?.college}
-                      {user?.campus ? ` • ${user.campus}` : ''}
+                      {user?.universityName || user?.college}
+                      {(user?.campusName || user?.campus) ? ` • ${user?.campusName || user?.campus}` : ''}
                     </span>
                   </div>
                 </div>
