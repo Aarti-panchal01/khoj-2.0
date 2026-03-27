@@ -70,25 +70,25 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          initial={{ opacity: 0, scale: 0.95, y: 100 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ duration: 0.2 }}
-          className="bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl shadow-2xl w-full max-w-2xl my-8"
+          exit={{ opacity: 0, scale: 0.95, y: 100 }}
+          transition={{ duration: 0.3, type: 'spring' }}
+          className="bg-gradient-to-br from-primary-500 to-primary-700 rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="px-6 py-5 border-b border-white/20">
+          <div className="sticky top-0 bg-gradient-to-br from-primary-500 to-primary-700 px-5 sm:px-6 py-4 sm:py-5 border-b border-white/20 z-10">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-white">Claim This Item</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-white">Claim This Item</h2>
                 <p className="text-sm text-primary-100 mt-1">Help us verify you're the rightful owner</p>
               </div>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                className="p-2.5 sm:p-2 hover:bg-white/10 rounded-xl sm:rounded-lg transition-colors touch-manipulation min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center"
                 aria-label="Close"
               >
                 <X className="w-6 h-6 text-white" />
@@ -97,30 +97,30 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
           </div>
 
           {/* Content */}
-          <div className="p-6">
+          <div className="p-5 sm:p-6 pb-safe">
             {/* Item Preview */}
-            <Card className="p-4 mb-6 bg-white/95 backdrop-blur">
+            <Card className="p-4 mb-5 sm:mb-6 bg-white/95 backdrop-blur">
               <div className="flex items-center gap-4">
                 {item.images && item.images.length > 0 ? (
                   <img
                     src={item.images[0]}
                     alt={item.title}
-                    className="w-16 h-16 object-cover rounded-lg"
+                    className="w-16 h-16 sm:w-16 sm:h-16 object-cover rounded-lg"
                   />
                 ) : (
-                  <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                  <div className="w-16 h-16 sm:w-16 sm:h-16 bg-gray-200 rounded-lg flex items-center justify-center">
                     <FileText className="w-8 h-8 text-gray-400" />
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-900 line-clamp-1">{item.title}</h3>
+                  <h3 className="font-semibold text-base sm:text-base text-gray-900 line-clamp-1">{item.title}</h3>
                   <p className="text-sm text-gray-600">{item.category}</p>
                 </div>
               </div>
             </Card>
 
             {/* Info Alert */}
-            <Card className="p-4 mb-6 bg-blue-50 border-2 border-blue-200">
+            <Card className="p-4 mb-5 sm:mb-6 bg-blue-50 border-2 border-blue-200">
               <div className="flex gap-3">
                 <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div>
@@ -142,7 +142,7 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
 
               {/* Where */}
               <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-white mb-2">
+                <label className="flex items-center gap-2 text-sm sm:text-sm font-medium text-white mb-2">
                   <MapPin className="w-4 h-4" />
                   Where did you lose this item? <span className="text-yellow-300">*</span>
                 </label>
@@ -152,14 +152,15 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
                   onChange={handleChange}
                   placeholder="e.g., Main Library, 2nd floor near the study tables"
                   rows={3}
-                  className="w-full px-4 py-3 border-2 border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent bg-white/90 backdrop-blur transition-all"
+                  className="w-full px-4 py-3 border-2 border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent bg-white/90 backdrop-blur transition-all text-base sm:text-sm touch-manipulation resize-none"
+                  style={{ minHeight: '80px' }}
                   required
                 />
               </div>
 
               {/* When */}
               <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-white mb-2">
+                <label className="flex items-center gap-2 text-sm sm:text-sm font-medium text-white mb-2">
                   <Calendar className="w-4 h-4" />
                   When did you lose this item? <span className="text-yellow-300">*</span>
                 </label>
@@ -169,14 +170,15 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
                   onChange={handleChange}
                   placeholder="e.g., Last Tuesday around 3 PM, or Yesterday morning"
                   rows={2}
-                  className="w-full px-4 py-3 border-2 border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent bg-white/90 backdrop-blur transition-all"
+                  className="w-full px-4 py-3 border-2 border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent bg-white/90 backdrop-blur transition-all text-base sm:text-sm touch-manipulation resize-none"
+                  style={{ minHeight: '70px' }}
                   required
                 />
               </div>
 
               {/* Specific Details */}
               <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-white mb-2">
+                <label className="flex items-center gap-2 text-sm sm:text-sm font-medium text-white mb-2">
                   <FileText className="w-4 h-4" />
                   Tell one specific detail about this item <span className="text-yellow-300">*</span>
                 </label>
@@ -186,19 +188,20 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
                   onChange={handleChange}
                   placeholder="e.g., It has a blue keychain attached, scratches on the back, my name written inside, specific brand/model, etc."
                   rows={3}
-                  className="w-full px-4 py-3 border-2 border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent bg-white/90 backdrop-blur transition-all"
+                  className="w-full px-4 py-3 border-2 border-white/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent bg-white/90 backdrop-blur transition-all text-base sm:text-sm touch-manipulation resize-none"
+                  style={{ minHeight: '80px' }}
                   required
                 />
               </div>
 
               {/* Buttons */}
-              <div className="flex gap-3 pt-2">
+              <div className="flex flex-col sm:flex-row gap-3 pt-2 pb-safe">
                 <Button
                   type="button"
                   variant="outline"
                   fullWidth
                   onClick={onClose}
-                  className="bg-white/90 hover:bg-white border-2 border-white/50"
+                  className="bg-white/90 hover:bg-white border-2 border-white/50 order-2 sm:order-1"
                 >
                   Cancel
                 </Button>
@@ -206,7 +209,7 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
                   type="submit"
                   fullWidth
                   loading={loading}
-                  className="bg-white text-primary-700 hover:bg-white/90 shadow-lg"
+                  className="bg-white text-primary-700 hover:bg-white/90 shadow-lg order-1 sm:order-2"
                 >
                   Submit Claim
                 </Button>
