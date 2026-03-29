@@ -157,7 +157,7 @@ const Signup = () => {
 
             {/* ── University select ── */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1.5">
                 College/University <span className="text-danger-500">*</span>
               </label>
               <div className="relative">
@@ -167,14 +167,15 @@ const Signup = () => {
                   value={formData.college}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white appearance-none"
+                  className="w-full pl-10 pr-4 py-3 sm:py-2.5 border-2 border-gray-300 rounded-xl sm:rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white appearance-none text-base sm:text-sm touch-manipulation"
+                  style={{ minHeight: '44px' }}
                 >
-                  <option value="">Select your university</option>
+                  <option value="" disabled hidden>Select your university</option>
                   {universities.map((u) => (
                     <option key={u._id} value={u.name}>{u.name}</option>
                   ))}
                 </select>
-                <svg className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                <svg className="w-5 h-5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
                   fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                 </svg>
@@ -184,7 +185,7 @@ const Signup = () => {
             {/* ── Campus select — shown when university has multiple campuses ── */}
             {matchedUniversity && matchedUniversity.campuses.length > 1 && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1.5">
                   Campus <span className="text-danger-500">*</span>
                 </label>
                 <div className="relative">
@@ -194,14 +195,15 @@ const Signup = () => {
                     value={formData.campus}
                     onChange={handleChange}
                     required
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white appearance-none"
+                    className="w-full pl-10 pr-4 py-3 sm:py-2.5 border-2 border-gray-300 rounded-xl sm:rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white appearance-none text-base sm:text-sm touch-manipulation"
+                    style={{ minHeight: '44px' }}
                   >
-                    <option value="">Select your campus</option>
+                    <option value="" disabled hidden>Select your campus</option>
                     {matchedUniversity.campuses.map((c) => (
                       <option key={c._id} value={c.name}>{c.name}</option>
                     ))}
                   </select>
-                  <svg className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                  <svg className="w-5 h-5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
