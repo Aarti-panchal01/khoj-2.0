@@ -161,24 +161,20 @@ const Signup = () => {
                 College/University <span className="text-danger-500">*</span>
               </label>
               <div className="relative">
-                <Building2 className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <Building2 className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
                 <select
                   name="college"
                   value={formData.college}
                   onChange={handleChange}
                   required
-                  className="w-full pl-10 pr-4 py-3 sm:py-2.5 border-2 border-gray-300 rounded-xl sm:rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white appearance-none text-base sm:text-sm touch-manipulation"
-                  style={{ minHeight: '44px' }}
+                  className="w-full pl-10 pr-10 py-3 sm:py-2.5 border-2 border-gray-300 rounded-xl sm:rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white text-base sm:text-sm touch-manipulation relative z-20"
+                  style={{ minHeight: '44px', WebkitAppearance: 'menulist', appearance: 'menulist' }}
                 >
                   <option value="">Select your university</option>
                   {universities.map((u) => (
                     <option key={u._id} value={u.name}>{u.name}</option>
                   ))}
                 </select>
-                <svg className="w-5 h-5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                  fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
               </div>
             </div>
 
@@ -189,24 +185,20 @@ const Signup = () => {
                   Campus <span className="text-danger-500">*</span>
                 </label>
                 <div className="relative">
-                  <MapPin className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <MapPin className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
                   <select
                     name="campus"
                     value={formData.campus}
                     onChange={handleChange}
                     required
-                    className="w-full pl-10 pr-4 py-3 sm:py-2.5 border-2 border-gray-300 rounded-xl sm:rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white appearance-none text-base sm:text-sm touch-manipulation"
-                    style={{ minHeight: '44px' }}
+                    className="w-full pl-10 pr-10 py-3 sm:py-2.5 border-2 border-gray-300 rounded-xl sm:rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white text-base sm:text-sm touch-manipulation relative z-20"
+                    style={{ minHeight: '44px', WebkitAppearance: 'menulist', appearance: 'menulist' }}
                   >
                     <option value="">Select your campus</option>
                     {matchedUniversity.campuses.map((c) => (
                       <option key={c._id} value={c.name}>{c.name}</option>
                     ))}
                   </select>
-                  <svg className="w-5 h-5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
                 </div>
               </div>
             )}
