@@ -4,6 +4,7 @@ import { Mail, Lock, Building2, MapPin, Search, User, Phone } from 'lucide-react
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import CustomSelect from '../../components/ui/CustomSelect';
 import { UniversityAPI } from '../../lib/apiClient';
 import { motion } from 'framer-motion';
 
@@ -51,6 +52,10 @@ const Login = () => {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
     setError('');
+  };
+
+  const handleSelectChange = (name) => (e) => {
+    handleChange({ target: { name, value: e.target.value } });
   };
 
   const handleSubmit = async (e) => {
@@ -156,51 +161,29 @@ const Login = () => {
             />
 
             {/* University dropdown */}
-            <div>
-              <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1.5">
-                College/University <span className="text-danger-500">*</span>
-              </label>
-              <div className="relative">
-                <Building2 className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
-                <select
-                  name="college"
-                  value={formData.college}
-                  onChange={handleChange}
-                  required
-                  className="w-full pl-10 pr-10 py-3 sm:py-2.5 border-2 border-gray-300 rounded-xl sm:rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white text-base sm:text-sm touch-manipulation relative z-20"
-                  style={{ minHeight: '44px', WebkitAppearance: 'menulist', appearance: 'menulist' }}
-                >
-                  <option value="">Select your university</option>
-                  {universities.map((u) => (
-                    <option key={u._id} value={u.name}>{u.name}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
+            <CustomSelect
+              label="College/University"
+              required
+              placeholder="Select your university"
+              icon={Building2}
+              value={formData.college}
+              onChange={handleSelectChange('college')}
+              options={universities.map(u => ({ value: u.name, label: u.name }))}
+              error={error && !formData.college ? error : ''}
+            />
 
             {/* Campus dropdown — only for multi-campus universities */}
             {matchedUniversity && matchedUniversity.campuses.length > 1 && (
-              <div>
-                <label className="block text-sm sm:text-base font-medium text-gray-700 mb-1.5">
-                  Campus <span className="text-danger-500">*</span>
-                </label>
-                <div className="relative">
-                  <MapPin className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10" />
-                  <select
-                    name="campus"
-                    value={formData.campus}
-                    onChange={handleChange}
-                    required
-                    className="w-full pl-10 pr-10 py-3 sm:py-2.5 border-2 border-gray-300 rounded-xl sm:rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white text-base sm:text-sm touch-manipulation relative z-20"
-                    style={{ minHeight: '44px', WebkitAppearance: 'menulist', appearance: 'menulist' }}
-                  >
-                    <option value="">Select your campus</option>
-                    {matchedUniversity.campuses.map((c) => (
-                      <option key={c._id} value={c.name}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+              <CustomSelect
+                label="Campus"
+                required
+                placeholder="Select your campus"
+                icon={MapPin}
+                value={formData.campus}
+                onChange={handleSelectChange('campus')}
+                options={matchedUniversity.campuses.map(c => ({ value: c.name, label: c.name }))}
+                error={error && !formData.campus ? error : ''}
+              />
             )}
 
             <Input
