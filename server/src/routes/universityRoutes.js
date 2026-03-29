@@ -1,5 +1,6 @@
 const express = require('express');
 const University = require('../models/University');
+const updateUniversities = require('../utils/updateUniversities');
 
 const router = express.Router();
 
@@ -16,6 +17,21 @@ router.get('/', async (_req, res) => {
   } catch (error) {
     console.error('Fetch universities error', error);
     res.status(500).json({ message: 'Failed to fetch universities' });
+  }
+});
+
+/**
+ * POST /api/universities/update
+ * Updates universities from the universities.js data file
+ * This endpoint can be called to sync database with code changes
+ */
+router.post('/update', async (_req, res) => {
+  try {
+    await updateUniversities();
+    res.json({ message: 'Universities updated successfully' });
+  } catch (error) {
+    console.error('Update universities error', error);
+    res.status(500).json({ message: 'Failed to update universities' });
   }
 });
 
