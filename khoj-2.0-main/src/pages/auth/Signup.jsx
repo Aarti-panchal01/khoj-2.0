@@ -170,7 +170,7 @@ const Signup = () => {
                   className="w-full pl-10 pr-4 py-3 sm:py-2.5 border-2 border-gray-300 rounded-xl sm:rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white appearance-none text-base sm:text-sm touch-manipulation"
                   style={{ minHeight: '44px' }}
                 >
-                  <option value="" disabled hidden>Select your university</option>
+                  <option value="">Select your university</option>
                   {universities.map((u) => (
                     <option key={u._id} value={u.name}>{u.name}</option>
                   ))}
@@ -198,7 +198,7 @@ const Signup = () => {
                     className="w-full pl-10 pr-4 py-3 sm:py-2.5 border-2 border-gray-300 rounded-xl sm:rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white appearance-none text-base sm:text-sm touch-manipulation"
                     style={{ minHeight: '44px' }}
                   >
-                    <option value="" disabled hidden>Select your campus</option>
+                    <option value="">Select your campus</option>
                     {matchedUniversity.campuses.map((c) => (
                       <option key={c._id} value={c.name}>{c.name}</option>
                     ))}
