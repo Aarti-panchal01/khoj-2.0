@@ -205,7 +205,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
             <div className="mb-6">
               <h4 className="text-lg font-semibold text-gray-900 mb-3">Posted By</h4>
               <Card className="p-4 bg-gradient-to-br from-primary-50 to-blue-50 border-2 border-primary-200">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 mb-3">
                   <div className="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center flex-shrink-0">
                     <User className="w-6 h-6 text-white" />
                   </div>
@@ -219,6 +219,34 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                     )}
                   </div>
                 </div>
+                
+                {/* Contact Information */}
+                {(item.userEmail || item.userPhone) && (
+                  <div className="mt-3 pt-3 border-t border-primary-200 space-y-2">
+                    {item.userEmail && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Mail className="w-4 h-4 text-primary-600 flex-shrink-0" />
+                        <a 
+                          href={`mailto:${item.userEmail}`}
+                          className="text-primary-700 hover:text-primary-800 hover:underline break-all"
+                        >
+                          {item.userEmail}
+                        </a>
+                      </div>
+                    )}
+                    {item.userPhone && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Phone className="w-4 h-4 text-primary-600 flex-shrink-0" />
+                        <a 
+                          href={`tel:${item.userPhone}`}
+                          className="text-primary-700 hover:text-primary-800 hover:underline"
+                        >
+                          {item.userPhone}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
               </Card>
             </div>
 
@@ -261,7 +289,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
             {/* Contact/Claim Section */}
             {item.type === 'found' ? (
               // Claim button for FOUND items
-              <div className="bg-gradient-to-br from-success-50 to-green-50 rounded-xl p-6 border-2 border-success-300">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-400">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <span className="text-xl">✓</span>
                   Is This Your Item?
@@ -273,7 +301,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                   variant="primary"
                   fullWidth
                   onClick={() => setIsClaimModalOpen(true)}
-                  className="bg-gradient-to-r from-success-500 to-green-600 hover:from-success-600 hover:to-green-700 shadow-lg"
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-xl text-white font-bold text-base py-4"
                 >
                   🔐 Claim This Item
                 </Button>
@@ -289,7 +317,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                   Have information about this item? Reach out to the owner:
                 </p>
                 <div className="space-y-3">
-                  {canShowEmail && item.userEmail && (
+                  {item.userEmail && (
                     <Button
                       variant="primary"
                       fullWidth
@@ -300,7 +328,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                       Contact via Email
                     </Button>
                   )}
-                  {canShowPhone && item.userPhone && (
+                  {item.userPhone && (
                     <Button
                       variant="outline"
                       fullWidth
@@ -311,7 +339,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                       Contact via Phone
                     </Button>
                   )}
-                  {!canShowEmail && !canShowPhone && (
+                  {!item.userEmail && !item.userPhone && (
                     <Card className="p-4 bg-yellow-50 border border-yellow-200">
                       <p className="text-sm text-yellow-800 text-center">
                         No contact methods available for this item.
