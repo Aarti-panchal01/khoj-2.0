@@ -158,15 +158,18 @@ router.get('/:id', async (req, res) => {
     const isOwner = String(item.user) === String(req.user._id);
     if (isOwner) return res.json(item);
 
-    // Non-owner: attach contact info per poster's preference
-    const poster = await User.findById(item.user).select('email phone').lean();
+    // Non-owner: attach contact info ONLY for LOST items (so finders can contact owner)
+    // For FOUND items, contact info is hidden until claim is approved
     const contact = {};
-    if (poster) {
-      if (item.contactPreference === 'both' || item.contactPreference === 'email') {
-        contact.userEmail = poster.email;
-      }
-      if (item.contactPreference === 'both' || item.contactPreference === 'phone') {
-        contact.userPhone = poster.phone;
+    if (item.type === 'lost') {
+      const poster = await User.findById(item.user).select('email phone').lean();
+      if (poster) {
+        if (item.contactPreference === 'both' || item.contactPreference === 'email') {
+          contact.userEmail = poster.email;
+        }
+        if (item.contactPreference === 'both' || item.contactPreference === 'phone') {
+          contact.userPhone = poster.phone;
+        }
       }
     }
 
