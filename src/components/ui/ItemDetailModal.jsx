@@ -19,7 +19,8 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
     userEmail: item.userEmail,
     userPhone: item.userPhone,
     hasUserEmail: !!item.userEmail,
-    hasUserPhone: !!item.userPhone
+    hasUserPhone: !!item.userPhone,
+    fullItem: item
   });
 
   const handleContact = (method) => {
