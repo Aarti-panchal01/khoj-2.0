@@ -12,6 +12,16 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
 
   if (!isOpen || !item) return null;
 
+  // Debug: Log item data to see what we're receiving
+  console.log('🔍 ItemDetailModal - Item data:', {
+    type: item.type,
+    contactPreference: item.contactPreference,
+    userEmail: item.userEmail,
+    userPhone: item.userPhone,
+    hasUserEmail: !!item.userEmail,
+    hasUserPhone: !!item.userPhone
+  });
+
   const handleContact = (method) => {
     switch (method) {
       case 'email':
