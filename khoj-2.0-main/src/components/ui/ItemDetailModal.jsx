@@ -220,8 +220,8 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                   </div>
                 </div>
                 
-                {/* Contact Information */}
-                {(item.userEmail || item.userPhone) && (
+                {/* Contact Information - Only show for LOST items */}
+                {item.type === 'lost' && (item.userEmail || item.userPhone) && (
                   <div className="mt-3 pt-3 border-t border-primary-200 space-y-2">
                     {item.userEmail && (
                       <div className="flex items-center gap-2 text-sm">
@@ -245,6 +245,15 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                         </a>
                       </div>
                     )}
+                  </div>
+                )}
+                
+                {/* Note for FOUND items */}
+                {item.type === 'found' && (
+                  <div className="mt-3 pt-3 border-t border-primary-200">
+                    <p className="text-xs text-gray-500 italic">
+                      Contact information will be shared after your claim is approved
+                    </p>
                   </div>
                 )}
               </Card>
