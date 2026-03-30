@@ -11,6 +11,7 @@ const CustomSelect = ({
   placeholder = 'Select an option',
   icon: Icon,
   className = '',
+  name = '',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -31,7 +32,7 @@ const CustomSelect = ({
   }, []);
 
   const handleSelect = (optionValue) => {
-    onChange({ target: { value: optionValue, name: onChange.name } });
+    onChange({ target: { value: optionValue, name } });
     setIsOpen(false);
   };
 
@@ -62,6 +63,7 @@ const CustomSelect = ({
             bg-white
             touch-manipulation
             flex items-center justify-between
+            relative z-10
           `}
           style={{ minHeight: '44px' }}
         >
@@ -78,32 +80,43 @@ const CustomSelect = ({
 
         {/* Dropdown List */}
         {isOpen && (
-          <div className="absolute z-50 w-full mt-2 bg-white border-2 border-gray-200 rounded-xl sm:rounded-lg shadow-lg max-h-60 overflow-auto">
+          <div 
+            className="absolute z-[9999] w-full mt-2 bg-white border-2 border-gray-200 rounded-xl sm:rounded-lg shadow-2xl max-h-60 overflow-auto"
+            style={{ position: 'absolute', top: '100%', left: 0, right: 0 }}
+          >
             {/* Placeholder option */}
             <div
               onClick={() => handleSelect('')}
-              className="px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors text-gray-500 border-b border-gray-100"
+              className="px-4 py-3 hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition-colors text-gray-500 border-b border-gray-100 touch-manipulation"
+              style={{ minHeight: '44px' }}
             >
               {placeholder}
             </div>
             
             {/* Options */}
-            {options.map((option) => (
-              <div
-                key={option.value}
-                onClick={() => handleSelect(option.value)}
-                className={`
-                  px-4 py-3 cursor-pointer transition-colors
-                  flex items-center justify-between
-                  ${value === option.value ? 'bg-primary-50 text-primary-700' : 'hover:bg-gray-50 text-gray-900'}
-                `}
-              >
-                <span>{option.label}</span>
-                {value === option.value && (
-                  <Check className="w-5 h-5 text-primary-600" />
-                )}
+            {options.length > 0 ? (
+              options.map((option) => (
+                <div
+                  key={option.value}
+                  onClick={() => handleSelect(option.value)}
+                  className={`
+                    px-4 py-3 cursor-pointer transition-colors touch-manipulation
+                    flex items-center justify-between
+                    ${value === option.value ? 'bg-primary-50 text-primary-700' : 'hover:bg-gray-50 active:bg-gray-100 text-gray-900'}
+                  `}
+                  style={{ minHeight: '44px' }}
+                >
+                  <span className="font-medium">{option.label}</span>
+                  {value === option.value && (
+                    <Check className="w-5 h-5 text-primary-600 flex-shrink-0" />
+                  )}
+                </div>
+              ))
+            ) : (
+              <div className="px-4 py-3 text-gray-400 text-center">
+                No options available
               </div>
-            ))}
+            )}
           </div>
         )}
       </div>
