@@ -72,7 +72,13 @@ const VerifyEmail = () => {
       const result = await AuthAPI.verifyEmail({ userId, otp: code });
       setAuthToken(result.token);
       setUser(result.user);
-      navigate('/', { replace: true });
+      try {
+        const profile = await AuthAPI.me();
+        if (!profile?.universityId) navigate('/onboarding', { replace: true });
+        else navigate('/', { replace: true });
+      } catch {
+        navigate('/', { replace: true });
+      }
     } catch (err) {
       setError(err.message || 'Invalid or expired code');
       setOtp(['', '', '', '', '', '']);

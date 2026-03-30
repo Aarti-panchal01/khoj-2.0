@@ -1,21 +1,23 @@
 const { z } = require('zod');
 
 const signupSchema = z.object({
-  name: z.string().min(2).max(100),
   email: z.string().email().max(254),
   password: z.string().min(6).max(128),
-  phone: z.string().min(8).max(20),
-  college: z.string().min(2).max(200),
-  campus: z.string().max(200).optional(),
 });
 
 const loginSchema = z.object({
-  name: z.string().min(2).max(100),
   email: z.string().email().max(254),
-  phone: z.string().min(8).max(20),
   password: z.string().min(6).max(128),
-  college: z.string().min(2).max(200),
-  campus: z.string().max(200).optional(),
+});
+
+const authProfilePatchSchema = z.object({
+  name: z.string().min(2).max(100),
+  universityId: z.string().min(1),
+  campusId: z.string().optional().nullable(),
+});
+
+const googleAuthSchema = z.object({
+  credential: z.string().min(10),
 });
 
 const itemSchema = z.object({
@@ -40,5 +42,7 @@ const itemSchema = z.object({
 module.exports = {
   signupSchema,
   loginSchema,
+  authProfilePatchSchema,
+  googleAuthSchema,
   itemSchema,
 };
