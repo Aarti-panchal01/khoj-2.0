@@ -25,6 +25,7 @@ const PostItem = () => {
     urgent: false,
     reward: 'none',
     contactPreference: 'both',
+    status: 'active',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -48,6 +49,7 @@ const PostItem = () => {
           urgent: item.urgent,
           reward: item.reward || 'none',
           contactPreference: item.contactPreference || 'both',
+          status: item.status || 'active',
         });
       } catch (err) {
         console.error('Failed to load item', err);
@@ -472,6 +474,36 @@ const PostItem = () => {
                 ))}
               </div>
             </div>
+
+            {/* Status - Only show in edit mode */}
+            {isEditMode && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Status
+                </label>
+                <div className="space-y-2">
+                  {[
+                    { value: 'active', label: 'Active', description: 'Item is still lost/found' },
+                    { value: 'resolved', label: 'Resolved', description: 'Item has been returned/claimed' },
+                  ].map((option) => (
+                    <label key={option.value} className="flex items-start gap-3 cursor-pointer p-3 border border-gray-300 rounded-lg hover:bg-gray-50">
+                      <input
+                        type="radio"
+                        name="status"
+                        value={option.value}
+                        checked={formData.status === option.value}
+                        onChange={handleChange}
+                        className="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500 mt-0.5"
+                      />
+                      <div className="flex-1">
+                        <span className="text-gray-900 font-medium">{option.label}</span>
+                        <p className="text-sm text-gray-500">{option.description}</p>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Submit Button */}
             <div className="flex flex-col sm:flex-row gap-3 pt-4 sm:pt-6">

@@ -16,7 +16,7 @@ const ALLOWED_STATUSES = new Set(['active', 'resolved']);
 const SEARCH_MAX_LENGTH = 200;
 
 // Fields that must never be overwritten via client input
-const PROTECTED_ITEM_FIELDS = ['user', 'userName', 'universityId', 'campusId', 'universityName', 'campusName', 'status'];
+const PROTECTED_ITEM_FIELDS = ['user', 'userName', 'universityId', 'campusId', 'universityName', 'campusName'];
 
 // ─── Helper: build the base university filter ─────────────────────────────────
 
