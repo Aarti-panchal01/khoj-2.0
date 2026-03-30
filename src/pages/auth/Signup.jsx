@@ -21,14 +21,24 @@ const Signup = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [universities, setUniversities] = useState([]);
+  const [loadingUniversities, setLoadingUniversities] = useState(true);
 
   const { signup } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
+    setLoadingUniversities(true);
     UniversityAPI.list()
-      .then(setUniversities)
-      .catch(() => {});
+      .then((data) => {
+        console.log('Universities loaded:', data);
+        setUniversities(data || []);
+        setLoadingUniversities(false);
+      })
+      .catch((err) => {
+        console.error('Failed to load universities:', err);
+        setUniversities([]);
+        setLoadingUniversities(false);
+      });
   }, []);
 
   const matchedUniversity = useMemo(
@@ -164,7 +174,7 @@ const Signup = () => {
             <CustomSelect
               label="College/University"
               required
-              placeholder="Select your university"
+              placeholder={loadingUniversities ? "Loading universities..." : "Select your university"}
               icon={Building2}
               name="college"
               value={formData.college}
