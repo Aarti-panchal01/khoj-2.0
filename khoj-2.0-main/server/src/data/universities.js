@@ -20,7 +20,6 @@ module.exports = [
       { name: 'DSU' },
       { name: 'DSCE' },
       { name: 'DSATM' },
-      { name: 'DSIT' },
     ],
   },
   {
