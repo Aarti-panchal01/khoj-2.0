@@ -160,6 +160,14 @@ router.get('/:id', async (req, res) => {
     const contact = {};
     if (item.type === 'lost') {
       const poster = await User.findById(item.user).select('email phone').lean();
+      console.log('📧 Contact Info Debug:', {
+        itemType: item.type,
+        contactPreference: item.contactPreference,
+        posterFound: !!poster,
+        posterEmail: poster?.email,
+        posterPhone: poster?.phone
+      });
+      
       if (poster) {
         if (item.contactPreference === 'both' || item.contactPreference === 'email') {
           contact.userEmail = poster.email;
@@ -170,6 +178,7 @@ router.get('/:id', async (req, res) => {
       }
     }
 
+    console.log('📤 Sending response with contact:', contact);
     res.json({ ...item, ...contact });
   } catch (error) {
     console.error('Get item error', error);
@@ -193,6 +202,16 @@ router.put('/:id', async (req, res) => {
     });
 
     if (!item) return res.status(404).json({ message: 'Item not found' });
+
+    // Check if status is changing from active to resolved
+    const wasActive = item.status === 'active';
+    const nowResolved = payload.status === 'resolved';
+    
+    if (wasActive && nowResolved) {
+      // Award +10 reputation points to the user for resolving the item
+      const User = require('../models/User');
+      await User.findByIdAndUpdate(req.user._id, { $inc: { reputation: 10 } });
+    }
 
     Object.assign(item, payload);
     await item.save();
