@@ -82,10 +82,20 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                     className="w-full h-full object-cover"
                   />
                   {/* Badges on Image */}
-                  <div className="absolute top-3 left-3 flex gap-2">
+                  <div className="absolute top-3 left-3 flex gap-2 flex-wrap">
                     <Badge variant={item.type === 'found' ? 'found' : 'lost'}>
                       {item.type === 'found' ? '✓ Found' : '✗ Lost'}
                     </Badge>
+                    {/* Reward Badge */}
+                    {item.type === 'lost' && item.reward && item.reward !== 'none' && (
+                      <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0 shadow-lg">
+                        {item.reward === 'gratitude' && '🙏 Gratitude'}
+                        {item.reward === 'food_treat' && '🍕 Food Treat'}
+                        {item.reward === 'coffee' && '☕ Coffee'}
+                        {item.reward === 'cash_reward' && '💵 Cash Reward'}
+                        {item.reward === 'gift' && '🎁 Gift'}
+                      </Badge>
+                    )}
                   </div>
                   {item.urgent && (
                     <div className="absolute top-3 right-3">
@@ -100,10 +110,20 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
             ) : (
               <div className="mb-6 relative h-48 sm:h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center overflow-hidden">
                 <Package className="w-20 h-20 sm:w-24 sm:h-24 text-gray-300" />
-                <div className="absolute top-3 left-3 flex gap-2">
+                <div className="absolute top-3 left-3 flex gap-2 flex-wrap">
                   <Badge variant={item.type === 'found' ? 'found' : 'lost'}>
                     {item.type === 'found' ? '✓ Found' : '✗ Lost'}
                   </Badge>
+                  {/* Reward Badge */}
+                  {item.type === 'lost' && item.reward && item.reward !== 'none' && (
+                    <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0 shadow-lg">
+                      {item.reward === 'gratitude' && '🙏 Gratitude'}
+                      {item.reward === 'food_treat' && '🍕 Food Treat'}
+                      {item.reward === 'coffee' && '☕ Coffee'}
+                      {item.reward === 'cash_reward' && '💵 Cash Reward'}
+                      {item.reward === 'gift' && '🎁 Gift'}
+                    </Badge>
+                  )}
                 </div>
                 {item.urgent && (
                   <div className="absolute top-3 right-3">
