@@ -166,6 +166,7 @@ const Login = () => {
               required
               placeholder="Select your university"
               icon={Building2}
+              name="college"
               value={formData.college}
               onChange={handleSelectChange('college')}
               options={universities.map(u => ({ value: u.name, label: u.name }))}
@@ -179,6 +180,7 @@ const Login = () => {
                 required
                 placeholder="Select your campus"
                 icon={MapPin}
+                name="campus"
                 value={formData.campus}
                 onChange={handleSelectChange('campus')}
                 options={matchedUniversity.campuses.map(c => ({ value: c.name, label: c.name }))}
