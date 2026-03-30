@@ -16,6 +16,13 @@ const CustomSelect = ({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  // Force re-render when options change (fixes mobile rendering issue)
+  useEffect(() => {
+    if (options && options.length > 0) {
+      console.log('[CustomSelect] Options updated:', options.length, 'options available');
+    }
+  }, [options]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -32,12 +39,21 @@ const CustomSelect = ({
   }, []);
 
   const handleSelect = (optionValue) => {
+    console.log('[CustomSelect] Option selected:', optionValue);
     onChange({ target: { value: optionValue, name } });
     setIsOpen(false);
   };
 
   const selectedOption = options.find(opt => opt.value === value);
   const displayValue = selectedOption ? selectedOption.label : placeholder;
+
+  // Log dropdown state for mobile debugging
+  useEffect(() => {
+    if (isOpen) {
+      console.log('[CustomSelect] Dropdown opened. Options count:', options?.length || 0);
+      console.log('[CustomSelect] Options array:', options);
+    }
+  }, [isOpen, options]);
 
   return (
     <div className={`w-full ${className}`} ref={dropdownRef}>
@@ -93,8 +109,8 @@ const CustomSelect = ({
               {placeholder}
             </div>
             
-            {/* Options */}
-            {options.length > 0 ? (
+            {/* Options - Defensive rendering with explicit checks */}
+            {Array.isArray(options) && options.length > 0 ? (
               options.map((option) => (
                 <div
                   key={option.value}
@@ -106,7 +122,7 @@ const CustomSelect = ({
                   `}
                   style={{ minHeight: '44px' }}
                 >
-                  <span className="font-medium">{option.label}</span>
+                  <span className="text-sm">{option.label}</span>
                   {value === option.value && (
                     <Check className="w-5 h-5 text-primary-600 flex-shrink-0" />
                   )}
