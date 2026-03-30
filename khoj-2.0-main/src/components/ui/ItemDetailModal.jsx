@@ -346,7 +346,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                 </Button>
               </div>
             ) : (
-              // Contact section for LOST items - show contact buttons based on contactPreference
+              // Contact section for LOST items - show contact buttons
               <div className="bg-gradient-to-br from-primary-50 to-blue-50 rounded-xl p-6 border-2 border-primary-200">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <span className="text-xl">💬</span>
@@ -355,34 +355,34 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                 <p className="text-sm text-gray-600 mb-4">
                   Have information about this item? Reach out to the owner:
                 </p>
-                <div className="space-y-3">
-                  {/* Show email button if contactPreference includes email AND userEmail is available */}
-                  {(item.contactPreference === 'email' || item.contactPreference === 'both') && item.userEmail && (
-                    <Button
-                      variant="primary"
-                      fullWidth
-                      icon={Mail}
-                      onClick={() => handleContact('email')}
-                      className="shadow-md hover:shadow-lg transition-all"
-                    >
-                      Contact via Email
-                    </Button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Email Box */}
+                  {item.userEmail && (
+                    <Card className="p-4 bg-white border-2 border-primary-300 hover:border-primary-500 transition-all cursor-pointer" onClick={() => handleContact('email')}>
+                      <div className="flex flex-col items-center gap-2 text-center">
+                        <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                          <Mail className="w-6 h-6 text-primary-600" />
+                        </div>
+                        <p className="text-xs font-medium text-gray-500 uppercase">Email</p>
+                        <p className="text-sm font-semibold text-primary-700 break-all">{item.userEmail}</p>
+                      </div>
+                    </Card>
                   )}
-                  {/* Show phone button if contactPreference includes phone AND userPhone is available */}
-                  {(item.contactPreference === 'phone' || item.contactPreference === 'both') && item.userPhone && (
-                    <Button
-                      variant="outline"
-                      fullWidth
-                      icon={Phone}
-                      onClick={() => handleContact('phone')}
-                      className="border-2"
-                    >
-                      Contact via Phone
-                    </Button>
+                  {/* Phone Box */}
+                  {item.userPhone && (
+                    <Card className="p-4 bg-white border-2 border-primary-300 hover:border-primary-500 transition-all cursor-pointer" onClick={() => handleContact('phone')}>
+                      <div className="flex flex-col items-center gap-2 text-center">
+                        <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                          <Phone className="w-6 h-6 text-primary-600" />
+                        </div>
+                        <p className="text-xs font-medium text-gray-500 uppercase">Phone</p>
+                        <p className="text-sm font-semibold text-primary-700">{item.userPhone}</p>
+                      </div>
+                    </Card>
                   )}
                   {/* Show warning only if no contact info is available */}
                   {!item.userEmail && !item.userPhone && (
-                    <Card className="p-4 bg-yellow-50 border border-yellow-200">
+                    <Card className="p-4 bg-yellow-50 border border-yellow-200 col-span-full">
                       <p className="text-sm text-yellow-800 text-center">
                         No contact methods available for this item.
                       </p>
