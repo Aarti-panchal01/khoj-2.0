@@ -19,10 +19,6 @@ const itemSchema = new mongoose.Schema(
     userEmail: { type: String },
     userPhone: { type: String },
 
-    /** Legacy string fields (pre–ObjectId migration). Remove after DB fully migrated. */
-    college: { type: String, index: true },
-    campus: { type: String },
-
     universityId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'University',
@@ -45,7 +41,6 @@ itemSchema.index({ universityId: 1, createdAt: -1 });
 itemSchema.index({ universityId: 1, type: 1, status: 1 });
 itemSchema.index({ universityId: 1, category: 1 });
 itemSchema.index({ universityId: 1, campusId: 1, createdAt: -1 });
-itemSchema.index({ college: 1, createdAt: -1 });
 
 itemSchema.index({
   title: 'text',

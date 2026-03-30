@@ -2,16 +2,12 @@ const express = require('express');
 const mongoose = require('mongoose');
 const Item = require('../models/Item');
 const User = require('../models/User');
-const University = require('../models/University');
 const { itemSchema } = require('../utils/validators');
 const authMiddleware = require('../middleware/authMiddleware');
 const optionalAuth = require('../middleware/optionalAuth');
 const requireUniversity = require('../middleware/requireUniversity');
-const {
-  escapeRegex,
-  universityMatchFilter,
-  getCampusNameByCampusId,
-} = require('../utils/universityScope');
+
+const escapeRegex = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 const router = express.Router();
 
@@ -29,8 +25,6 @@ const PROTECTED_ITEM_FIELDS = [
   'universityName',
   'campusName',
   'status',
-  'college',
-  'campus',
 ];
 
 /** Strip direct contact fields for guest responses */
@@ -49,34 +43,20 @@ const stripContactFields = (item) => {
 const attachPosterContact = (item, poster, viewerUserId) => {
   const itemObj = typeof item.toObject === 'function' ? item.toObject() : { ...item };
 
+  // Owner never gets direct contact details
   if (String(itemObj.user) === String(viewerUserId)) {
-    delete itemObj.userEmail;
-    delete itemObj.userPhone;
-    return itemObj;
+    const copy = { ...itemObj };
+    delete copy.userEmail;
+    delete copy.userPhone;
+    return copy;
   }
 
   const pref = itemObj.contactPreference || 'both';
   const posterEmail = poster?.email ? String(poster.email).trim() : '';
   const posterPhone = poster?.phone ? String(poster.phone).trim() : '';
-  const itemEmail = itemObj.userEmail ? String(itemObj.userEmail).trim() : '';
-  const itemPhone = itemObj.userPhone ? String(itemObj.userPhone).trim() : '';
 
-  let userEmail = null;
-  let userPhone = null;
-
-  if (pref === 'email' || pref === 'both') {
-    userEmail = itemEmail || null;
-  }
-  if (pref === 'phone' || pref === 'both') {
-    userPhone = itemPhone || null;
-  }
-
-  if (pref === 'email' || pref === 'both') {
-    if (!userEmail && posterEmail) userEmail = posterEmail;
-  }
-  if (pref === 'phone' || pref === 'both') {
-    if (!userPhone && posterPhone) userPhone = posterPhone;
-  }
+  const userEmail = pref === 'phone' ? null : (posterEmail || null);
+  const userPhone = pref === 'email' ? null : (posterPhone || null);
 
   return {
     ...itemObj,
@@ -94,22 +74,20 @@ const enrichItemsWithContact = async (items, viewerUserId) => {
 };
 
 function scopedAndFilter(user, clauses) {
-  const scope = universityMatchFilter(user);
   const parts = [...clauses];
-  if (scope.$or) parts.push(scope);
+  if (user?.universityId) parts.push({ universityId: user.universityId });
   if (!parts.length) return {};
   if (parts.length === 1) return parts[0];
   return { $and: parts };
 }
 
 async function buildListingFilter(req) {
-  const u = req.user;
-  const { type, category, status, search, campusId: campusIdParam } = req.query;
-  const andParts = [];
+  const { type, category, status, search, campusId } = req.query;
+  const query = {};
 
-  if (u && u.universityId) {
-    const scope = universityMatchFilter(u);
-    if (scope.$or) andParts.push(scope);
+  // Logged-in feed is always scoped to the user's university.
+  if (req.user?.universityId) {
+    query.universityId = req.user.universityId;
   }
 
   if (type) {
@@ -118,7 +96,7 @@ async function buildListingFilter(req) {
       err.status = 400;
       throw err;
     }
-    andParts.push({ type });
+    query.type = type;
   }
 
   if (status) {
@@ -127,73 +105,42 @@ async function buildListingFilter(req) {
       err.status = 400;
       throw err;
     }
-    andParts.push({ status });
+    query.status = status;
   }
 
   if (category) {
-    andParts.push({ category: String(category).slice(0, 100) });
+    query.category = String(category).slice(0, 100);
+  }
+
+  if (campusId) {
+    if (!mongoose.Types.ObjectId.isValid(campusId)) {
+      const err = new Error('Invalid campusId');
+      err.status = 400;
+      throw err;
+    }
+    query.campusId = new mongoose.Types.ObjectId(campusId);
   }
 
   if (search) {
     const trimmed = String(search).trim().slice(0, SEARCH_MAX_LENGTH);
     if (trimmed) {
       const safe = escapeRegex(trimmed);
-      andParts.push({
-        $or: [
-          { title: { $regex: safe, $options: 'i' } },
-          { description: { $regex: safe, $options: 'i' } },
-          { location: { $regex: safe, $options: 'i' } },
-        ],
-      });
+      query.$or = [
+        { title: { $regex: safe, $options: 'i' } },
+        { description: { $regex: safe, $options: 'i' } },
+      ];
     }
   }
 
-  if (campusIdParam) {
-    if (!mongoose.Types.ObjectId.isValid(campusIdParam)) {
-      const err = new Error('Invalid campusId');
-      err.status = 400;
-      throw err;
-    }
-    const oid = new mongoose.Types.ObjectId(campusIdParam);
-    const campusName = await getCampusNameByCampusId(campusIdParam);
-    const campusOr = [{ campusId: oid }];
-    if (campusName) {
-      campusOr.push({ campus: new RegExp(`^${escapeRegex(campusName)}$`, 'i') });
-    }
-    andParts.push({ $or: campusOr });
-  }
-
-  if (!andParts.length) return {};
-  if (andParts.length === 1) return andParts[0];
-  return { $and: andParts };
+  return query;
 }
 
 // ─── GET /items — guest: all universities (no contact); authed + onboarding: scoped + contact ─
 
 router.get('/', optionalAuth, async (req, res) => {
   try {
-    const u = req.user;
-    const { campusId: campusIdParam } = req.query;
-
-    if (u && !u.universityId) {
+    if (req.user && !req.user.universityId) {
       return res.status(403).json({ message: 'Complete onboarding to view your campus feed.' });
-    }
-
-    if (campusIdParam && u?.universityId) {
-      if (!mongoose.Types.ObjectId.isValid(campusIdParam)) {
-        return res.status(400).json({ message: 'Invalid campusId' });
-      }
-      const uni = await University.findById(u.universityId).select('campuses').lean();
-      const ok = uni?.campuses?.some((c) => String(c._id) === String(campusIdParam));
-      if (!ok) {
-        return res.json([]);
-      }
-    }
-
-    if (campusIdParam && !u?.universityId) {
-      if (!mongoose.Types.ObjectId.isValid(campusIdParam)) {
-        return res.status(400).json({ message: 'Invalid campusId' });
-      }
     }
 
     let filters;
@@ -205,8 +152,8 @@ router.get('/', optionalAuth, async (req, res) => {
 
     let items = await Item.find(filters).sort({ createdAt: -1 }).limit(100).lean();
 
-    if (u && u.universityId) {
-      items = await enrichItemsWithContact(items, u._id);
+    if (req.user?.universityId) {
+      items = await enrichItemsWithContact(items, req.user._id);
       return res.json(items);
     }
 
@@ -233,6 +180,10 @@ router.get('/mine', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
+    if (!req.user?.universityId || !req.user?.campusId) {
+      return res.status(400).json({ message: 'Complete onboarding first' });
+    }
+
     if (!req.user.isEmailVerified) {
       return res.status(403).json({
         message: 'Please verify your email before posting items.',
@@ -255,7 +206,7 @@ router.post('/', async (req, res) => {
       user: req.user._id,
       userName: req.user.name,
       universityId: req.user.universityId,
-      campusId: req.user.campusId || null,
+      campusId: req.user.campusId,
       universityName: req.user.universityName,
       campusName: req.user.campusName || '',
     });

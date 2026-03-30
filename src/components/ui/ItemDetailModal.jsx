@@ -16,12 +16,10 @@ const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId
 
   const isOwner = currentUserId && String(item.user) === String(currentUserId);
 
-  const uniLine = [item.universityName || item.college, item.campusName || item.campus].filter(Boolean).join(' · ');
+  const uniLine = [item.universityName, item.campusName].filter(Boolean).join(' · ');
 
-  const email = item.userEmail?.trim() || '';
-  const phone = item.userPhone?.trim() || '';
-  const hasEmail = Boolean(email);
-  const hasPhone = Boolean(phone);
+  const hasEmail = !!item.userEmail;
+  const hasPhone = !!item.userPhone;
 
   return (
     <>
@@ -155,7 +153,7 @@ const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId
                 </Card>
               </div>
 
-              {(item.universityName || item.college) && (
+              {uniLine && (
                 <Card className="p-4 border-2 border-gray-200 hover:border-primary-300 transition-colors">
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -311,7 +309,7 @@ const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId
                   <div className="space-y-3">
                     {hasEmail && (
                       <a
-                        href={`mailto:${email}?subject=${encodeURIComponent(`Regarding: ${item.title}`)}`}
+                        href={`mailto:${String(item.userEmail).trim()}?subject=${encodeURIComponent(`Regarding: ${item.title}`)}`}
                         className="flex items-center justify-center w-full rounded-lg bg-primary-600 text-white py-3 text-sm font-semibold shadow-md hover:bg-primary-700 transition-colors"
                       >
                         Contact via Email
@@ -319,7 +317,7 @@ const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId
                     )}
                     {hasPhone && (
                       <a
-                        href={`tel:${phone}`}
+                        href={`tel:${String(item.userPhone).trim()}`}
                         className="flex items-center justify-center w-full rounded-lg border-2 border-gray-300 bg-white py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition-colors"
                       >
                         Contact via Phone

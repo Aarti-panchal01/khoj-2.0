@@ -4,18 +4,13 @@ const Item = require('../models/Item');
 const Notification = require('../models/Notification');
 const authMiddleware = require('../middleware/authMiddleware');
 const requireUniversity = require('../middleware/requireUniversity');
-const { universityMatchFilter } = require('../utils/universityScope');
 
 const router = express.Router();
 router.use(authMiddleware);
 router.use(requireUniversity);
 
 function itemInUniversityScopeFilter(itemId, user) {
-  const scope = universityMatchFilter(user);
-  if (scope.$or) {
-    return { $and: [{ _id: itemId }, scope] };
-  }
-  return { _id: itemId };
+  return { _id: itemId, universityId: user.universityId };
 }
 
 // POST /claims - Create a new claim
