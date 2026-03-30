@@ -121,7 +121,7 @@ export const ItemsAPI = {
 };
 
 export const UniversityAPI = {
-  list: () => apiRequest('/universities'),
+  list: () => apiRequest('/universities', { auth: false }),
 };
 
 export const UploadAPI = {
