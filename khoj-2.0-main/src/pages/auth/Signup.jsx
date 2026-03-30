@@ -28,11 +28,16 @@ const Signup = () => {
 
   useEffect(() => {
     setLoadingUniversities(true);
+    console.log('Fetching universities from API...');
     UniversityAPI.list()
       .then((data) => {
         console.log('Universities loaded:', data);
-        setUniversities(data || []);
+        console.log('Number of universities:', data?.length);
+        console.log('[Mobile Debug] Universities array:', JSON.stringify(data));
+        console.log('[Mobile Debug] Setting universities state...');
+        setUniversities(Array.isArray(data) ? data : []);
         setLoadingUniversities(false);
+        console.log('[Mobile Debug] Universities state set successfully');
       })
       .catch((err) => {
         console.error('Failed to load universities:', err);
@@ -45,6 +50,14 @@ const Signup = () => {
     () => universities.find((u) => u.name === formData.college) || null,
     [universities, formData.college]
   );
+
+  // Log options array for mobile debugging
+  useEffect(() => {
+    const options = universities.map(u => ({ value: u.name, label: u.name }));
+    console.log('[Mobile Debug - Signup] Universities state length:', universities.length);
+    console.log('[Mobile Debug - Signup] Options array length:', options.length);
+    console.log('[Mobile Debug - Signup] Options array:', options);
+  }, [universities]);
 
   // Auto-select campus when only one exists
   useEffect(() => {
