@@ -36,6 +36,7 @@ const itemSchema = z.object({
   ).max(5).optional(),
   urgent: z.boolean().optional(),
   contactPreference: z.enum(['both', 'email', 'phone']).optional(),
+  campus: z.string().max(200).optional(),
 });
 
 module.exports = {

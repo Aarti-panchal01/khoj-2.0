@@ -99,10 +99,6 @@ const seedUniversities = async () => {
     );
   }
 
-  // Ensure we have EXACTLY the 10 universities in this dataset.
-  const allowedSlugs = universities.map((u) => u.slug);
-  await University.deleteMany({ slug: { $nin: allowedSlugs } });
-
   console.log(`Universities synced (${universities.length} slugs, upserted)`);
 };
 

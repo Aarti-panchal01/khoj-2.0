@@ -5,7 +5,6 @@ import { useAuth } from '../../context/AuthContext';
 import { AuthAPI, UniversityAPI } from '../../lib/apiClient';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import Select from '../../components/ui/Select';
 
 const Onboarding = () => {
   const { user, setUser, loading: authLoading } = useAuth();
@@ -14,8 +13,6 @@ const Onboarding = () => {
   const [universities, setUniversities] = useState([]);
   const [loadingUniversities, setLoadingUniversities] = useState(true);
   const [selectedUniversity, setSelectedUniversity] = useState(null);
-  const [universityQuery, setUniversityQuery] = useState('');
-  const [isUniversityDropdownOpen, setIsUniversityDropdownOpen] = useState(false);
   const [selectedCampusId, setSelectedCampusId] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -41,22 +38,12 @@ const Onboarding = () => {
   }, []);
 
   useEffect(() => {
-    if (!selectedUniversity) {
-      setSelectedCampusId('');
-      return;
-    }
+    setSelectedCampusId('');
+  }, [selectedUniversity?._id]);
 
-    const campuses = selectedUniversity.campuses || [];
-    if (campuses.length === 1) {
-      setSelectedCampusId(String(campuses[0]._id));
-    } else {
-      setSelectedCampusId('');
-    }
-  }, [selectedUniversity]);
+  const showCampusPicker = selectedUniversity && selectedUniversity.campuses?.length > 1;
 
-  const campusCount = selectedUniversity?.campuses?.length ?? 0;
-  const showCampusPicker = campusCount > 1;
-  const canSubmit = name.trim().length >= 2 && selectedUniversity && Boolean(selectedCampusId);
+  const canSubmit = name.trim().length >= 2 && selectedUniversity;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,8 +54,10 @@ const Onboarding = () => {
       const body = {
         name: name.trim(),
         universityId: selectedUniversity._id,
-        campusId: selectedCampusId,
       };
+      if (showCampusPicker && selectedCampusId) {
+        body.campusId = selectedCampusId;
+      }
       const updated = await AuthAPI.updateProfile(body);
       setUser(updated);
       navigate('/', { replace: true });
@@ -79,14 +68,10 @@ const Onboarding = () => {
     }
   };
 
-  const filteredUniversities = useMemo(() => {
-    const q = universityQuery.trim().toLowerCase();
-    if (!q) return universities;
-    return universities.filter((u) => String(u.name).toLowerCase().includes(q));
-  }, [universities, universityQuery]);
-
-  const showUniversityNotListed =
-    universityQuery.trim().length > 0 && !selectedUniversity;
+  const campusRadios = useMemo(() => {
+    if (!selectedUniversity?.campuses?.length) return [];
+    return selectedUniversity.campuses;
+  }, [selectedUniversity]);
 
   if (authLoading || !user || user.universityId) {
     return (
@@ -123,80 +108,67 @@ const Onboarding = () => {
             required
           />
 
-          <div className="relative">
-            <Input
-              label="University"
-              placeholder={loadingUniversities ? 'Loading universities...' : 'Search your university'}
-              value={universityQuery}
-              onChange={(e) => {
-                const v = e.target.value;
-                setUniversityQuery(v);
-                const trimmed = v.trim();
-                if (!trimmed) {
-                  setSelectedUniversity(null);
-                  return;
-                }
-                const exact = universities.find(
-                  (u) => String(u.name).toLowerCase() === trimmed.toLowerCase()
-                );
-                setSelectedUniversity(exact || null);
-              }}
-              onFocus={() => setIsUniversityDropdownOpen(true)}
-              onBlur={() => setTimeout(() => setIsUniversityDropdownOpen(false), 120)}
-              required
-              error={showUniversityNotListed ? 'Your university is not listed yet. We are expanding soon.' : ''}
-            />
-
-            {isUniversityDropdownOpen && !loadingUniversities && (
-              <div className="absolute left-0 right-0 z-20 mt-1 max-h-64 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-lg">
-                {filteredUniversities.length > 0 ? (
-                  filteredUniversities.map((u) => {
-                    const campusCount = u.campuses?.length ?? 0;
-                    const active = selectedUniversity?._id === u._id;
-                    return (
-                      <button
-                        key={u._id}
-                        type="button"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => {
-                          setSelectedUniversity(u);
-                          setUniversityQuery(u.name);
-                          setIsUniversityDropdownOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-3 transition-colors ${
-                          active ? 'bg-primary-50' : 'hover:bg-gray-50'
-                        }`}
-                      >
-                        <div className="font-semibold text-gray-900">{u.name}</div>
-                        <div className="text-xs text-gray-500 mt-0.5">
-                          {campusCount} {campusCount === 1 ? 'campus' : 'campuses'}
-                        </div>
-                      </button>
-                    );
-                  })
-                ) : (
-                  <div className="px-4 py-3 text-sm text-gray-500">
-                    No matches
-                  </div>
-                )}
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">University</p>
+            {loadingUniversities ? (
+              <p className="text-sm text-gray-500">Loading universities…</p>
+            ) : (
+              <div className="max-h-64 overflow-y-auto rounded-xl border border-gray-200 bg-white p-2 space-y-2">
+                {universities.map((u) => {
+                  const active = selectedUniversity?._id === u._id;
+                  const campusCount = u.campuses?.length ?? 0;
+                  return (
+                    <button
+                      key={u._id}
+                      type="button"
+                      onClick={() => setSelectedUniversity(u)}
+                      className={`w-full text-left rounded-lg border-2 px-4 py-3 transition-colors ${
+                        active
+                          ? 'border-primary-500 bg-primary-50'
+                          : 'border-transparent bg-gray-50 hover:bg-gray-100'
+                      }`}
+                    >
+                      <p className="font-semibold text-gray-900">{u.name}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {campusCount} {campusCount === 1 ? 'campus' : 'campuses'}
+                      </p>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
 
           {showCampusPicker && (
-            <Select
-              label="Campus"
-              value={selectedCampusId}
-              onChange={(e) => setSelectedCampusId(e.target.value)}
-              options={(selectedUniversity?.campuses || []).map((c) => ({
-                value: String(c._id),
-                label: c.name,
-              }))}
-              required
-            />
+            <div>
+              <p className="text-sm font-medium text-gray-700 mb-2">Campus</p>
+              <div className="space-y-2">
+                {campusRadios.map((c) => {
+                  const id = String(c._id);
+                  const active = selectedCampusId === id;
+                  return (
+                    <label
+                      key={id}
+                      className={`flex items-center gap-3 rounded-xl border-2 px-4 py-3 cursor-pointer transition-colors ${
+                        active ? 'border-primary-500 bg-primary-50' : 'border-gray-200 bg-white hover:border-gray-300'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="campus"
+                        className="text-primary-600"
+                        checked={active}
+                        onChange={() => setSelectedCampusId(id)}
+                      />
+                      <span className="text-sm font-medium text-gray-900">{c.name}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
           )}
 
-          <Button type="submit" fullWidth loading={submitting} disabled={!canSubmit}>
+          <Button type="submit" fullWidth loading={submitting} disabled={!canSubmit || (showCampusPicker && !selectedCampusId)}>
             Let&apos;s go →
           </Button>
         </form>
