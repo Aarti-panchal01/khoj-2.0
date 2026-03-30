@@ -316,7 +316,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                 </Button>
               </div>
             ) : (
-              // Contact section for LOST items
+              // Contact section for LOST items - show contact buttons based on contactPreference
               <div className="bg-gradient-to-br from-primary-50 to-blue-50 rounded-xl p-6 border-2 border-primary-200">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <span className="text-xl">💬</span>
@@ -326,7 +326,8 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                   Have information about this item? Reach out to the owner:
                 </p>
                 <div className="space-y-3">
-                  {item.userEmail && (
+                  {/* Show email button if contactPreference includes email AND userEmail is available */}
+                  {(item.contactPreference === 'email' || item.contactPreference === 'both') && item.userEmail && (
                     <Button
                       variant="primary"
                       fullWidth
@@ -337,7 +338,8 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                       Contact via Email
                     </Button>
                   )}
-                  {item.userPhone && (
+                  {/* Show phone button if contactPreference includes phone AND userPhone is available */}
+                  {(item.contactPreference === 'phone' || item.contactPreference === 'both') && item.userPhone && (
                     <Button
                       variant="outline"
                       fullWidth
@@ -348,6 +350,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                       Contact via Phone
                     </Button>
                   )}
+                  {/* Show warning only if no contact info is available */}
                   {!item.userEmail && !item.userPhone && (
                     <Card className="p-4 bg-yellow-50 border border-yellow-200">
                       <p className="text-sm text-yellow-800 text-center">
