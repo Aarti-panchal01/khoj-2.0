@@ -17,9 +17,14 @@ const CustomSelect = ({
   const dropdownRef = useRef(null);
 
   // Force re-render when options change (fixes mobile rendering issue)
+  const [forceRender, setForceRender] = useState(0);
+  
   useEffect(() => {
     if (options && options.length > 0) {
       console.log('[CustomSelect] Options updated:', options.length, 'options available');
+      console.log('[CustomSelect] First option:', options[0]);
+      // Force component to re-render when options change
+      setForceRender(prev => prev + 1);
     }
   }, [options]);
 
@@ -44,6 +49,18 @@ const CustomSelect = ({
     setIsOpen(false);
   };
 
+  const handleToggleDropdown = () => {
+    console.log('[CustomSelect] Toggle dropdown. Current isOpen:', isOpen);
+    console.log('[CustomSelect] Options available:', options?.length || 0);
+    
+    // Only open if we have options or if closing
+    if (!isOpen || options.length > 0) {
+      setIsOpen(!isOpen);
+    } else {
+      console.warn('[CustomSelect] Cannot open dropdown - no options available');
+    }
+  };
+
   const selectedOption = options.find(opt => opt.value === value);
   const displayValue = selectedOption ? selectedOption.label : placeholder;
 
@@ -52,8 +69,10 @@ const CustomSelect = ({
     if (isOpen) {
       console.log('[CustomSelect] Dropdown opened. Options count:', options?.length || 0);
       console.log('[CustomSelect] Options array:', options);
+      console.log('[CustomSelect] Is array?', Array.isArray(options));
+      console.log('[CustomSelect] Force render count:', forceRender);
     }
-  }, [isOpen, options]);
+  }, [isOpen, options, forceRender]);
 
   return (
     <div className={`w-full ${className}`} ref={dropdownRef}>
@@ -68,7 +87,7 @@ const CustomSelect = ({
         {/* Trigger Button */}
         <button
           type="button"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={handleToggleDropdown}
           className={`
             w-full px-4 py-3 sm:py-2.5 border-2 rounded-xl sm:rounded-lg
             text-base sm:text-sm text-left
@@ -97,6 +116,7 @@ const CustomSelect = ({
         {/* Dropdown List */}
         {isOpen && (
           <div 
+            key={`dropdown-${options.length}-${forceRender}`}
             className="absolute z-[9999] w-full mt-2 bg-white border-2 border-gray-200 rounded-xl sm:rounded-lg shadow-2xl max-h-60 overflow-auto"
             style={{ position: 'absolute', top: '100%', left: 0, right: 0 }}
           >
