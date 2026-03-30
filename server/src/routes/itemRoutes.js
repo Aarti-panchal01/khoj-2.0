@@ -155,10 +155,7 @@ router.get('/:id', async (req, res) => {
 
     if (!item) return res.status(404).json({ message: 'Item not found' });
 
-    const isOwner = String(item.user) === String(req.user._id);
-    if (isOwner) return res.json(item);
-
-    // Non-owner: attach contact info ONLY for LOST items (so finders can contact owner)
+    // Attach contact info for LOST items (so finders can contact owner)
     // For FOUND items, contact info is hidden until claim is approved
     const contact = {};
     if (item.type === 'lost') {
