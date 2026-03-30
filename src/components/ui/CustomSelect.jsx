@@ -117,14 +117,13 @@ const CustomSelect = ({
         {isOpen && (
           <div 
             key={`dropdown-${options.length}-${forceRender}`}
-            className="absolute z-[9999] w-full mt-2 bg-white border-2 border-gray-200 rounded-xl sm:rounded-lg shadow-2xl max-h-60 overflow-auto"
-            style={{ position: 'absolute', top: '100%', left: 0, right: 0 }}
+            className="absolute z-[9999] w-full mt-1 bg-white border-2 border-gray-200 rounded-lg shadow-2xl overflow-auto"
+            style={{ position: 'absolute', top: '100%', left: 0, right: 0, maxHeight: '280px' }}
           >
             {/* Placeholder option */}
             <div
               onClick={() => handleSelect('')}
-              className="px-4 py-3 hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition-colors text-gray-500 border-b border-gray-100 touch-manipulation"
-              style={{ minHeight: '44px' }}
+              className="px-3 py-2 hover:bg-gray-50 active:bg-gray-100 cursor-pointer transition-colors text-gray-500 border-b border-gray-100 touch-manipulation text-sm"
             >
               {placeholder}
             </div>
@@ -136,20 +135,19 @@ const CustomSelect = ({
                   key={option.value}
                   onClick={() => handleSelect(option.value)}
                   className={`
-                    px-4 py-3 cursor-pointer transition-colors touch-manipulation
-                    flex items-center justify-between
+                    px-3 py-2 cursor-pointer transition-colors touch-manipulation
+                    flex items-center justify-between text-sm
                     ${value === option.value ? 'bg-primary-50 text-primary-700' : 'hover:bg-gray-50 active:bg-gray-100 text-gray-900'}
                   `}
-                  style={{ minHeight: '44px' }}
                 >
-                  <span className="text-sm">{option.label}</span>
+                  <span className="text-sm leading-tight">{option.label}</span>
                   {value === option.value && (
-                    <Check className="w-5 h-5 text-primary-600 flex-shrink-0" />
+                    <Check className="w-4 h-4 text-primary-600 flex-shrink-0 ml-2" />
                   )}
                 </div>
               ))
             ) : (
-              <div className="px-4 py-3 text-gray-400 text-center">
+              <div className="px-3 py-2 text-gray-400 text-center text-sm">
                 No options available
               </div>
             )}
