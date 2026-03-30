@@ -366,40 +366,82 @@ const PostItem = () => {
                   <p className="text-sm text-gray-600 mb-4">Offer a reward to incentivize people to help find your item</p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {[
-                      { value: 'gratitude', label: 'Gratitude', icon: '🙏', color: 'purple' },
-                      { value: 'food_treat', label: 'Food Treat', icon: '🍕', color: 'orange' },
-                      { value: 'coffee', label: 'Coffee', icon: '☕', color: 'amber' },
-                      { value: 'cash_reward', label: 'Cash Reward', icon: '💵', color: 'green' },
-                      { value: 'gift', label: 'Gift', icon: '🎁', color: 'pink' },
-                      { value: 'none', label: 'No Reward', icon: '—', color: 'gray' },
-                    ].map((reward) => (
-                      <label
-                        key={reward.value}
-                        className={`relative flex flex-col items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${
-                          formData.reward === reward.value
-                            ? `border-${reward.color}-500 bg-${reward.color}-50 shadow-lg scale-105`
-                            : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="reward"
-                          value={reward.value}
-                          checked={formData.reward === reward.value}
-                          onChange={handleChange}
-                          className="sr-only"
-                        />
-                        <span className="text-3xl mb-2">{reward.icon}</span>
-                        <span className="text-xs font-medium text-gray-900 text-center">{reward.label}</span>
-                        {formData.reward === reward.value && (
-                          <div className={`absolute -top-2 -right-2 w-6 h-6 bg-${reward.color}-500 rounded-full flex items-center justify-center`}>
-                            <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                            </svg>
-                          </div>
-                        )}
-                      </label>
-                    ))}
+                      { value: 'gratitude', label: 'Gratitude', icon: '🙏' },
+                      { value: 'food_treat', label: 'Food Treat', icon: '🍕' },
+                      { value: 'coffee', label: 'Coffee', icon: '☕' },
+                      { value: 'cash_reward', label: 'Cash Reward', icon: '💵' },
+                      { value: 'gift', label: 'Gift', icon: '🎁' },
+                      { value: 'none', label: 'No Reward', icon: '—' },
+                    ].map((reward) => {
+                      const isSelected = formData.reward === reward.value;
+                      
+                      // Define color classes based on reward type
+                      let borderColor = 'border-gray-200 hover:border-gray-300';
+                      let bgColor = '';
+                      let checkmarkBg = 'bg-primary-500';
+                      
+                      if (isSelected) {
+                        switch (reward.value) {
+                          case 'gratitude':
+                            borderColor = 'border-purple-500';
+                            bgColor = 'bg-purple-50';
+                            checkmarkBg = 'bg-purple-500';
+                            break;
+                          case 'food_treat':
+                            borderColor = 'border-orange-500';
+                            bgColor = 'bg-orange-50';
+                            checkmarkBg = 'bg-orange-500';
+                            break;
+                          case 'coffee':
+                            borderColor = 'border-amber-500';
+                            bgColor = 'bg-amber-50';
+                            checkmarkBg = 'bg-amber-500';
+                            break;
+                          case 'cash_reward':
+                            borderColor = 'border-green-500';
+                            bgColor = 'bg-green-50';
+                            checkmarkBg = 'bg-green-500';
+                            break;
+                          case 'gift':
+                            borderColor = 'border-pink-500';
+                            bgColor = 'bg-pink-50';
+                            checkmarkBg = 'bg-pink-500';
+                            break;
+                          case 'none':
+                            borderColor = 'border-gray-500';
+                            bgColor = 'bg-gray-50';
+                            checkmarkBg = 'bg-gray-500';
+                            break;
+                        }
+                      }
+                      
+                      return (
+                        <label
+                          key={reward.value}
+                          className={`relative flex flex-col items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${borderColor} ${bgColor} ${
+                            isSelected ? 'shadow-lg scale-105' : 'hover:shadow-md'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="reward"
+                            value={reward.value}
+                            checked={isSelected}
+                            onChange={handleChange}
+                            className="sr-only"
+                          />
+                          <span className="text-3xl mb-2">{reward.icon}</span>
+                          <span className="text-xs font-medium text-gray-900 text-center">{reward.label}</span>
+                          {isSelected && (
+                            <div className={`absolute -top-2 -right-2 w-6 h-6 ${checkmarkBg} rounded-full flex items-center justify-center`}>
+                              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                          )}
+                        </label>
+                      );
+                    })}
                   </div>
                 </div>
               </>
