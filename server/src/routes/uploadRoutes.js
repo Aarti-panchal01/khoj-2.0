@@ -1,8 +1,10 @@
 const express = require('express');
 const { upload } = require('../config/cloudinary');
 const authMiddleware = require('../middleware/authMiddleware');
+const requireUniversity = require('../middleware/requireUniversity');
 
 const router = express.Router();
+const privateUpload = [authMiddleware, requireUniversity];
 
 /**
  * @route   POST /api/upload/images
@@ -51,7 +53,7 @@ router.post('/images', authMiddleware, (req, res) => {
  * @desc    Upload single image to Cloudinary
  * @access  Private (requires authentication)
  */
-router.post('/image', authMiddleware, (req, res) => {
+router.post('/image', ...privateUpload, (req, res) => {
   upload.single('image')(req, res, (err) => {
     if (err) {
       console.error('Multer/Cloudinary upload error:', err);

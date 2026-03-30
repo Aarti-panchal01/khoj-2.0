@@ -7,7 +7,9 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "lint": "eslint .",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "seed:universities": "node -e \"require('dotenv').config(); const connect=require('./src/config/db'); const seed=require('./src/utils/seedUniversities'); connect().then(seed).then(()=>{console.log('Done'); process.exit(0);}).catch(e=>{console.error(e); process.exit(1);});\"",
+    "migrate:items": "node src/scripts/migrateItems.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -19,6 +21,7 @@
     "express": "^4.19.2",
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^8.2.1",
+    "google-auth-library": "^9.15.1",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.6.0",

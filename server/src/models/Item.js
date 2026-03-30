@@ -14,16 +14,19 @@ const itemSchema = new mongoose.Schema(
     contactPreference: { type: String, enum: ['both', 'email', 'phone'], default: 'both' },
     status: { type: String, enum: ['active', 'resolved'], default: 'active', index: true },
 
-    // ── Ownership ─────────────────────────────────────────────────────────────────
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     userName: { type: String, required: true },
-    // Contact info is NOT stored here — fetched via User join on demand (owner only)
+    userEmail: { type: String },
+    userPhone: { type: String },
 
-    // ── University / Campus (ObjectId refs — used for ALL access control queries) ─
+    /** Legacy string fields (pre–ObjectId migration). Remove after DB fully migrated. */
+    college: { type: String, index: true },
+    campus: { type: String },
+
     universityId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'University',
-      required: true,
+      default: null,
       index: true,
     },
     campusId: {
@@ -32,21 +35,18 @@ const itemSchema = new mongoose.Schema(
       index: true,
     },
 
-    // ── Display cache — for rendering only, never used in access control ──────────
-    universityName: { type: String, required: true },
+    universityName: { type: String, default: '' },
     campusName: { type: String, default: '' },
   },
   { timestamps: true }
 );
 
-// Compound indexes for the primary query pattern: university-wide feed
 itemSchema.index({ universityId: 1, createdAt: -1 });
 itemSchema.index({ universityId: 1, type: 1, status: 1 });
 itemSchema.index({ universityId: 1, category: 1 });
-// Campus filter index — used when ?campusId= is provided
 itemSchema.index({ universityId: 1, campusId: 1, createdAt: -1 });
+itemSchema.index({ college: 1, createdAt: -1 });
 
-// Text index for search
 itemSchema.index({
   title: 'text',
   description: 'text',
