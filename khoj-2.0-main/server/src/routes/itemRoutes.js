@@ -157,10 +157,10 @@ router.get('/:id', async (req, res) => {
 
     // Attach contact info for LOST items (so finders can contact owner)
     // For FOUND items, contact info is hidden until claim is approved
-    const contact = {};
     if (item.type === 'lost') {
       const poster = await User.findById(item.user).select('email phone').lean();
       console.log('📧 Contact Info Debug:', {
+        itemId: item._id,
         itemType: item.type,
         contactPreference: item.contactPreference,
         posterFound: !!poster,
@@ -169,17 +169,22 @@ router.get('/:id', async (req, res) => {
       });
       
       if (poster) {
-        if (item.contactPreference === 'both' || item.contactPreference === 'email') {
-          contact.userEmail = poster.email;
+        // Always attach email and phone if they exist - let frontend decide what to show
+        if (poster.email && (item.contactPreference === 'both' || item.contactPreference === 'email')) {
+          item.userEmail = poster.email;
         }
-        if (item.contactPreference === 'both' || item.contactPreference === 'phone') {
-          contact.userPhone = poster.phone;
+        if (poster.phone && (item.contactPreference === 'both' || item.contactPreference === 'phone')) {
+          item.userPhone = poster.phone;
         }
+        
+        console.log('📤 Sending response with contact:', {
+          userEmail: item.userEmail,
+          userPhone: item.userPhone
+        });
       }
     }
 
-    console.log('📤 Sending response with contact:', contact);
-    res.json({ ...item, ...contact });
+    res.json(item);
   } catch (error) {
     console.error('Get item error', error);
     res.status(500).json({ message: 'Failed to fetch item' });
