@@ -106,7 +106,7 @@ const CustomSelect = ({
                   `}
                   style={{ minHeight: '44px' }}
                 >
-                  <span className="font-medium">{option.label}</span>
+                  <span className="text-sm">{option.label}</span>
                   {value === option.value && (
                     <Check className="w-5 h-5 text-primary-600 flex-shrink-0" />
                   )}

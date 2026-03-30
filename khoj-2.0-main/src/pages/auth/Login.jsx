@@ -27,10 +27,12 @@ const Login = () => {
 
   useEffect(() => {
     setLoadingUniversities(true);
+    console.log('Fetching universities from API...');
     UniversityAPI.list()
       .then((data) => {
         console.log('Universities loaded:', data);
-        setUniversities(data || []);
+        console.log('Number of universities:', data?.length);
+        setUniversities(Array.isArray(data) ? data : []);
         setLoadingUniversities(false);
       })
       .catch((err) => {
