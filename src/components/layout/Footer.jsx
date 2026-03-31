@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const LinkedInIcon = () => (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -27,12 +28,36 @@ const KhojMark = () => (
   </div>
 );
 
-const footerLink = 'text-gray-400 hover:text-white transition-colors text-sm';
+const footerLink =
+  'group inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0b0f14] rounded-md';
+
+const Bullet = () => (
+  <span
+    aria-hidden
+    className="h-1.5 w-1.5 rounded-full bg-gray-600 group-hover:bg-primary-400 transition-colors"
+  />
+);
+
+const SectionTitle = ({ children }) => (
+  <h3 className="text-[11px] font-bold uppercase tracking-[0.18em] text-gray-500 mb-4">
+    {children}
+  </h3>
+);
 
 const Footer = () => (
-  <footer className="mt-auto border-t border-gray-800 bg-[#0d1117] text-gray-300">
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
+  <motion.footer
+    initial={{ opacity: 0, y: 14 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: '-80px' }}
+    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+    className="mt-auto text-gray-300"
+  >
+    {/* Smooth page-to-footer transition */}
+    <div className="h-10 sm:h-14 bg-gradient-to-b from-transparent to-[#0b0f14]" aria-hidden />
+
+    <div className="border-t border-gray-800/70 bg-[#0b0f14] text-gray-300">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:py-12 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-4">
           <div className="flex items-center gap-3">
             <KhojMark />
@@ -42,7 +67,7 @@ const Footer = () => (
             </div>
           </div>
           <p className="text-sm text-gray-400 leading-relaxed">
-            Campus lost &amp; found for Bengaluru students.
+            Lost &amp; Found, but make it campus-core. Built for Bengaluru students.
           </p>
           <div className="flex items-center gap-4 text-gray-400">
             <a href="https://www.linkedin.com/company/khoj-app" target="_blank" rel="noreferrer noopener" className="hover:text-white transition-colors" aria-label="Khoj on LinkedIn">
@@ -57,42 +82,105 @@ const Footer = () => (
           </div>
         </div>
 
-        <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4">Platform</h3>
+        {/* Desktop columns */}
+        <div className="hidden lg:block">
+          <SectionTitle>Platform</SectionTitle>
           <ul className="space-y-3">
-            <li><Link to="/" className={footerLink}>Home Feed</Link></li>
-            <li><Link to="/post" className={footerLink}>Report an Item</Link></li>
-            <li><Link to="/claims" className={footerLink}>My Claims</Link></li>
-            <li><Link to="/profile" className={footerLink}>My Profile</Link></li>
-            <li><Link to="/notifications" className={footerLink}>Notifications</Link></li>
+            <li><Link to="/" className={footerLink}><Bullet />Home Feed</Link></li>
+            <li><Link to="/post" className={footerLink}><Bullet />Report an Item</Link></li>
+            <li><Link to="/claims" className={footerLink}><Bullet />My Claims</Link></li>
+            <li><Link to="/profile" className={footerLink}><Bullet />My Profile</Link></li>
+            <li><Link to="/notifications" className={footerLink}><Bullet />Notifications</Link></li>
           </ul>
         </div>
 
-        <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4">Company</h3>
+        <div className="hidden lg:block">
+          <SectionTitle>Company</SectionTitle>
           <ul className="space-y-3">
-            <li><Link to="/about" className={footerLink}>About Khoj</Link></li>
-            <li><Link to="/how-it-works" className={footerLink}>How It Works</Link></li>
-            <li><a href="https://www.linkedin.com/company/khoj-app" target="_blank" rel="noreferrer noopener" className={footerLink}>LinkedIn</a></li>
-            <li><a href="https://www.instagram.com/official.khojapp" target="_blank" rel="noreferrer noopener" className={footerLink}>Instagram</a></li>
-            <li><a href="mailto:khojapp.team@gmail.com" className={footerLink}>Contact Us</a></li>
+            <li><Link to="/about" className={footerLink}><Bullet />About Khoj</Link></li>
+            <li><Link to="/how-it-works" className={footerLink}><Bullet />How It Works</Link></li>
+            <li><a href="https://www.linkedin.com/company/khoj-app" target="_blank" rel="noreferrer noopener" className={footerLink}><Bullet />LinkedIn</a></li>
+            <li><a href="https://www.instagram.com/official.khojapp" target="_blank" rel="noreferrer noopener" className={footerLink}><Bullet />Instagram</a></li>
+            <li><a href="mailto:khojapp.team@gmail.com" className={footerLink}><Bullet />Contact Us</a></li>
           </ul>
         </div>
 
-        <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-4">Legal</h3>
+        <div className="hidden lg:block">
+          <SectionTitle>Legal</SectionTitle>
           <ul className="space-y-3 mb-6">
-            <li><Link to="/privacy" className={footerLink}>Privacy Policy</Link></li>
-            <li><Link to="/terms" className={footerLink}>Terms of Service</Link></li>
-            <li><Link to="/community-guidelines" className={footerLink}>Community Guidelines</Link></li>
+            <li><Link to="/privacy" className={footerLink}><Bullet />Privacy Policy</Link></li>
+            <li><Link to="/terms" className={footerLink}><Bullet />Terms of Service</Link></li>
+            <li><Link to="/community-guidelines" className={footerLink}><Bullet />Community Guidelines</Link></li>
           </ul>
-          <div className="rounded-xl border border-primary-500/30 bg-primary-500/10 px-4 py-4">
-            <p className="text-2xl font-bold text-primary-300">150+</p>
+          <div className="rounded-2xl border border-primary-500/25 bg-gradient-to-br from-primary-500/15 to-transparent px-4 py-4 shadow-[0_0_0_1px_rgba(59,130,246,0.08)]">
+            <p className="text-2xl font-bold text-primary-200">150+</p>
             <p className="text-sm text-gray-400 mt-1">Items recovered across Bengaluru</p>
+            <p className="text-xs text-gray-500 mt-2">Small W’s → big campus energy.</p>
+          </div>
+        </div>
+
+        {/* Mobile: accordion (no routing changes, just layout) */}
+        <div className="lg:hidden sm:col-span-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <details className="group rounded-2xl border border-gray-800/70 bg-white/5 p-4 backdrop-blur-sm">
+              <summary className="cursor-pointer list-none select-none flex items-center justify-between">
+                <SectionTitle>Platform</SectionTitle>
+                <span aria-hidden className="text-gray-500 group-open:rotate-180 transition-transform">⌄</span>
+              </summary>
+              <ul className="space-y-3 pt-2">
+                <li><Link to="/" className={footerLink}><Bullet />Home Feed</Link></li>
+                <li><Link to="/post" className={footerLink}><Bullet />Report an Item</Link></li>
+                <li><Link to="/claims" className={footerLink}><Bullet />My Claims</Link></li>
+                <li><Link to="/profile" className={footerLink}><Bullet />My Profile</Link></li>
+                <li><Link to="/notifications" className={footerLink}><Bullet />Notifications</Link></li>
+              </ul>
+            </details>
+
+            <details className="group rounded-2xl border border-gray-800/70 bg-white/5 p-4 backdrop-blur-sm">
+              <summary className="cursor-pointer list-none select-none flex items-center justify-between">
+                <SectionTitle>Company</SectionTitle>
+                <span aria-hidden className="text-gray-500 group-open:rotate-180 transition-transform">⌄</span>
+              </summary>
+              <ul className="space-y-3 pt-2">
+                <li><Link to="/about" className={footerLink}><Bullet />About Khoj</Link></li>
+                <li><Link to="/how-it-works" className={footerLink}><Bullet />How It Works</Link></li>
+                <li><a href="https://www.linkedin.com/company/khoj-app" target="_blank" rel="noreferrer noopener" className={footerLink}><Bullet />LinkedIn</a></li>
+                <li><a href="https://www.instagram.com/official.khojapp" target="_blank" rel="noreferrer noopener" className={footerLink}><Bullet />Instagram</a></li>
+                <li><a href="mailto:khojapp.team@gmail.com" className={footerLink}><Bullet />Contact Us</a></li>
+              </ul>
+            </details>
+
+            <details className="group rounded-2xl border border-gray-800/70 bg-white/5 p-4 backdrop-blur-sm">
+              <summary className="cursor-pointer list-none select-none flex items-center justify-between">
+                <SectionTitle>Legal</SectionTitle>
+                <span aria-hidden className="text-gray-500 group-open:rotate-180 transition-transform">⌄</span>
+              </summary>
+              <ul className="space-y-3 pt-2">
+                <li><Link to="/privacy" className={footerLink}><Bullet />Privacy Policy</Link></li>
+                <li><Link to="/terms" className={footerLink}><Bullet />Terms of Service</Link></li>
+                <li><Link to="/community-guidelines" className={footerLink}><Bullet />Community Guidelines</Link></li>
+              </ul>
+            </details>
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-primary-500/25 bg-gradient-to-br from-primary-500/15 to-transparent px-5 py-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-2xl font-bold text-primary-200">150+</p>
+                <p className="text-sm text-gray-400 mt-1">Items recovered across Bengaluru</p>
+              </div>
+              <button
+                type="button"
+                className="shrink-0 rounded-xl border border-gray-800/80 bg-white/5 px-3 py-2 text-xs font-semibold text-gray-200 hover:bg-white/10 transition-colors"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              >
+                Back to top
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      </div>
 
     <div className="border-t border-gray-800">
       <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-gray-500">
@@ -106,7 +194,8 @@ const Footer = () => (
         </span>
       </div>
     </div>
-  </footer>
+    </div>
+  </motion.footer>
 );
 
 export default Footer;
