@@ -13,16 +13,7 @@ const router = express.Router();
 router.get('/', async (_req, res) => {
   try {
     const universities = await University.find().sort({ name: 1 }).lean();
-    res.json(
-      universities.map((u) => ({
-        _id: u._id,
-        name: u.name,
-        campuses: (u.campuses || []).map((c) => ({
-          _id: c._id,
-          name: c.name,
-        })),
-      }))
-    );
+    res.json(universities);
   } catch (error) {
     console.error('Fetch universities error', error);
     res.status(500).json({ message: 'Failed to fetch universities' });
