@@ -101,22 +101,26 @@ export const apiRequest = async (path, { method = 'GET', body, headers, auth = t
 
 export const AuthAPI = {
   signup: (payload) => apiRequest('/auth/signup', { method: 'POST', body: payload, auth: false }),
+  google: (payload) => apiRequest('/auth/google', { method: 'POST', body: payload, auth: false }),
   verifyEmail: (payload) => apiRequest('/auth/verify-email', { method: 'POST', body: payload, auth: false }),
   resendOtp: (payload) => apiRequest('/auth/resend-otp', { method: 'POST', body: payload, auth: false }),
   login: (payload) => apiRequest('/auth/login', { method: 'POST', body: payload, auth: false }),
   logout: () => apiRequest('/auth/logout', { method: 'POST' }),
   refresh: () => apiRequest('/auth/refresh', { method: 'POST', auth: false }),
   me: () => apiRequest('/auth/me'),
+  updateProfile: (payload) => apiRequest('/auth/profile', { method: 'PATCH', body: payload }),
 };
 
 export const ItemsAPI = {
-  list: (params = {}) => {
+  /** Pass filters as query string params; set options.auth false for guest (no Authorization header). */
+  list: (params = {}, options = {}) => {
     const cleanParams = Object.entries(params).reduce((acc, [key, value]) => {
       if (value !== undefined && value !== null && value !== '') acc[key] = value;
       return acc;
     }, {});
     const query = new URLSearchParams(cleanParams).toString();
-    return apiRequest(`/items${query ? `?${query}` : ''}`).then(items => items.map(mapItem));
+    const auth = options.auth !== false;
+    return apiRequest(`/items${query ? `?${query}` : ''}`, { auth }).then((items) => (Array.isArray(items) ? items : []).map(mapItem));
   },
   mine: () => apiRequest('/items/mine').then(items => items.map(mapItem)),
   getById: (id) => apiRequest(`/items/${id}`).then(mapItem),

@@ -87,6 +87,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithGoogle = async (credential) => {
+    try {
+      const result = await AuthAPI.google({ credential });
+      setAuthToken(result.token);
+      setUser(result.user);
+      return { success: true, user: result.user };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
   const logout = async () => {
     try {
       await AuthAPI.logout();
@@ -100,9 +111,10 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
-    setUser,   // exposed so VerifyEmail can set user after verification
+    setUser,
     login,
     signup,
+    loginWithGoogle,
     logout,
     loading,
     isAuthenticated: !!user,

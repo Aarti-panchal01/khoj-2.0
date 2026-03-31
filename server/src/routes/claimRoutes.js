@@ -3,9 +3,20 @@ const Claim = require('../models/Claim');
 const Item = require('../models/Item');
 const Notification = require('../models/Notification');
 const authMiddleware = require('../middleware/authMiddleware');
+const requireUniversity = require('../middleware/requireUniversity');
+const { universityMatchFilter } = require('../utils/universityScope');
 
 const router = express.Router();
 router.use(authMiddleware);
+router.use(requireUniversity);
+
+function itemInUniversityScopeFilter(itemId, user) {
+  const scope = universityMatchFilter(user);
+  if (scope.$or) {
+    return { $and: [{ _id: itemId }, scope] };
+  }
+  return { _id: itemId };
+}
 
 // POST /claims - Create a new claim
 router.post('/', async (req, res) => {
@@ -16,10 +27,7 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ message: 'itemId is required' });
     }
 
-    const item = await Item.findOne({
-      _id: itemId,
-      universityId: req.user.universityId,
-    });
+    const item = await Item.findOne(itemInUniversityScopeFilter(itemId, req.user));
 
     if (!item) {
       return res.status(404).json({ message: 'Item not found' });
@@ -70,13 +78,10 @@ router.post('/', async (req, res) => {
 // GET /claims/item/:itemId - Get all claims for an item (owner only)
 router.get('/item/:itemId', async (req, res) => {
   try {
-    const item = await Item.findOne({
-      _id: req.params.itemId,
-      user: req.user._id,
-      universityId: req.user.universityId,
-    });
-
-    if (!item) {
+    const item = await Item.findOne(
+      itemInUniversityScopeFilter(req.params.itemId, req.user)
+    );
+    if (!item || String(item.user) !== String(req.user._id)) {
       return res.status(404).json({ message: 'Item not found or you are not the owner' });
     }
 

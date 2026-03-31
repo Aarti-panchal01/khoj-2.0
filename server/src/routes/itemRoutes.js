@@ -1,103 +1,189 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const Item = require('../models/Item');
-const User = require('../models/User');
+const University = require('../models/University');
 const { itemSchema } = require('../utils/validators');
 const authMiddleware = require('../middleware/authMiddleware');
+const optionalAuth = require('../middleware/optionalAuth');
+const requireUniversity = require('../middleware/requireUniversity');
+const { escapeRegex } = require('../utils/universityScope');
 
 const router = express.Router();
-
-router.use(authMiddleware);
-
-// ─── Constants ────────────────────────────────────────────────────────────────
 
 const ALLOWED_TYPES = new Set(['found', 'lost']);
 const ALLOWED_STATUSES = new Set(['active', 'resolved']);
 const SEARCH_MAX_LENGTH = 200;
 
-// Fields that must never be overwritten via client input
-const PROTECTED_ITEM_FIELDS = ['user', 'userName', 'universityId', 'campusId', 'universityName', 'campusName'];
+const PROTECTED_ITEM_FIELDS = [
+  'user',
+  'userName',
+  'userEmail',
+  'userPhone',
+  'universityId',
+  'campusId',
+  'universityName',
+  'campusName',
+  'status',
+];
 
-// ─── Helper: build the base university filter ─────────────────────────────────
+/** Strip direct contact fields for guest responses */
+const stripContactFields = (item) => {
+  const clone = { ...item };
+  delete clone.userEmail;
+  delete clone.userPhone;
+  delete clone.email;
+  delete clone.phone;
+  return clone;
+};
 
-/**
- * Returns a MongoDB filter object scoped to the authenticated user's university.
- * universityId is ALWAYS taken from req.user — never from the request body/query.
- *
- * If ?campusId=<ObjectId> is provided, it is validated as a real ObjectId and
- * added as an optional filter. Campus is a filter, NOT a restriction.
- */
-const buildUniversityFilter = (req) => {
-  // Core isolation: always scope to the authenticated user's university
-  const filter = { universityId: req.user.universityId };
+/** Contact visibility: use item.userEmail / item.userPhone only. Respect contactPreference. */
+const attachPosterContact = (item, viewerUserId) => {
+  const itemObj = typeof item.toObject === 'function' ? item.toObject() : { ...item };
 
-  const { campusId } = req.query;
-  if (campusId) {
-    // Validate it's a real ObjectId — prevents injection via malformed strings
-    if (!mongoose.Types.ObjectId.isValid(campusId)) {
+  if (String(itemObj.user) === String(viewerUserId)) {
+    delete itemObj.userEmail;
+    delete itemObj.userPhone;
+    return itemObj;
+  }
+
+  const pref = itemObj.contactPreference || 'both';
+  const itemEmail = itemObj.userEmail ? String(itemObj.userEmail).trim() : '';
+  const itemPhone = itemObj.userPhone ? String(itemObj.userPhone).trim() : '';
+
+  let userEmail = null;
+  let userPhone = null;
+
+  if (pref === 'email' || pref === 'both') {
+    userEmail = itemEmail || null;
+  }
+  if (pref === 'phone' || pref === 'both') {
+    userPhone = itemPhone || null;
+  }
+
+  return {
+    ...itemObj,
+    userEmail,
+    userPhone,
+  };
+};
+
+const enrichItemsWithContact = (items, viewerUserId) => items.map((it) => attachPosterContact(it, viewerUserId));
+
+async function buildListingFilter(req) {
+  const u = req.user;
+  const { type, category, status, search, campusId: campusIdParam } = req.query;
+  const andParts = [];
+
+  if (u && u.universityId) {
+    andParts.push({ universityId: u.universityId });
+  }
+
+  if (type) {
+    if (!ALLOWED_TYPES.has(type)) {
+      const err = new Error('Invalid type filter');
+      err.status = 400;
+      throw err;
+    }
+    andParts.push({ type });
+  }
+
+  if (status) {
+    if (!ALLOWED_STATUSES.has(status)) {
+      const err = new Error('Invalid status filter');
+      err.status = 400;
+      throw err;
+    }
+    andParts.push({ status });
+  }
+
+  if (category) {
+    andParts.push({ category: String(category).slice(0, 100) });
+  }
+
+  if (search) {
+    const trimmed = String(search).trim().slice(0, SEARCH_MAX_LENGTH);
+    if (trimmed) {
+      const safe = escapeRegex(trimmed);
+      andParts.push({
+        $or: [
+          { title: { $regex: safe, $options: 'i' } },
+          { description: { $regex: safe, $options: 'i' } },
+          { location: { $regex: safe, $options: 'i' } },
+        ],
+      });
+    }
+  }
+
+  if (campusIdParam) {
+    if (!mongoose.Types.ObjectId.isValid(campusIdParam)) {
       const err = new Error('Invalid campusId');
       err.status = 400;
       throw err;
     }
-    filter.campusId = new mongoose.Types.ObjectId(campusId);
+    const oid = new mongoose.Types.ObjectId(campusIdParam);
+    andParts.push({ campusId: oid });
   }
 
-  return filter;
-};
+  if (!andParts.length) return {};
+  if (andParts.length === 1) return andParts[0];
+  return { $and: andParts };
+}
 
-// ─── GET /items — university-wide feed with optional filters ──────────────────
+// ─── GET /items — guest: all universities (no contact); authed + onboarding: scoped + contact ─
 
-router.get('/', async (req, res) => {
+router.get('/', optionalAuth, async (req, res) => {
   try {
+    const u = req.user;
+    const { campusId: campusIdParam } = req.query;
+
+    if (u && !u.universityId) {
+      return res.status(403).json({ message: 'Complete onboarding to view your campus feed.' });
+    }
+
+    if (campusIdParam && u?.universityId) {
+      if (!mongoose.Types.ObjectId.isValid(campusIdParam)) {
+        return res.status(400).json({ message: 'Invalid campusId' });
+      }
+      const uni = await University.findById(u.universityId).select('campuses').lean();
+      const ok = uni?.campuses?.some((c) => String(c._id) === String(campusIdParam));
+      if (!ok) {
+        return res.json([]);
+      }
+    }
+
+    if (campusIdParam && !u?.universityId) {
+      if (!mongoose.Types.ObjectId.isValid(campusIdParam)) {
+        return res.status(400).json({ message: 'Invalid campusId' });
+      }
+    }
+
     let filters;
     try {
-      filters = buildUniversityFilter(req);
+      filters = await buildListingFilter(req);
     } catch (err) {
       return res.status(err.status || 400).json({ message: err.message });
     }
 
-    const { type, category, status, search } = req.query;
+    let items = await Item.find(filters).sort({ createdAt: -1 }).limit(100).lean();
 
-    if (type) {
-      if (!ALLOWED_TYPES.has(type)) return res.status(400).json({ message: 'Invalid type filter' });
-      filters.type = type;
-    }
-    if (status) {
-      if (!ALLOWED_STATUSES.has(status)) return res.status(400).json({ message: 'Invalid status filter' });
-      filters.status = status;
-    }
-    if (category) filters.category = String(category).slice(0, 100);
-
-    if (search) {
-      const trimmed = String(search).trim().slice(0, SEARCH_MAX_LENGTH);
-      if (trimmed) filters.$text = { $search: trimmed };
+    if (u && u.universityId) {
+      items = await enrichItemsWithContact(items, u._id);
+      return res.json(items);
     }
 
-    const query = Item.find(filters);
-
-    if (filters.$text) {
-      query.sort({ score: { $meta: 'textScore' }, createdAt: -1 });
-    } else {
-      query.sort({ createdAt: -1 });
-    }
-
-    const items = await query.limit(100).lean();
-    res.json(items);
+    return res.json(items.map(stripContactFields));
   } catch (error) {
     console.error('Get items error', error);
     res.status(500).json({ message: 'Failed to fetch items' });
   }
 });
 
-// ─── GET /items/mine ──────────────────────────────────────────────────────────
+router.use(authMiddleware);
+router.use(requireUniversity);
 
 router.get('/mine', async (req, res) => {
   try {
-    // Scoped to user AND university — consistent with the rest of the API
-    const items = await Item.find({
-      user: req.user._id,
-      universityId: req.user.universityId,
-    })
+    const items = await Item.find({ user: req.user._id, universityId: req.user.universityId })
       .sort({ createdAt: -1 })
       .lean();
     res.json(items);
@@ -106,8 +192,6 @@ router.get('/mine', async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch items' });
   }
 });
-
-// ─── POST /items ──────────────────────────────────────────────────────────────
 
 router.post('/', async (req, res) => {
   try {
@@ -120,11 +204,18 @@ router.post('/', async (req, res) => {
 
     const payload = itemSchema.parse(req.body);
 
+    const pref = payload.contactPreference || 'both';
+    const userPhone = req.user.phone ? String(req.user.phone).trim() : '';
+    if ((pref === 'phone' || pref === 'both') && !userPhone) {
+      return res.status(400).json({
+        message: 'Phone number required for selected contact preference. Add a phone number in your profile first.',
+      });
+    }
+
     const item = await Item.create({
       ...payload,
       user: req.user._id,
       userName: req.user.name,
-      // universityId + campusId always come from the authenticated user — never from payload
       universityId: req.user.universityId,
       campusId: req.user.campusId || null,
       universityName: req.user.universityName,
@@ -143,62 +234,25 @@ router.post('/', async (req, res) => {
   }
 });
 
-// ─── GET /items/:id ───────────────────────────────────────────────────────────
-
 router.get('/:id', async (req, res) => {
   try {
-    // universityId scoping prevents cross-university enumeration
-    const item = await Item.findOne({
-      _id: req.params.id,
-      universityId: req.user.universityId,
-    }).lean();
+    const item = await Item.findOne({ _id: req.params.id, universityId: req.user.universityId }).lean();
 
     if (!item) return res.status(404).json({ message: 'Item not found' });
 
-    // Attach contact info for LOST items (so finders can contact owner)
-    // For FOUND items, contact info is hidden until claim is approved
-    if (item.type === 'lost') {
-      const poster = await User.findById(item.user).select('email phone').lean();
-      console.log('📧 Contact Info Debug:', {
-        itemId: item._id,
-        itemType: item.type,
-        contactPreference: item.contactPreference,
-        posterFound: !!poster,
-        posterEmail: poster?.email,
-        posterPhone: poster?.phone
-      });
-      
-      if (poster) {
-        // Always attach email and phone if they exist - let frontend decide what to show
-        if (poster.email && (item.contactPreference === 'both' || item.contactPreference === 'email')) {
-          item.userEmail = poster.email;
-        }
-        if (poster.phone && (item.contactPreference === 'both' || item.contactPreference === 'phone')) {
-          item.userPhone = poster.phone;
-        }
-        
-        console.log('📤 Sending response with contact:', {
-          userEmail: item.userEmail,
-          userPhone: item.userPhone
-        });
-      }
-    }
-
-    res.json(item);
+    const withContact = attachPosterContact(item, req.user._id);
+    res.json(withContact);
   } catch (error) {
     console.error('Get item error', error);
     res.status(500).json({ message: 'Failed to fetch item' });
   }
 });
 
-// ─── PUT /items/:id ───────────────────────────────────────────────────────────
-
 router.put('/:id', async (req, res) => {
   try {
     const payload = itemSchema.partial().parse(req.body);
 
-    // Strip protected fields — client cannot change ownership or university
-    PROTECTED_ITEM_FIELDS.forEach(f => delete payload[f]);
+    PROTECTED_ITEM_FIELDS.forEach((f) => delete payload[f]);
 
     const item = await Item.findOne({
       _id: req.params.id,
@@ -208,14 +262,13 @@ router.put('/:id', async (req, res) => {
 
     if (!item) return res.status(404).json({ message: 'Item not found' });
 
-    // Check if status is changing from active to resolved
-    const wasActive = item.status === 'active';
-    const nowResolved = payload.status === 'resolved';
-    
-    if (wasActive && nowResolved) {
-      // Award +10 reputation points to the user for resolving the item
-      const User = require('../models/User');
-      await User.findByIdAndUpdate(req.user._id, { $inc: { reputation: 10 } });
+    const mergedPref = payload.contactPreference !== undefined ? payload.contactPreference : item.contactPreference;
+    const pref = mergedPref || 'both';
+    const userPhone = req.user.phone ? String(req.user.phone).trim() : '';
+    if ((pref === 'phone' || pref === 'both') && !userPhone) {
+      return res.status(400).json({
+        message: 'Phone number required for selected contact preference. Add a phone number in your profile first.',
+      });
     }
 
     Object.assign(item, payload);
@@ -231,8 +284,6 @@ router.put('/:id', async (req, res) => {
     res.status(500).json({ message: 'Failed to update item' });
   }
 });
-
-// ─── DELETE /items/:id ────────────────────────────────────────────────────────
 
 router.delete('/:id', async (req, res) => {
   try {

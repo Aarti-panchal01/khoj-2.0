@@ -105,14 +105,14 @@ const Profile = () => {
                   {user?.name}
                 </h1>
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
-                  {user?.college && (
+                  {user?.universityName && (
                     <Badge variant="primary" className="inline-flex items-center justify-center px-3 py-1 text-xs font-semibold text-primary-800 bg-white text-center">
-                      {user.college}
+                      {user.universityName}
                     </Badge>
                   )}
-                  {user?.campus && (
+                  {user?.campusName && (
                     <span className="text-xs font-semibold text-white/90 bg-white/20 rounded-full px-3 py-1">
-                      {user.campus}
+                      {user.campusName}
                     </span>
                   )}
                 </div>
@@ -125,8 +125,8 @@ const Profile = () => {
                   <div className="flex items-center justify-center sm:justify-start gap-2 text-white/90">
                     <Building2 className="w-4 h-4" />
                     <span className="text-sm">
-                      {user?.universityName || user?.college}
-                      {(user?.campusName || user?.campus) ? ` • ${user?.campusName || user?.campus}` : ''}
+                      {user?.universityName || '—'}
+                      {user?.campusName ? ` • ${user.campusName}` : ''}
                     </span>
                   </div>
                 </div>
