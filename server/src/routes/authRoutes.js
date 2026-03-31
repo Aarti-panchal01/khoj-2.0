@@ -262,9 +262,12 @@ router.post('/resend-otp', async (req, res) => {
       emailOtpAttempts: 0,
     });
 
-    sendVerificationEmail(user.email, otp, user.name).catch((err) =>
-      console.error('Failed to resend verification email:', err.message)
-    );
+    try {
+      await sendVerificationEmail(user.email, otp, user.name);
+    } catch (err) {
+      console.error('Failed to resend verification email:', err?.message || err);
+      return res.status(500).json({ message: 'Failed to send verification email' });
+    }
 
     return res.json({ message: 'New verification code sent' });
   } catch (error) {
