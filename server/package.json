@@ -13,11 +13,7 @@
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-<<<<<<< HEAD
     "cloudinary": "^2.9.0",
-=======
-    "cloudinary": "^1.41.3",
->>>>>>> 3eef910c89604cd45d0862cdab7cb921277dd20b
     "compression": "^1.8.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -31,13 +27,8 @@
     "mongoose": "^8.6.0",
     "morgan": "^1.10.0",
     "multer": "^2.0.2",
-<<<<<<< HEAD
     "multer-storage-cloudinary": "^2.2.1",
     "nodemailer": "^8.0.4",
-=======
-    "multer-storage-cloudinary": "^4.0.0",
-    "nodemailer": "^6.9.14",
->>>>>>> 3eef910c89604cd45d0862cdab7cb921277dd20b
     "zod": "^3.23.8"
   },
   "devDependencies": {
