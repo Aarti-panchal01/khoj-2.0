@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { X, MapPin, Calendar, Package, AlertCircle, User, Building2, Gift } from 'lucide-react';
+import { X, MapPin, Calendar, Package, AlertCircle, User, Building2, Gift, Mail, Phone, Tag } from 'lucide-react';
 import { format } from 'date-fns';
 import Badge from './Badge';
 import Button from './Button';
@@ -217,6 +217,20 @@ const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId
                     {uniLine && <p className="text-sm text-gray-600">{uniLine}</p>}
                   </div>
                 </div>
+
+                {item.type === 'found' && (
+                  <div className="mt-3 pt-3 border-t border-primary-200 text-xs text-gray-700 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <p className="flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-primary-600" />
+                      Posted {format(new Date(item.createdAt), 'MMM dd, yyyy')}
+                    </p>
+                    <p className="flex items-center gap-1.5">
+                      <Tag className="w-3.5 h-3.5 text-primary-600" />
+                      Category: {item.category}
+                    </p>
+                    <p className="text-primary-800 font-medium">Claim flow unlocks contact after approval</p>
+                  </div>
+                )}
                 
                 {/* Contact Information - Only show for LOST items */}
                 {item.type === 'lost' && (item.userEmail || item.userPhone) && (
@@ -325,7 +339,7 @@ const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId
                         onClick={() => setIsClaimModalOpen(true)}
                         className="bg-gradient-to-r from-success-500 to-green-600 hover:from-success-600 hover:to-green-700 shadow-lg"
                       >
-                        🔐 Claim This Item
+                        🔐 Claim Test (3 quick questions)
                       </Button>
                     )}
                   </>

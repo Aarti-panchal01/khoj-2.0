@@ -79,11 +79,11 @@ const PostItem = () => {
       return;
     }
 
-    // Validate file sizes (max 10MB each)
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    // Keep in sync with backend multer max size (5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
     for (const file of files) {
       if (file.size > maxSize) {
-        setError(`Image ${file.name} is too large. Maximum size is 10MB`);
+        setError(`Image ${file.name} is too large. Maximum size is 5MB`);
         e.target.value = ''; // Reset file input
         return;
       }
@@ -94,7 +94,7 @@ const PostItem = () => {
 
     try {
       const result = await UploadAPI.uploadImages(files);
-      setFormData({ ...formData, images: result.images });
+      setFormData((prev) => ({ ...prev, images: [...(prev.images || []), ...(result.images || [])].slice(0, 5) }));
     } catch (err) {
       console.error('Image upload error:', err);
       setError(err.message || 'Failed to upload images. Please try again.');
@@ -309,7 +309,7 @@ const PostItem = () => {
                         disabled={uploadingImages}
                       />
                     </label>
-                    <p className="text-xs text-gray-500 mt-2">PNG, JPG up to 10MB each (Max 5 images)</p>
+                    <p className="text-xs text-gray-500 mt-2">PNG, JPG up to 5MB each (Max 5 images)</p>
                   </>
                 )}
               </div>

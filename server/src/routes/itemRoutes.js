@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const Item = require('../models/Item');
+const Claim = require('../models/Claim');
 const University = require('../models/University');
 const { itemSchema } = require('../utils/validators');
 const authMiddleware = require('../middleware/authMiddleware');
@@ -37,13 +38,32 @@ const stripContactFields = (item) => {
 };
 
 /** Contact visibility: use item.userEmail / item.userPhone only. Respect contactPreference. */
-const attachPosterContact = (item, viewerUserId) => {
+const attachPosterContact = async (item, viewerUserId) => {
   const itemObj = typeof item.toObject === 'function' ? item.toObject() : { ...item };
 
   if (String(itemObj.user) === String(viewerUserId)) {
     delete itemObj.userEmail;
     delete itemObj.userPhone;
     return itemObj;
+  }
+
+  // For found posts, poster contact is only visible after claim approval.
+  if (itemObj.type === 'found') {
+    const approvedClaim = await Claim.findOne({
+      itemId: itemObj._id,
+      claimerId: viewerUserId,
+      status: 'approved',
+    })
+      .select('_id')
+      .lean();
+
+    if (!approvedClaim) {
+      return {
+        ...itemObj,
+        userEmail: null,
+        userPhone: null,
+      };
+    }
   }
 
   const pref = itemObj.contactPreference || 'both';
@@ -167,7 +187,7 @@ router.get('/', optionalAuth, async (req, res) => {
     let items = await Item.find(filters).sort({ createdAt: -1 }).limit(100).lean();
 
     if (u && u.universityId) {
-      items = await enrichItemsWithContact(items, u._id);
+      items = await Promise.all(enrichItemsWithContact(items, u._id));
       return res.json(items);
     }
 
@@ -216,6 +236,8 @@ router.post('/', async (req, res) => {
       ...payload,
       user: req.user._id,
       userName: req.user.name,
+      userEmail: req.user.email,
+      userPhone: req.user.phone || '',
       universityId: req.user.universityId,
       campusId: req.user.campusId || null,
       universityName: req.user.universityName,
@@ -240,7 +262,7 @@ router.get('/:id', async (req, res) => {
 
     if (!item) return res.status(404).json({ message: 'Item not found' });
 
-    const withContact = attachPosterContact(item, req.user._id);
+    const withContact = await attachPosterContact(item, req.user._id);
     res.json(withContact);
   } catch (error) {
     console.error('Get item error', error);
@@ -272,6 +294,8 @@ router.put('/:id', async (req, res) => {
     }
 
     Object.assign(item, payload);
+    item.userEmail = req.user.email;
+    item.userPhone = req.user.phone || '';
     await item.save();
     res.json(item);
   } catch (error) {

@@ -132,12 +132,18 @@ router.put('/:id/approve', async (req, res) => {
     claim.status = 'approved';
     await claim.save();
 
-    // Update item status to resolved
-    await Item.findByIdAndUpdate(claim.itemId, { status: 'resolved' });
+    // Update item status to resolved and fetch type/owner for rewards logic
+    const item = await Item.findByIdAndUpdate(
+      claim.itemId,
+      { status: 'resolved' },
+      { new: true }
+    ).lean();
 
-    // Award reputation points: +10 for finder (claimer) only
+    // Award reputation points: +10 to found-item poster on successful recovery
     const User = require('../models/User');
-    await User.findByIdAndUpdate(claim.claimerId, { $inc: { reputation: 10 } });
+    if (item?.type === 'found' && String(item.user) === String(claim.ownerId)) {
+      await User.findByIdAndUpdate(claim.ownerId, { $inc: { reputation: 10 } });
+    }
 
     // Create notification for claimer
     await Notification.create({
@@ -145,9 +151,20 @@ router.put('/:id/approve', async (req, res) => {
       type: 'claim_approved',
       itemId: claim.itemId,
       claimId: claim._id,
-      message: 'Your claim has been approved! You earned +10 reputation points.',
+      message: 'Your claim is approved! You can now view the poster contact details.',
       read: false,
     });
+
+    if (item?.type === 'found') {
+      await Notification.create({
+        userId: claim.ownerId,
+        type: 'item_resolved',
+        itemId: claim.itemId,
+        claimId: claim._id,
+        message: 'W recovery! Your found-item post was resolved and you earned +10 reputation.',
+        read: false,
+      });
+    }
 
     res.json(claim);
   } catch (error) {
