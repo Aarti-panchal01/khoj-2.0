@@ -10,6 +10,7 @@ const Onboarding = () => {
   const { user, setUser, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [universities, setUniversities] = useState([]);
   const [loadingUniversities, setLoadingUniversities] = useState(true);
   const [selectedUniversity, setSelectedUniversity] = useState(null);
@@ -23,11 +24,19 @@ const Onboarding = () => {
       navigate('/login', { replace: true });
       return;
     }
+    if (user && !user.isEmailVerified) {
+      navigate('/verify-email', {
+        replace: true,
+        state: { userId: user.id, email: user.email },
+      });
+      return;
+    }
     if (user.universityId) {
       navigate('/', { replace: true });
       return;
     }
     setName(user.name || '');
+    setPhone(user.phone || '');
   }, [authLoading, user, navigate]);
 
   useEffect(() => {
@@ -43,7 +52,13 @@ const Onboarding = () => {
 
   const showCampusPicker = selectedUniversity && selectedUniversity.campuses?.length > 1;
 
-  const canSubmit = name.trim().length >= 2 && selectedUniversity;
+  const isValidPhone = (value) => {
+    const trimmed = String(value || '').trim();
+    if (!trimmed) return false;
+    return /^\+?[0-9\s\-()]{7,20}$/.test(trimmed);
+  };
+
+  const canSubmit = name.trim().length >= 2 && selectedUniversity && isValidPhone(phone);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,6 +69,7 @@ const Onboarding = () => {
       const body = {
         name: name.trim(),
         universityId: selectedUniversity._id,
+        phone: phone.trim(),
       };
       if (showCampusPicker && selectedCampusId) {
         body.campusId = selectedCampusId;
@@ -82,38 +98,55 @@ const Onboarding = () => {
   }
 
   return (
-    <div className="max-w-lg mx-auto py-8 px-4">
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-white rounded-2xl mb-4 shadow-lg overflow-hidden">
-            <img src="/Khoj_logo.jpeg" alt="Khoj" className="w-full h-full object-cover" />
+    <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-gradient-to-br from-sky-50 via-white to-amber-50">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-xl"
+      >
+        <div className="bg-white/90 backdrop-blur rounded-3xl shadow-xl border border-sky-100 px-6 sm:px-8 py-8">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-sky-100 rounded-2xl mb-4 shadow-md overflow-hidden">
+              <img src="/Khoj_logo.jpeg" alt="Khoj" className="w-full h-full object-cover" />
+            </div>
+            <h1 className="text-2xl font-bold text-slate-900">Almost there</h1>
+            <p className="text-slate-600 mt-2 text-sm">
+              Tell us who you are and where you study so we can show you the right lost &amp; found feed.
+            </p>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Almost there</h1>
-          <p className="text-gray-600 mt-2 text-sm">Tell us your name and campus so we can show the right feed.</p>
-        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
             <div className="bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
 
-          <Input
-            label="Name"
-            name="name"
-            placeholder="What should we call you?"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Input
+              label="Name"
+              name="name"
+              placeholder="What should we call you?"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+            <Input
+              label="Mobile number"
+              name="phone"
+              placeholder="+91 98765 43210"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+            />
+          </div>
 
           <div>
             <p className="text-sm font-medium text-gray-700 mb-2">University</p>
             {loadingUniversities ? (
               <p className="text-sm text-gray-500">Loading universities…</p>
             ) : (
-              <div className="max-h-64 overflow-y-auto rounded-xl border border-gray-200 bg-white p-2 space-y-2">
+              <div className="max-h-56 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50 p-2 space-y-1.5">
                 {universities.map((u) => {
                   const active = selectedUniversity?._id === u._id;
                   const campusCount = u.campuses?.length ?? 0;
@@ -122,14 +155,14 @@ const Onboarding = () => {
                       key={u._id}
                       type="button"
                       onClick={() => setSelectedUniversity(u)}
-                      className={`w-full text-left rounded-lg border-2 px-4 py-3 transition-colors ${
+                      className={`w-full text-left rounded-lg border px-3 py-2 text-sm transition-colors ${
                         active
-                          ? 'border-primary-500 bg-primary-50'
-                          : 'border-transparent bg-gray-50 hover:bg-gray-100'
+                          ? 'border-primary-500 bg-primary-50/70'
+                          : 'border-transparent bg-white hover:bg-slate-100'
                       }`}
                     >
-                      <p className="font-semibold text-gray-900">{u.name}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="font-semibold text-gray-900 truncate">{u.name}</p>
+                      <p className="text-[11px] text-gray-500 mt-0.5">
                         {campusCount} {campusCount === 1 ? 'campus' : 'campuses'}
                       </p>
                     </button>
@@ -142,15 +175,15 @@ const Onboarding = () => {
           {showCampusPicker && (
             <div>
               <p className="text-sm font-medium text-gray-700 mb-2">Campus</p>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {campusRadios.map((c) => {
                   const id = String(c._id);
                   const active = selectedCampusId === id;
                   return (
                     <label
                       key={id}
-                      className={`flex items-center gap-3 rounded-xl border-2 px-4 py-3 cursor-pointer transition-colors ${
-                        active ? 'border-primary-500 bg-primary-50' : 'border-gray-200 bg-white hover:border-gray-300'
+                      className={`flex items-center gap-3 rounded-xl border px-3 py-2 cursor-pointer transition-colors text-sm ${
+                        active ? 'border-primary-500 bg-primary-50/70' : 'border-slate-200 bg-white hover:border-slate-300'
                       }`}
                     >
                       <input
@@ -160,7 +193,7 @@ const Onboarding = () => {
                         checked={active}
                         onChange={() => setSelectedCampusId(id)}
                       />
-                      <span className="text-sm font-medium text-gray-900">{c.name}</span>
+                      <span className="font-medium text-gray-900 truncate">{c.name}</span>
                     </label>
                   );
                 })}
@@ -168,10 +201,16 @@ const Onboarding = () => {
             </div>
           )}
 
-          <Button type="submit" fullWidth loading={submitting} disabled={!canSubmit || (showCampusPicker && !selectedCampusId)}>
+          <Button
+            type="submit"
+            fullWidth
+            loading={submitting}
+            disabled={!canSubmit || (showCampusPicker && !selectedCampusId)}
+          >
             Let&apos;s go →
           </Button>
         </form>
+        </div>
       </motion.div>
     </div>
   );
