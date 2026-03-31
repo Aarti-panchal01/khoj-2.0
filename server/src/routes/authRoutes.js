@@ -12,7 +12,6 @@ const {
   authProfilePatchSchema,
   googleAuthSchema,
 } = require('../utils/validators');
-const { generateOtp, sendVerificationEmail } = require('../utils/email');
 const authMiddleware = require('../middleware/authMiddleware');
 
 const router = express.Router();
@@ -146,8 +145,6 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    const otp = generateOtp();
-    const otpHash = await bcrypt.hash(otp, 8);
     const passwordHash = await bcrypt.hash(payload.password, 10);
     const provisionalName = payload.email.split('@')[0]?.trim() || 'Student';
 
@@ -160,22 +157,9 @@ router.post('/signup', async (req, res) => {
       campusId: null,
       universityName: '',
       campusName: '',
-      isEmailVerified: false,
-      emailOtp: otpHash,
-      emailOtpExpiry: new Date(Date.now() + 10 * 60 * 1000),
-      emailOtpAttempts: 0,
+      // Basic signup flow: create account and continue to onboarding directly.
+      isEmailVerified: true,
     });
-
-    // Send the verification OTP. If this fails, don't leave a half-configured account.
-    try {
-      await sendVerificationEmail(user.email, otp, user.name);
-    } catch (err) {
-      console.error('Signup email OTP send failed:', err?.message || err);
-      await User.findByIdAndDelete(user._id);
-      const status = err?.status || 503;
-      const message = err?.publicMessage || 'Failed to send verification email';
-      return res.status(status).json({ message });
-    }
 
     const accessToken = createAccessToken(user);
     const refreshToken = createRefreshToken(user);
