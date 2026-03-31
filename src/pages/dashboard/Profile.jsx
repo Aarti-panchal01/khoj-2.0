@@ -64,6 +64,16 @@ const Profile = () => {
     navigate(`/post?edit=${itemId}`);
   };
 
+  const handleToggleResolved = async (item) => {
+    const nextStatus = item.status === 'resolved' ? 'active' : 'resolved';
+    try {
+      await ItemsAPI.update(item.id, { status: nextStatus });
+      await loadUserItems();
+    } catch (error) {
+      console.error('Toggle status failed', error);
+    }
+  };
+
   const stats = {
     total: userItems.length,
     found: userItems.filter(i => i.type === 'found').length,
@@ -274,6 +284,17 @@ const Profile = () => {
                         {item.title}
                       </h3>
                       <div className="flex gap-2">
+                        <button
+                          onClick={() => handleToggleResolved(item)}
+                          className={`p-2 rounded-lg transition-all ${
+                            item.status === 'resolved'
+                              ? 'text-warning-700 bg-warning-50 hover:bg-warning-100'
+                              : 'text-success-700 bg-success-50 hover:bg-success-100'
+                          }`}
+                          title={item.status === 'resolved' ? 'Mark as Active' : 'Mark as Resolved'}
+                        >
+                          <Award className="w-4.5 h-4.5" />
+                        </button>
                         <button
                           onClick={() => handleEditClick(item.id)}
                           className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-all"

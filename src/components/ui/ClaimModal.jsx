@@ -83,8 +83,8 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
           <div className="sticky top-0 bg-gradient-to-br from-primary-500 to-primary-700 px-5 sm:px-6 py-4 sm:py-5 border-b border-white/20 z-10">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-white">Claim This Item</h2>
-                <p className="text-sm text-primary-100 mt-1">Help us verify you're the rightful owner</p>
+                <h2 className="text-xl sm:text-2xl font-bold text-white">Claim Test • 3 Questions</h2>
+                <p className="text-sm text-primary-100 mt-1">Quick vibe-check so the finder can verify ownership</p>
               </div>
               <button
                 onClick={onClose}
