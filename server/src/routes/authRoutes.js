@@ -422,7 +422,11 @@ router.get('/me', authMiddleware, async (req, res) => {
 router.post('/google', async (req, res) => {
   try {
     const payload = googleAuthSchema.parse(req.body);
-    const clientId = process.env.GOOGLE_CLIENT_ID;
+    // Accept common env key variants to reduce deployment misconfiguration issues.
+    const clientId =
+      process.env.GOOGLE_CLIENT_ID ||
+      process.env.GOOGLE_CLIENTID ||
+      process.env.VITE_GOOGLE_CLIENT_ID;
     if (!clientId) {
       return res.status(503).json({ message: 'Google sign-in is not configured on this server.' });
     }
