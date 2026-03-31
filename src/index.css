@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-slate-200;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+  }
+
+  /* Safe area support for notched devices */
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  h1, h2, h3, h4 {
+    @apply text-slate-900 tracking-tight;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  /* Safe area utilities */
+  .pb-safe {
+    padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
+  }
+  
+  .pt-safe {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  
+  .pl-safe {
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+  
+  .pr-safe {
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+  
+  /* Touch manipulation */
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  /* Smooth scrolling */
+  .smooth-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400;
+}
+
+/* Mobile-specific styles */
+@media (max-width: 640px) {
+  /* Prevent zoom on input focus */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="search"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+  
+  /* Better touch targets */
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+  
+  /* Prevent text selection on buttons */
+  button {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+  /* Fix for iOS Safari bottom bar */
+  .min-h-screen {
+    min-height: -webkit-fill-available;
+  }
+  
+  /* Prevent rubber band scrolling */
+  body {
+    overscroll-behavior-y: none;
+  }
+}
+
+/* Android specific fixes */
+@media (hover: none) and (pointer: coarse) {
+  /* Better tap highlighting */
+  * {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.05);
+  }
+}
