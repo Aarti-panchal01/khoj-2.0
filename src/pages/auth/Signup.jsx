@@ -1,9 +1,5 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-<<<<<<< HEAD
-=======
-import { GoogleLogin } from '@react-oauth/google';
->>>>>>> 3eef910c89604cd45d0862cdab7cb921277dd20b
 import { Mail, Lock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button';
@@ -11,71 +7,32 @@ import Input from '../../components/ui/Input';
 import { AuthAPI } from '../../lib/apiClient';
 import { motion } from 'framer-motion';
 
-<<<<<<< HEAD
-=======
-const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-
->>>>>>> 3eef910c89604cd45d0862cdab7cb921277dd20b
 const Signup = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-<<<<<<< HEAD
   const { signup } = useAuth();
-=======
-  const { signup, loginWithGoogle } = useAuth();
->>>>>>> 3eef910c89604cd45d0862cdab7cb921277dd20b
   const navigate = useNavigate();
 
   const afterAuth = async () => {
     try {
       const profile = await AuthAPI.me();
-<<<<<<< HEAD
       if (!profile?.universityId) {
         navigate('/onboarding', { replace: true });
       } else {
         navigate('/', { replace: true });
       }
-=======
-      if (profile && !profile.isEmailVerified) {
-        navigate('/verify-email', {
-          replace: true,
-          state: { userId: profile.id, email: profile.email },
-        });
-        return;
-      }
-      if (!profile?.universityId) navigate('/onboarding', { replace: true });
-      else navigate('/', { replace: true });
->>>>>>> 3eef910c89604cd45d0862cdab7cb921277dd20b
     } catch {
       navigate('/', { replace: true });
     }
   };
 
-<<<<<<< HEAD
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     if (!/^\d{6}$/.test(password)) {
       setError('Passcode must be exactly 6 digits');
-=======
-  const handleGoogleSuccess = async (cred) => {
-    if (!cred.credential) return;
-    setError('');
-    setLoading(true);
-    const result = await loginWithGoogle(cred.credential);
-    setLoading(false);
-    if (result.success) await afterAuth();
-    else setError(result.error || 'Google sign-up failed');
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
->>>>>>> 3eef910c89604cd45d0862cdab7cb921277dd20b
       return;
     }
     setLoading(true);
@@ -95,11 +52,7 @@ const Signup = () => {
         <div className="max-w-md">
           <h2 className="text-3xl font-bold mb-4">Join Khoj</h2>
           <p className="text-primary-100 text-lg">
-<<<<<<< HEAD
-            Create your secure campus account with email and a 6‑digit passcode. No social login required.
-=======
-            Help your campus reunite lost items — create an account, pick your university, and start posting.
->>>>>>> 3eef910c89604cd45d0862cdab7cb921277dd20b
+            Create your secure campus account with email and a 6-digit passcode. No social login required.
           </p>
         </div>
       </div>
@@ -134,35 +87,6 @@ const Signup = () => {
               {error}
             </motion.div>
           )}
-<<<<<<< HEAD
- 
-=======
-
-          <div className="w-full flex justify-center mb-4 min-h-[44px]">
-            {googleClientId ? (
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => setError('Google sign-up was cancelled or failed')}
-                text="continue_with"
-                shape="rectangular"
-                size="large"
-                width="384"
-                theme="filled_blue"
-              />
-            ) : (
-              <p className="text-xs text-gray-500 text-center px-4">
-                Google sign-in is not configured (add VITE_GOOGLE_CLIENT_ID).
-              </p>
-            )}
-          </div>
-
-          <div className="relative flex items-center gap-4 my-6">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-xs font-medium text-gray-500 uppercase">or</span>
-            <div className="flex-1 h-px bg-gray-200" />
-          </div>
-
->>>>>>> 3eef910c89604cd45d0862cdab7cb921277dd20b
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               label="Email"
@@ -175,18 +99,11 @@ const Signup = () => {
               required
             />
             <Input
-<<<<<<< HEAD
-              label="6‑digit passcode"
+              label="6-digit passcode"
               type="password"
               inputMode="numeric"
               name="password"
               placeholder="Enter 6 digits"
-=======
-              label="Password"
-              type="password"
-              name="password"
-              placeholder="At least 6 characters"
->>>>>>> 3eef910c89604cd45d0862cdab7cb921277dd20b
               value={password}
               onChange={(e) => { setPassword(e.target.value); setError(''); }}
               icon={Lock}

@@ -24,21 +24,10 @@ const Onboarding = () => {
       navigate('/login', { replace: true });
       return;
     }
-<<<<<<< HEAD
-=======
-    if (user && !user.isEmailVerified) {
-      navigate('/verify-email', {
-        replace: true,
-        state: { userId: user.id, email: user.email },
-      });
-      return;
-    }
->>>>>>> 3eef910c89604cd45d0862cdab7cb921277dd20b
     if (user.universityId) {
       navigate('/', { replace: true });
       return;
     }
-<<<<<<< HEAD
     if (user.name) {
       setName(user.name);
     } else if (user.email) {
@@ -52,9 +41,6 @@ const Onboarding = () => {
     } else {
       setName('');
     }
-=======
-    setName(user.name || '');
->>>>>>> 3eef910c89604cd45d0862cdab7cb921277dd20b
     setPhone(user.phone || '');
   }, [authLoading, user, navigate]);
 
