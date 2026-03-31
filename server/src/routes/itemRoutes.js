@@ -1,17 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const Item = require('../models/Item');
-const User = require('../models/User');
 const University = require('../models/University');
 const { itemSchema } = require('../utils/validators');
 const authMiddleware = require('../middleware/authMiddleware');
 const optionalAuth = require('../middleware/optionalAuth');
 const requireUniversity = require('../middleware/requireUniversity');
-const {
-  escapeRegex,
-  universityMatchFilter,
-  getCampusNameByCampusId,
-} = require('../utils/universityScope');
+const { escapeRegex } = require('../utils/universityScope');
 
 const router = express.Router();
 
@@ -29,8 +24,6 @@ const PROTECTED_ITEM_FIELDS = [
   'universityName',
   'campusName',
   'status',
-  'college',
-  'campus',
 ];
 
 /** Strip direct contact fields for guest responses */
@@ -43,10 +36,8 @@ const stripContactFields = (item) => {
   return clone;
 };
 
-/**
- * Contact visibility: prefer denormalized item fields, then User. Respect contactPreference.
- */
-const attachPosterContact = (item, poster, viewerUserId) => {
+/** Contact visibility: use item.userEmail / item.userPhone only. Respect contactPreference. */
+const attachPosterContact = (item, viewerUserId) => {
   const itemObj = typeof item.toObject === 'function' ? item.toObject() : { ...item };
 
   if (String(itemObj.user) === String(viewerUserId)) {
@@ -56,8 +47,6 @@ const attachPosterContact = (item, poster, viewerUserId) => {
   }
 
   const pref = itemObj.contactPreference || 'both';
-  const posterEmail = poster?.email ? String(poster.email).trim() : '';
-  const posterPhone = poster?.phone ? String(poster.phone).trim() : '';
   const itemEmail = itemObj.userEmail ? String(itemObj.userEmail).trim() : '';
   const itemPhone = itemObj.userPhone ? String(itemObj.userPhone).trim() : '';
 
@@ -71,13 +60,6 @@ const attachPosterContact = (item, poster, viewerUserId) => {
     userPhone = itemPhone || null;
   }
 
-  if (pref === 'email' || pref === 'both') {
-    if (!userEmail && posterEmail) userEmail = posterEmail;
-  }
-  if (pref === 'phone' || pref === 'both') {
-    if (!userPhone && posterPhone) userPhone = posterPhone;
-  }
-
   return {
     ...itemObj,
     userEmail,
@@ -85,22 +67,7 @@ const attachPosterContact = (item, poster, viewerUserId) => {
   };
 };
 
-const enrichItemsWithContact = async (items, viewerUserId) => {
-  if (!items.length) return items;
-  const userIds = [...new Set(items.map((i) => String(i.user)))];
-  const posters = await User.find({ _id: { $in: userIds } }).select('email phone').lean();
-  const map = Object.fromEntries(posters.map((p) => [String(p._id), p]));
-  return items.map((it) => attachPosterContact(it, map[String(it.user)], viewerUserId));
-};
-
-function scopedAndFilter(user, clauses) {
-  const scope = universityMatchFilter(user);
-  const parts = [...clauses];
-  if (scope.$or) parts.push(scope);
-  if (!parts.length) return {};
-  if (parts.length === 1) return parts[0];
-  return { $and: parts };
-}
+const enrichItemsWithContact = (items, viewerUserId) => items.map((it) => attachPosterContact(it, viewerUserId));
 
 async function buildListingFilter(req) {
   const u = req.user;
@@ -108,8 +75,7 @@ async function buildListingFilter(req) {
   const andParts = [];
 
   if (u && u.universityId) {
-    const scope = universityMatchFilter(u);
-    if (scope.$or) andParts.push(scope);
+    andParts.push({ universityId: u.universityId });
   }
 
   if (type) {
@@ -155,12 +121,7 @@ async function buildListingFilter(req) {
       throw err;
     }
     const oid = new mongoose.Types.ObjectId(campusIdParam);
-    const campusName = await getCampusNameByCampusId(campusIdParam);
-    const campusOr = [{ campusId: oid }];
-    if (campusName) {
-      campusOr.push({ campus: new RegExp(`^${escapeRegex(campusName)}$`, 'i') });
-    }
-    andParts.push({ $or: campusOr });
+    andParts.push({ campusId: oid });
   }
 
   if (!andParts.length) return {};
@@ -222,8 +183,9 @@ router.use(requireUniversity);
 
 router.get('/mine', async (req, res) => {
   try {
-    const filter = scopedAndFilter(req.user, [{ user: req.user._id }]);
-    const items = await Item.find(filter).sort({ createdAt: -1 }).lean();
+    const items = await Item.find({ user: req.user._id, universityId: req.user.universityId })
+      .sort({ createdAt: -1 })
+      .lean();
     res.json(items);
   } catch (error) {
     console.error('Get user items error', error);
@@ -274,13 +236,11 @@ router.post('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   try {
-    const filter = scopedAndFilter(req.user, [{ _id: req.params.id }]);
-    const item = await Item.findOne(filter).lean();
+    const item = await Item.findOne({ _id: req.params.id, universityId: req.user.universityId }).lean();
 
     if (!item) return res.status(404).json({ message: 'Item not found' });
 
-    const poster = await User.findById(item.user).select('email phone').lean();
-    const withContact = attachPosterContact(item, poster, req.user._id);
+    const withContact = attachPosterContact(item, req.user._id);
     res.json(withContact);
   } catch (error) {
     console.error('Get item error', error);
@@ -294,8 +254,11 @@ router.put('/:id', async (req, res) => {
 
     PROTECTED_ITEM_FIELDS.forEach((f) => delete payload[f]);
 
-    const filter = scopedAndFilter(req.user, [{ _id: req.params.id, user: req.user._id }]);
-    const item = await Item.findOne(filter);
+    const item = await Item.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+      universityId: req.user.universityId,
+    });
 
     if (!item) return res.status(404).json({ message: 'Item not found' });
 
@@ -324,8 +287,11 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
-    const filter = scopedAndFilter(req.user, [{ _id: req.params.id, user: req.user._id }]);
-    const item = await Item.findOne(filter);
+    const item = await Item.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+      universityId: req.user.universityId,
+    });
 
     if (!item) return res.status(404).json({ message: 'Item not found' });
 
