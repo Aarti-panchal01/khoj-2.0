@@ -35,6 +35,7 @@ const itemSchema = z.object({
     )
   ).max(5).optional(),
   urgent: z.boolean().optional(),
+  reward: z.enum(['gratitude', 'food_treat', 'coffee', 'cash_reward', 'gift', 'none']).optional(),
   contactPreference: z.enum(['both', 'email', 'phone']).optional(),
 });
 

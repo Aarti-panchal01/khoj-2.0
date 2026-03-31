@@ -70,10 +70,20 @@ const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId
                     className="w-full h-full object-cover"
                   />
                   {/* Badges on Image */}
-                  <div className="absolute top-3 left-3 flex gap-2">
+                  <div className="absolute top-3 left-3 flex gap-2 flex-wrap">
                     <Badge variant={item.type === 'found' ? 'found' : 'lost'}>
                       {item.type === 'found' ? '✓ Found' : '✗ Lost'}
                     </Badge>
+                    {/* Reward Badge */}
+                    {item.type === 'lost' && item.reward && item.reward !== 'none' && (
+                      <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0 shadow-lg">
+                        {item.reward === 'gratitude' && '🙏 Gratitude'}
+                        {item.reward === 'food_treat' && '🍕 Food Treat'}
+                        {item.reward === 'coffee' && '☕ Coffee'}
+                        {item.reward === 'cash_reward' && '💵 Cash Reward'}
+                        {item.reward === 'gift' && '🎁 Gift'}
+                      </Badge>
+                    )}
                   </div>
                   {item.urgent && (
                     <div className="absolute top-3 right-3">
@@ -88,10 +98,20 @@ const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId
             ) : (
               <div className="mb-6 relative h-48 sm:h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center overflow-hidden">
                 <Package className="w-20 h-20 sm:w-24 sm:h-24 text-gray-300" />
-                <div className="absolute top-3 left-3 flex gap-2">
+                <div className="absolute top-3 left-3 flex gap-2 flex-wrap">
                   <Badge variant={item.type === 'found' ? 'found' : 'lost'}>
                     {item.type === 'found' ? '✓ Found' : '✗ Lost'}
                   </Badge>
+                  {/* Reward Badge */}
+                  {item.type === 'lost' && item.reward && item.reward !== 'none' && (
+                    <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0 shadow-lg">
+                      {item.reward === 'gratitude' && '🙏 Gratitude'}
+                      {item.reward === 'food_treat' && '🍕 Food Treat'}
+                      {item.reward === 'coffee' && '☕ Coffee'}
+                      {item.reward === 'cash_reward' && '💵 Cash Reward'}
+                      {item.reward === 'gift' && '🎁 Gift'}
+                    </Badge>
+                  )}
                 </div>
                 {item.urgent && (
                   <div className="absolute top-3 right-3">
@@ -188,7 +208,7 @@ const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId
             <div className="mb-6">
               <h4 className="text-lg font-semibold text-gray-900 mb-3">Posted By</h4>
               <Card className="p-4 bg-gradient-to-br from-primary-50 to-blue-50 border-2 border-primary-200">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 mb-3">
                   <div className="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center flex-shrink-0">
                     <User className="w-6 h-6 text-white" />
                   </div>
@@ -197,6 +217,43 @@ const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId
                     {uniLine && <p className="text-sm text-gray-600">{uniLine}</p>}
                   </div>
                 </div>
+                
+                {/* Contact Information - Only show for LOST items */}
+                {item.type === 'lost' && (item.userEmail || item.userPhone) && (
+                  <div className="mt-3 pt-3 border-t border-primary-200 space-y-2">
+                    {item.userEmail && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Mail className="w-4 h-4 text-primary-600 flex-shrink-0" />
+                        <a 
+                          href={`mailto:${item.userEmail}`}
+                          className="text-primary-700 hover:text-primary-800 hover:underline break-all"
+                        >
+                          {item.userEmail}
+                        </a>
+                      </div>
+                    )}
+                    {item.userPhone && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Phone className="w-4 h-4 text-primary-600 flex-shrink-0" />
+                        <a 
+                          href={`tel:${item.userPhone}`}
+                          className="text-primary-700 hover:text-primary-800 hover:underline"
+                        >
+                          {item.userPhone}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {/* Note for FOUND items */}
+                {item.type === 'found' && (
+                  <div className="mt-3 pt-3 border-t border-primary-200">
+                    <p className="text-xs text-gray-500 italic">
+                      Contact information will be shared after your claim is approved
+                    </p>
+                  </div>
+                )}
               </Card>
             </div>
 
