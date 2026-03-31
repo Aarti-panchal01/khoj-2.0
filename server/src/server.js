@@ -45,11 +45,9 @@ const trustedProdDomainRegex = /^https:\/\/([a-z0-9-]+\.)?khojapp\.in$/i;
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow no-origin requests (curl, Postman) only in dev
+      // Allow no-origin requests (health checks, curl, Postman, direct browser hit)
       if (!origin) {
-        return IS_PROD
-          ? callback(new Error('Origin required in production'))
-          : callback(null, true);
+        return callback(null, true);
       }
       const normalizedOrigin = normalizeOrigin(origin);
       if (
