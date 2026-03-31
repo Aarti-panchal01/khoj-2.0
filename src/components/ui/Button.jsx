@@ -12,7 +12,6 @@ const Button = ({
   loading = false,
   className = '',
 }) => {
-<<<<<<< HEAD
   const baseStyles = 'font-medium rounded-xl transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 active:scale-[0.99]';
 
   const variants = {
@@ -26,24 +25,7 @@ const Button = ({
   const sizes = {
     sm: 'px-3 py-2 text-sm min-h-[40px]',
     md: 'px-4 py-2.5 text-sm sm:text-base min-h-[44px]',
-    lg: 'px-6 py-3 text-base sm:text-lg min-h-[48px]',
-=======
-  const baseStyles = 'font-medium rounded-xl sm:rounded-lg transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation active:scale-95';
-
-  const variants = {
-    primary: 'bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white shadow-sm hover:shadow-md',
-    secondary: 'bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-900',
-    outline: 'border-2 border-primary-600 text-primary-600 hover:bg-primary-50 active:bg-primary-100',
-    danger: 'bg-danger-500 hover:bg-danger-600 active:bg-danger-700 text-white',
-    ghost: 'hover:bg-gray-100 active:bg-gray-200 text-gray-700',
-  };
-
-  const sizes = {
-    sm: 'px-3 py-2 sm:py-1.5 text-sm min-h-[40px] sm:min-h-[36px]',
-    md: 'px-4 py-3 sm:py-2 text-base sm:text-base min-h-[44px] sm:min-h-[40px]',
-    lg: 'px-6 py-4 sm:py-3 text-lg min-h-[48px] sm:min-h-[44px]',
->>>>>>> 3eef910c89604cd45d0862cdab7cb921277dd20b
-  };
+    lg: 'px-6 py-3 text-base sm:text-lg min-h-[48px]',  };
 
   return (
     <motion.button
