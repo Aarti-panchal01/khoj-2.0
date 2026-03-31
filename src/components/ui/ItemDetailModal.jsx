@@ -16,7 +16,7 @@ const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId
 
   const isOwner = currentUserId && String(item.user) === String(currentUserId);
 
-  const uniLine = [item.universityName || item.college, item.campusName || item.campus].filter(Boolean).join(' · ');
+  const uniLine = [item.universityName, item.campusName].filter(Boolean).join(' · ');
 
   const email = item.userEmail?.trim() || '';
   const phone = item.userPhone?.trim() || '';
