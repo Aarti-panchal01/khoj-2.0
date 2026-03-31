@@ -8,6 +8,7 @@
   * {
     @apply border-slate-200;
   }
+
   html {
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
@@ -28,7 +29,10 @@
 
   h1, h2, h3, h4 {
     @apply text-slate-900 tracking-tight;
-  }/* Mobile-specific styles */
+  }
+}
+
+/* Mobile-specific styles */
 @media (max-width: 640px) {
   /* Prevent zoom on input focus */
   input[type="text"],
@@ -41,7 +45,7 @@
   select {
     font-size: 16px !important;
   }
-  
+
   /* Better touch targets */
   button,
   a,
@@ -50,7 +54,7 @@
   textarea {
     min-height: 44px;
   }
-  
+
   /* Prevent text selection on buttons */
   button {
     -webkit-user-select: none;
@@ -64,7 +68,7 @@
   .min-h-screen {
     min-height: -webkit-fill-available;
   }
-  
+
   /* Prevent rubber band scrolling */
   body {
     overscroll-behavior-y: none;
