@@ -68,7 +68,9 @@ const universities = [
 
 const seedUniversities = async () => {
   for (const u of universities) {
-    const existing = await University.findOne({ slug: u.slug }).lean();
+    // Match on name (field with unique index) so we never create duplicates by name,
+    // even if older records used a different slug.
+    const existing = await University.findOne({ name: u.name }).lean();
 
     const campusesPayload = (() => {
       if (!existing) {
@@ -87,7 +89,7 @@ const seedUniversities = async () => {
     })();
 
     await University.findOneAndUpdate(
-      { slug: u.slug },
+      { name: u.name },
       {
         $set: {
           name: u.name,
