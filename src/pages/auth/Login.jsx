@@ -21,6 +21,13 @@ const Login = () => {
   const afterAuth = async () => {
     try {
       const profile = await AuthAPI.me();
+      if (profile && !profile.isEmailVerified) {
+        navigate('/verify-email', {
+          replace: true,
+          state: { userId: profile.id, email: profile.email },
+        });
+        return;
+      }
       if (!profile?.universityId) navigate('/onboarding', { replace: true });
       else navigate('/', { replace: true });
     } catch {
