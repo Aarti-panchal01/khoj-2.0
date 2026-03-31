@@ -1,5 +1,7 @@
 const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
+// Support both newer (CloudinaryStorage class) and older (cloudinaryStorage fn) APIs
+const cloudinaryStoragePkg = require('multer-storage-cloudinary');
+const CloudinaryStorage = cloudinaryStoragePkg.CloudinaryStorage || cloudinaryStoragePkg;
 const multer = require('multer');
 
 // Verify required environment variables without logging credential values
@@ -17,14 +19,37 @@ cloudinary.config({
 const ALLOWED_FORMATS = ['jpg', 'jpeg', 'png'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB — tightened from 10MB
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
+let storage;
+
+// Prefer class-style API when available
+if (typeof CloudinaryStorage === 'function') {
+  try {
+    storage = new CloudinaryStorage({
+      cloudinary,
+      params: {
+        folder: 'khoj-items',
+        allowed_formats: ALLOWED_FORMATS,
+        resource_type: 'image',
+      },
+    });
+  } catch (err) {
+    console.error('CloudinaryStorage constructor failed, falling back to legacy API:', err.message);
+  }
+}
+
+// Legacy API fallback: some versions export a factory function instead
+if (!storage && typeof cloudinaryStoragePkg === 'function') {
+  storage = cloudinaryStoragePkg({
+    cloudinary,
     folder: 'khoj-items',
-    allowed_formats: ALLOWED_FORMATS,
+    allowedFormats: ALLOWED_FORMATS,
     resource_type: 'image',
-  },
-});
+  });
+}
+
+if (!storage) {
+  throw new Error('Failed to initialize Cloudinary storage; check multer-storage-cloudinary version.');
+}
 
 const upload = multer({
   storage: storage,

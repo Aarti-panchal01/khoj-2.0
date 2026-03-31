@@ -146,6 +146,8 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    const otp = generateOtp();
+    const otpHash = await bcrypt.hash(otp, 8);
     const passwordHash = await bcrypt.hash(payload.password, 10);
     const provisionalName = payload.email.split('@')[0]?.trim() || 'Student';
 
@@ -158,8 +160,22 @@ router.post('/signup', async (req, res) => {
       campusId: null,
       universityName: '',
       campusName: '',
-      isEmailVerified: true,
+      isEmailVerified: false,
+      emailOtp: otpHash,
+      emailOtpExpiry: new Date(Date.now() + 10 * 60 * 1000),
+      emailOtpAttempts: 0,
     });
+
+    // Send the verification OTP. If it fails, don't leave a half-configured account.
+    try {
+      await sendVerificationEmail(user.email, otp, user.name);
+    } catch (err) {
+      console.error('Signup email OTP send failed:', err?.message || err);
+      await User.findByIdAndDelete(user._id);
+      const status = err?.status || 503;
+      const message = err?.publicMessage || 'Failed to send verification email';
+      return res.status(status).json({ message });
+    }
 
     const accessToken = createAccessToken(user);
     const refreshToken = createRefreshToken(user);
@@ -249,9 +265,16 @@ router.post('/resend-otp', async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
     if (user.isEmailVerified) return res.status(400).json({ message: 'Email already verified' });
 
-    if (user.emailOtpExpiry && user.emailOtpExpiry > Date.now() + 9 * 60 * 1000) {
+    // Cooldown: block resend if the previous OTP was generated very recently.
+    // Previously ~60s; slightly relaxed to ~45s.
+    if (user.emailOtpExpiry && user.emailOtpExpiry > Date.now() + 9.25 * 60 * 1000) {
       return res.status(429).json({ message: 'Please wait before requesting a new code' });
     }
+
+    console.log('[OTP_DEBUG] resend-otp generating OTP', {
+      userId: String(user._id),
+      email: user.email,
+    });
 
     const otp = generateOtp();
     const otpHash = await bcrypt.hash(otp, 8);
@@ -263,15 +286,24 @@ router.post('/resend-otp', async (req, res) => {
     });
 
     try {
+      console.log('[OTP_DEBUG] resend-otp sending verification email', {
+        userId: String(user._id),
+        email: user.email,
+      });
       await sendVerificationEmail(user.email, otp, user.name);
     } catch (err) {
-      console.error('Failed to resend verification email:', err?.message || err);
-      return res.status(500).json({ message: 'Failed to send verification email' });
+      console.error('[OTP_DEBUG] resend-otp sendVerificationEmail failed', {
+        userId: String(user._id),
+        message: err?.message || err,
+      });
+      const status = err?.status || 500;
+      const message = err?.publicMessage || 'Failed to send verification email';
+      return res.status(status).json({ message });
     }
 
     return res.json({ message: 'New verification code sent' });
   } catch (error) {
-    console.error('Resend OTP error:', error.name);
+    console.error('Resend OTP error:', error?.name, error?.message);
     return res.status(500).json({ message: 'Failed to resend code' });
   }
 });
@@ -471,17 +503,19 @@ router.patch('/profile', authMiddleware, async (req, res) => {
       return res.status(err.status || 400).json({ message: err.message });
     }
 
-    const updated = await User.findByIdAndUpdate(
-      req.user._id,
-      {
-        name: body.name.trim(),
-        universityId: university._id,
-        universityName: university.name,
-        campusId: campus?._id || null,
-        campusName: campus?.name || '',
-      },
-      { new: true }
-    );
+    const updateDoc = {
+      name: body.name.trim(),
+      universityId: university._id,
+      universityName: university.name,
+      campusId: campus?._id || null,
+      campusName: campus?.name || '',
+    };
+
+    if (body.phone) {
+      updateDoc.phone = body.phone.trim();
+    }
+
+    const updated = await User.findByIdAndUpdate(req.user._id, updateDoc, { new: true });
 
     return res.json(formatUser(updated));
   } catch (error) {
