@@ -1,17 +1,34 @@
 const express = require('express');
-const { upload } = require('../config/cloudinary');
+const { cloudinary, upload } = require('../config/cloudinary');
 const authMiddleware = require('../middleware/authMiddleware');
 const requireUniversity = require('../middleware/requireUniversity');
 
 const router = express.Router();
 const privateUpload = [authMiddleware, requireUniversity];
 
+const uploadToCloudinary = (fileBuffer) =>
+  new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'khoj-items',
+        resource_type: 'image',
+        transformation: [{ quality: 'auto', fetch_format: 'auto' }],
+      },
+      (error, result) => {
+        if (error) return reject(error);
+        return resolve(result.secure_url);
+      }
+    );
+
+    stream.end(fileBuffer);
+  });
+
 /**
  * @route   POST /api/upload/images
  * @desc    Upload multiple images to Cloudinary
  * @access  Private (requires authentication)
  */
-router.post('/images', authMiddleware, (req, res) => {
+router.post('/images', ...privateUpload, (req, res) => {
   upload.array('images', 5)(req, res, (err) => {
     if (err) {
       console.error('Multer/Cloudinary upload error:', err);
@@ -21,7 +38,7 @@ router.post('/images', authMiddleware, (req, res) => {
       });
     }
 
-    try {
+    (async () => {
       // Check if files were uploaded
       if (!req.files || req.files.length === 0) {
         return res.status(400).json({
@@ -30,21 +47,20 @@ router.post('/images', authMiddleware, (req, res) => {
         });
       }
 
-      // Extract Cloudinary URLs from uploaded files
-      const imageUrls = req.files.map(file => file.path);
+      const imageUrls = await Promise.all(req.files.map((file) => uploadToCloudinary(file.buffer)));
 
       res.status(200).json({
         success: true,
         message: `${imageUrls.length} image(s) uploaded successfully`,
         images: imageUrls,
       });
-    } catch (error) {
+    })().catch((error) => {
       console.error('Image upload error:', error);
       res.status(500).json({
         success: false,
         message: error.message || 'Failed to upload images',
       });
-    }
+    });
   });
 });
 
@@ -63,7 +79,7 @@ router.post('/image', ...privateUpload, (req, res) => {
       });
     }
 
-    try {
+    (async () => {
       // Check if file was uploaded
       if (!req.file) {
         return res.status(400).json({
@@ -72,18 +88,20 @@ router.post('/image', ...privateUpload, (req, res) => {
         });
       }
 
+      const imageUrl = await uploadToCloudinary(req.file.buffer);
+
       res.status(200).json({
         success: true,
         message: 'Image uploaded successfully',
-        imageUrl: req.file.path,
+        imageUrl,
       });
-    } catch (error) {
+    })().catch((error) => {
       console.error('Image upload error:', error);
       res.status(500).json({
         success: false,
         message: error.message || 'Failed to upload image',
       });
-    }
+    });
   });
 });
 
