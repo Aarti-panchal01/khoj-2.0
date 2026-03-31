@@ -1,4 +1,5 @@
-const cloudinary = require('cloudinary').v2;
+const cloudinaryPkg = require('cloudinary');
+const cloudinary = cloudinaryPkg.v2;
 // Support both newer (CloudinaryStorage class) and older (cloudinaryStorage fn) APIs
 const cloudinaryStoragePkg = require('multer-storage-cloudinary');
 const CloudinaryStorage = cloudinaryStoragePkg.CloudinaryStorage || cloudinaryStoragePkg;
@@ -25,7 +26,8 @@ let storage;
 if (typeof CloudinaryStorage === 'function') {
   try {
     storage = new CloudinaryStorage({
-      cloudinary,
+      // multer-storage-cloudinary expects the package object so it can use cloudinary.v2
+      cloudinary: cloudinaryPkg,
       params: {
         folder: 'khoj-items',
         allowed_formats: ALLOWED_FORMATS,
@@ -40,7 +42,7 @@ if (typeof CloudinaryStorage === 'function') {
 // Legacy API fallback: some versions export a factory function instead
 if (!storage && typeof cloudinaryStoragePkg === 'function') {
   storage = cloudinaryStoragePkg({
-    cloudinary,
+    cloudinary: cloudinaryPkg,
     folder: 'khoj-items',
     allowedFormats: ALLOWED_FORMATS,
     resource_type: 'image',
