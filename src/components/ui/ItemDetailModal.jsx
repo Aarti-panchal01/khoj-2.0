@@ -1,50 +1,27 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { X, MapPin, Calendar, Mail, Phone, Package, AlertCircle, User, Building2, Gift } from 'lucide-react';
+import { X, MapPin, Calendar, Package, AlertCircle, User, Building2, Gift } from 'lucide-react';
 import { format } from 'date-fns';
 import Badge from './Badge';
 import Button from './Button';
 import Card from './Card';
 import ClaimModal from './ClaimModal';
 
-const ItemDetailModal = ({ isOpen, onClose, item }) => {
+const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId = null }) => {
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   if (!isOpen || !item) return null;
 
-  // Debug: Log item data to see what we're receiving
-  console.log('🔍 ItemDetailModal - Item data:', {
-    type: item.type,
-    contactPreference: item.contactPreference,
-    userEmail: item.userEmail,
-    userPhone: item.userPhone,
-    hasUserEmail: !!item.userEmail,
-    hasUserPhone: !!item.userPhone,
-    fullItem: item
-  });
+  const isOwner = currentUserId && String(item.user) === String(currentUserId);
 
-  const handleContact = (method) => {
-    switch (method) {
-      case 'email':
-        if (item.userEmail) {
-          window.location.href = `mailto:${item.userEmail}?subject=Regarding: ${item.title}`;
-        }
-        break;
-      case 'phone':
-        if (item.userPhone) {
-          window.location.href = `tel:${item.userPhone}`;
-        }
-        break;
-      case 'both':
-        // Show both options - user can choose
-        break;
-      default:
-        break;
-    }
-  };
+  const uniLine = [item.universityName, item.campusName].filter(Boolean).join(' · ');
 
-  const canShowEmail = item.contactPreference === 'email' || item.contactPreference === 'both';
-  const canShowPhone = item.contactPreference === 'phone' || item.contactPreference === 'both';
+  const email = item.userEmail?.trim() || '';
+  const phone = item.userPhone?.trim() || '';
+  const hasEmail = Boolean(email);
+  const hasPhone = Boolean(phone);
 
   return (
     <>
@@ -198,7 +175,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                 </Card>
               </div>
 
-              {item.college && (
+              {(item.universityName || item.college) && (
                 <Card className="p-4 border-2 border-gray-200 hover:border-primary-300 transition-colors">
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -206,14 +183,9 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                     </div>
                     <div className="flex-1">
                       <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
-                        College & Campus
+                        University &amp; Campus
                       </p>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {item.college}
-                      </p>
-                      {item.campus && (
-                        <p className="text-xs text-gray-600 mt-1">{item.campus}</p>
-                      )}
+                      <p className="text-sm font-semibold text-gray-900">{uniLine}</p>
                     </div>
                   </div>
                 </Card>
@@ -242,12 +214,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold text-gray-900">{item.userName}</p>
-                    {(item.college || item.campus) && (
-                      <p className="text-sm text-gray-600">
-                        {item.college}
-                        {item.campus ? ` • ${item.campus}` : ''}
-                      </p>
-                    )}
+                    {uniLine && <p className="text-sm text-gray-600">{uniLine}</p>}
                   </div>
                 </div>
                 
@@ -328,68 +295,98 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
 
             {/* Contact/Claim Section */}
             {item.type === 'found' ? (
-              // Claim button for FOUND items
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-400">
+              <div className="bg-gradient-to-br from-success-50 to-green-50 rounded-xl p-6 border-2 border-success-300">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <span className="text-xl">✓</span>
-                  Is This Your Item?
+                  {isOwner ? 'Your listing' : 'Is This Your Item?'}
                 </h4>
-                <p className="text-sm text-gray-700 mb-4">
-                  If you believe this is your lost item, click below to submit a claim. You'll need to answer verification questions to prove ownership.
-                </p>
-                <Button
-                  variant="primary"
-                  fullWidth
-                  onClick={() => setIsClaimModalOpen(true)}
-                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-xl text-white font-bold text-base py-4"
-                >
-                  🔐 Claim This Item
-                </Button>
+                {isOwner ? (
+                  <p className="text-sm text-gray-700">
+                    You posted this found item. Manage claims from your profile and notifications.
+                  </p>
+                ) : (
+                  <>
+                    <p className="text-sm text-gray-700 mb-4">
+                      If you believe this is your lost item, submit a claim and answer a few verification questions.
+                    </p>
+                    {isGuest ? (
+                      <Button
+                        variant="primary"
+                        fullWidth
+                        onClick={() => { onClose(); navigate('/login'); }}
+                        className="bg-gradient-to-r from-success-500 to-green-600 hover:from-success-600 hover:to-green-700 shadow-lg"
+                      >
+                        Sign in to claim
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="primary"
+                        fullWidth
+                        onClick={() => setIsClaimModalOpen(true)}
+                        className="bg-gradient-to-r from-success-500 to-green-600 hover:from-success-600 hover:to-green-700 shadow-lg"
+                      >
+                        🔐 Claim This Item
+                      </Button>
+                    )}
+                  </>
+                )}
               </div>
             ) : (
-              // Contact section for LOST items - show contact buttons
-              <div className="bg-gradient-to-br from-primary-50 to-blue-50 rounded-xl p-6 border-2 border-primary-200">
+              <div className="bg-gradient-to-br from-primary-50 to-blue-50 rounded-xl p-6 border-2 border-primary-200 relative overflow-hidden">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <span className="text-xl">💬</span>
                   Contact Owner
                 </h4>
                 <p className="text-sm text-gray-600 mb-4">
-                  Have information about this item? Reach out to the owner:
+                  {isOwner
+                    ? 'This is your lost-item post. Others can contact you using the methods you chose when posting.'
+                    : 'Have information about this item? Reach out to the owner:'}
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {/* Email Box */}
-                  {item.userEmail && (
-                    <Card className="p-4 bg-white border-2 border-primary-300 hover:border-primary-500 transition-all cursor-pointer" onClick={() => handleContact('email')}>
-                      <div className="flex flex-col items-center gap-2 text-center">
-                        <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
-                          <Mail className="w-6 h-6 text-primary-600" />
-                        </div>
-                        <p className="text-xs font-medium text-gray-500 uppercase">Email</p>
-                        <p className="text-sm font-semibold text-primary-700 break-all">{item.userEmail}</p>
-                      </div>
-                    </Card>
-                  )}
-                  {/* Phone Box */}
-                  {item.userPhone && (
-                    <Card className="p-4 bg-white border-2 border-primary-300 hover:border-primary-500 transition-all cursor-pointer" onClick={() => handleContact('phone')}>
-                      <div className="flex flex-col items-center gap-2 text-center">
-                        <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
-                          <Phone className="w-6 h-6 text-primary-600" />
-                        </div>
-                        <p className="text-xs font-medium text-gray-500 uppercase">Phone</p>
-                        <p className="text-sm font-semibold text-primary-700">{item.userPhone}</p>
-                      </div>
-                    </Card>
-                  )}
-                  {/* Show warning only if no contact info is available */}
-                  {!item.userEmail && !item.userPhone && (
-                    <Card className="p-4 bg-yellow-50 border border-yellow-200 col-span-full">
-                      <p className="text-sm text-yellow-800 text-center">
-                        No contact methods available for this item.
-                      </p>
-                    </Card>
-                  )}
-                </div>
+                {isOwner ? (
+                  <Card className="p-4 bg-white/80 border border-primary-200">
+                    <p className="text-sm text-gray-700 text-center">
+                      You&apos;ll receive email or phone outreach based on your contact preference (
+                      <span className="font-semibold">{item.contactPreference || 'both'}</span>
+                      ).
+                    </p>
+                  </Card>
+                ) : isGuest ? (
+                  <div className="relative min-h-[120px]">
+                    <div className="space-y-3 blur-md select-none pointer-events-none opacity-80" aria-hidden>
+                      <div className="h-11 rounded-lg bg-primary-200/80" />
+                      <div className="h-11 rounded-lg bg-primary-200/60" />
+                    </div>
+                    <button
+                      type="button"
+                      className="absolute inset-0 flex items-center justify-center rounded-lg bg-white/75 backdrop-blur-[2px] text-sm font-semibold text-primary-800 px-4 py-3 hover:bg-white/90 transition-colors border border-primary-200"
+                      onClick={() => { onClose(); navigate('/login'); }}
+                    >
+                      Sign in to see contact details
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {hasEmail && (
+                      <a
+                        href={`mailto:${email}?subject=${encodeURIComponent(`Regarding: ${item.title}`)}`}
+                        className="flex items-center justify-center w-full rounded-lg bg-primary-600 text-white py-3 text-sm font-semibold shadow-md hover:bg-primary-700 transition-colors"
+                      >
+                        Contact via Email
+                      </a>
+                    )}
+                    {hasPhone && (
+                      <a
+                        href={`tel:${phone}`}
+                        className="flex items-center justify-center w-full rounded-lg border-2 border-gray-300 bg-white py-3 text-sm font-semibold text-gray-900 hover:bg-gray-50 transition-colors"
+                      >
+                        Contact via Phone
+                      </a>
+                    )}
+                    {!hasEmail && !hasPhone && (
+                      <p className="text-sm text-center text-gray-600 py-2">No contact details available</p>
+                    )}
+                  </div>
+                )}
                 <p className="text-xs text-gray-500 text-center mt-4">
                   Posted on {format(new Date(item.createdAt), 'MMM dd, yyyy')}
                 </p>
