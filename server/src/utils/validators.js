@@ -14,6 +14,12 @@ const authProfilePatchSchema = z.object({
   name: z.string().min(2).max(100),
   universityId: z.string().min(1),
   campusId: z.string().optional().nullable(),
+  phone: z
+    .string()
+    .min(7)
+    .max(20)
+    .regex(/^\+?[0-9\s\-()]{7,20}$/, 'Enter a valid phone number')
+    .optional(),
 });
 
 const googleAuthSchema = z.object({
