@@ -166,7 +166,11 @@ router.post('/signup', async (req, res) => {
       emailOtpAttempts: 0,
     });
 
+<<<<<<< HEAD
     // Send the verification OTP. If this fails, don't leave a half-configured account.
+=======
+    // Send the verification OTP. If it fails, don't leave a half-configured account.
+>>>>>>> 3eef910c89604cd45d0862cdab7cb921277dd20b
     try {
       await sendVerificationEmail(user.email, otp, user.name);
     } catch (err) {
@@ -422,7 +426,15 @@ router.get('/me', authMiddleware, async (req, res) => {
 router.post('/google', async (req, res) => {
   try {
     const payload = googleAuthSchema.parse(req.body);
+<<<<<<< HEAD
     const clientId = process.env.GOOGLE_CLIENT_ID;
+=======
+    // Accept common env key variants to reduce deployment misconfiguration issues.
+    const clientId =
+      process.env.GOOGLE_CLIENT_ID ||
+      process.env.GOOGLE_CLIENTID ||
+      process.env.VITE_GOOGLE_CLIENT_ID;
+>>>>>>> 3eef910c89604cd45d0862cdab7cb921277dd20b
     if (!clientId) {
       return res.status(503).json({ message: 'Google sign-in is not configured on this server.' });
     }

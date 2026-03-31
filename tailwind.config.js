@@ -8,6 +8,7 @@ export default {
     extend: {
       colors: {
         primary: {
+<<<<<<< HEAD
           50: '#eff6ff',
           100: '#dbeafe',
           200: '#bfdbfe',
@@ -25,6 +26,18 @@ export default {
           200: '#e2e8f0',
           700: '#334155',
           900: '#0f172a',
+=======
+          50: '#f0f9ff',
+          100: '#e0f2fe',
+          200: '#bae6fd',
+          300: '#7dd3fc',
+          400: '#38bdf8',
+          500: '#0ea5e9',
+          600: '#0284c7',
+          700: '#0369a1',
+          800: '#075985',
+          900: '#0c4a6e',
+>>>>>>> 3eef910c89604cd45d0862cdab7cb921277dd20b
         },
         success: {
           50: '#f0fdf4',
@@ -48,10 +61,13 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
+<<<<<<< HEAD
       boxShadow: {
         soft: '0 1px 2px 0 rgba(15, 23, 42, 0.06), 0 1px 3px 0 rgba(15, 23, 42, 0.1)',
         card: '0 4px 10px -2px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.06)',
       },
+=======
+>>>>>>> 3eef910c89604cd45d0862cdab7cb921277dd20b
       animation: {
         'fade-in': 'fadeIn 0.3s ease-in',
         'slide-up': 'slideUp 0.3s ease-out',
