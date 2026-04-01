@@ -76,7 +76,7 @@ const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId
                     </Badge>
                     {/* Reward Badge */}
                     {item.type === 'lost' && item.reward && item.reward !== 'none' && (
-                      <Badge className="bg-gradient-to-r from-primary-500 to-warning-600 text-ink-950 border-0 shadow-lg">
+                      <Badge className="bg-gradient-to-r from-primary-500 to-primary-700 text-white border-0 shadow-lg">
                         {item.reward === 'gratitude' && '🙏 Gratitude'}
                         {item.reward === 'food_treat' && '🍕 Food Treat'}
                         {item.reward === 'coffee' && '☕ Coffee'}
@@ -104,7 +104,7 @@ const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId
                   </Badge>
                   {/* Reward Badge */}
                   {item.type === 'lost' && item.reward && item.reward !== 'none' && (
-                  <Badge className="bg-gradient-to-r from-primary-500 to-warning-600 text-ink-950 border-0 shadow-lg">
+                  <Badge className="bg-gradient-to-r from-primary-500 to-primary-700 text-white border-0 shadow-lg">
                       {item.reward === 'gratitude' && '🙏 Gratitude'}
                       {item.reward === 'food_treat' && '🍕 Food Treat'}
                       {item.reward === 'coffee' && '☕ Coffee'}
@@ -274,9 +274,9 @@ const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId
             {/* Reward Section for Lost Items */}
             {item.type === 'lost' && item.reward && item.reward !== 'none' && (
               <div className="mb-6">
-                <Card className="p-5 bg-gradient-to-br from-primary-50 via-warning-50 to-surface-100 border-2 border-primary-300">
+                <Card className="p-5 bg-gradient-to-br from-primary-50 via-primary-100 to-surface-100 border-2 border-primary-300">
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-warning-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
                       <span className="text-3xl">
                         {item.reward === 'gratitude' && '🙏'}
                         {item.reward === 'food_treat' && '🍕'}
@@ -325,7 +325,7 @@ const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId
                     </p>
                     {isGuest ? (
                       <Button
-                        variant="found"
+                        variant="primary"
                         fullWidth
                         onClick={() => { onClose(); navigate('/login'); }}
                         className="shadow-lg"
