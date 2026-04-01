@@ -207,9 +207,10 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
                 </Button>
                 <Button
                   type="submit"
+                  variant="outline"
                   fullWidth
                   loading={loading}
-                  className="bg-white text-primary-700 font-semibold hover:bg-primary-50 border border-primary-200 shadow-xl order-1 sm:order-2"
+                  className="!bg-white !text-black font-semibold hover:!bg-primary-50 !border !border-primary-200 shadow-xl order-1 sm:order-2"
                 >
                   Submit Claim
                 </Button>
