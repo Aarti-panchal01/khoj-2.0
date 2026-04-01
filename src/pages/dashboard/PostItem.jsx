@@ -14,13 +14,17 @@ const PostItem = () => {
   const editId = searchParams.get('edit');
   const isEditMode = Boolean(editId);
 
+  const todayLocal = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+    .toISOString()
+    .split('T')[0];
+
   const [formData, setFormData] = useState({
     type: 'found',
     title: '',
     description: '',
     category: '',
     location: '',
-    date: new Date().toISOString().split('T')[0],
+    date: todayLocal,
     images: [],
     urgent: false,
     reward: 'none',
@@ -44,7 +48,7 @@ const PostItem = () => {
           description: item.description,
           category: item.category,
           location: item.location,
-          date: item.date ? item.date.split('T')[0] : new Date().toISOString().split('T')[0],
+          date: item.date ? item.date.split('T')[0] : todayLocal,
           images: item.images || [],
           urgent: item.urgent,
           reward: item.reward || 'none',
@@ -278,9 +282,9 @@ const PostItem = () => {
               onChange={handleChange}
               icon={Calendar}
               required
-              max={new Date().toISOString().split('T')[0]}
-              wrapperClassName="w-full overflow-hidden"
-              inputClassName="w-full max-w-full box-border"
+              max={todayLocal}
+              wrapperClassName="w-full overflow-hidden rounded-xl border border-ink-300 bg-surface-0"
+              inputClassName="w-full max-w-full box-border appearance-none !border-0 !rounded-none"
               inputStyle={{ width: '100%', maxWidth: '100%' }}
             />
 
