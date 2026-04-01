@@ -90,7 +90,7 @@ const Profile = () => {
         className="space-y-6"
       >
         {/* Profile Header */}
-        <div className="relative bg-gradient-to-r from-primary-700 via-primary-800 to-primary-900 rounded-2xl overflow-hidden shadow-xl">
+        <div className="relative bg-gradient-to-r from-primary-800 to-primary-950 rounded-2xl overflow-hidden shadow-xl">
           {/* Decorative Background Pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
