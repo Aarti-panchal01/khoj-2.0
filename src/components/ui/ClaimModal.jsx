@@ -144,7 +144,7 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
               <div>
                 <label className="flex items-center gap-2 text-sm sm:text-sm font-medium text-white mb-2">
                   <MapPin className="w-4 h-4" />
-                  Where did you lose this item? <span className="text-yellow-300">*</span>
+                  Where did you lose this item? <span className="text-primary-200">*</span>
                 </label>
                 <textarea
                   name="whereList"
@@ -162,7 +162,7 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
               <div>
                 <label className="flex items-center gap-2 text-sm sm:text-sm font-medium text-white mb-2">
                   <Calendar className="w-4 h-4" />
-                  When did you lose this item? <span className="text-yellow-300">*</span>
+                  When did you lose this item? <span className="text-primary-200">*</span>
                 </label>
                 <textarea
                   name="whenList"
@@ -180,7 +180,7 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
               <div>
                 <label className="flex items-center gap-2 text-sm sm:text-sm font-medium text-white mb-2">
                   <FileText className="w-4 h-4" />
-                  Tell one specific detail about this item <span className="text-yellow-300">*</span>
+                  Tell one specific detail about this item <span className="text-primary-200">*</span>
                 </label>
                 <textarea
                   name="specificDetails"
@@ -209,7 +209,7 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
                   type="submit"
                   fullWidth
                   loading={loading}
-                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold shadow-xl order-1 sm:order-2"
+                  className="bg-gradient-to-r from-primary-500 to-primary-700 hover:from-primary-600 hover:to-primary-800 text-white font-bold shadow-xl order-1 sm:order-2"
                 >
                   Submit Claim
                 </Button>

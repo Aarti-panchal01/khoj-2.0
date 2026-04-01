@@ -20,7 +20,7 @@ const MailIcon = () => (
 
 const KhojMark = () => (
   <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-ink-950 ring-1 ring-primary-400/40">
-    <svg className="h-5 w-5 text-primary-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg className="h-5 w-5 text-primary-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
       <circle cx="11" cy="11" r="7" />
       <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
     </svg>
@@ -38,7 +38,7 @@ const Footer = () => (
             <KhojMark />
             <div>
               <p className="text-2xl font-extrabold text-surface-50 khoj-heading leading-none">Khoj</p>
-              <p className="text-xs font-extrabold text-primary-300 tracking-[0.16em] khoj-heading mt-1">DON&apos;T PANIC. POST IT.</p>
+              <p className="text-xs font-extrabold text-primary-400 tracking-[0.16em] khoj-heading mt-1">DON&apos;T PANIC. POST IT.</p>
             </div>
           </div>
           <p className="text-sm text-surface-200/80 leading-relaxed">
