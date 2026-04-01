@@ -238,11 +238,11 @@ const Home = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Card className="p-3 sm:p-4 md:p-5 hover:shadow-lg transition-all cursor-pointer bg-surface-0 border border-ink-200">
+            <Card className="p-3 sm:p-4 md:p-5 hover:shadow-md transition-all cursor-pointer bg-white border border-slate-200 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-[10px] sm:text-xs font-semibold text-ink-600 uppercase tracking-wide">{stat.label}</p>
-                  <p className={`text-2xl sm:text-3xl md:text-4xl khoj-heading font-extrabold text-${stat.color}-700 mt-1 leading-none`}>
+                  <p className="text-2xl sm:text-3xl md:text-4xl khoj-heading font-extrabold text-ink-900 mt-1 leading-none">
                     {stat.value}
                   </p>
                   {stat.subtitle && <p className="text-[10px] sm:text-xs text-ink-600 mt-1">{stat.subtitle}</p>}
@@ -403,7 +403,7 @@ const Home = () => {
                   </div>
 
                   {item.type === 'lost' && item.reward && item.reward !== 'none' && (
-                    <div className="mb-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-full">
+                    <div className="mb-3 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-primary-50 to-primary-100 border border-primary-200 rounded-full">
                       <span className="text-base">
                         {item.reward === 'gratitude' && '🙏'}
                         {item.reward === 'food_treat' && '🍕'}
@@ -411,7 +411,7 @@ const Home = () => {
                         {item.reward === 'cash_reward' && '💵'}
                         {item.reward === 'gift' && '🎁'}
                       </span>
-                      <span className="text-xs font-semibold text-amber-800">
+                      <span className="text-xs font-semibold text-primary-800">
                         {item.reward === 'gratitude' && 'Gratitude'}
                         {item.reward === 'food_treat' && 'Food Treat'}
                         {item.reward === 'coffee' && 'Coffee'}

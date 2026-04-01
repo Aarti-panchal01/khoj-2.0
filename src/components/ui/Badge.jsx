@@ -5,8 +5,8 @@ const Badge = ({ children, variant = 'default', className = '' }) => {
     success: 'bg-success-50 text-success-700 border border-success-100',
     warning: 'bg-warning-50 text-warning-800 border border-warning-100',
     danger: 'bg-danger-50 text-danger-700 border border-danger-100',
-    found: 'bg-found-50 text-found-700 border border-found-100',
-    lost: 'bg-lost-50 text-lost-700 border border-lost-100',
+    found: 'bg-emerald-100 text-emerald-800',
+    lost: 'bg-rose-100 text-rose-800',
   };
 
   return (
