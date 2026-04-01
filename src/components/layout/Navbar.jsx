@@ -42,28 +42,40 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14 sm:h-16">
           <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl overflow-hidden bg-surface-0 shadow-sm flex items-center justify-center ring-1 ring-ink-200">
-              <img src="/Khoj_logo.jpeg" alt="Khoj logo" className="w-full h-full object-cover" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-lg sm:text-xl font-semibold text-ink-950 khoj-heading leading-none">Khoj</h1>
-                <span className="text-[11px] font-medium text-primary-400 tracking-widest hidden sm:inline">
-                  DON&apos;T PANIC. POST IT.
-                </span>
+            <div className="flex items-center gap-2 md:hidden">
+              <div className="w-9 h-9 rounded-2xl overflow-hidden bg-surface-0 shadow-sm flex items-center justify-center ring-1 ring-ink-200">
+                <img src="/Khoj_logo.jpeg" alt="Khoj logo" className="w-full h-full object-cover" />
               </div>
-              {user?.universityName && (
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-0.5">
-                  <Badge variant="primary" className="hidden sm:inline-flex text-[10px] font-semibold">
-                    {user.universityName}
-                  </Badge>
-                  {user?.campusName && (
-                    <span className="text-[10px] text-primary-900 font-semibold hidden sm:inline">
-                      {user.campusName}
-                    </span>
-                  )}
+              <div className="flex flex-col leading-tight">
+                <span className="font-instrument-serif text-lg font-bold text-primary-900">Khoj</span>
+                <span className="text-[10px] font-medium tracking-widest text-primary-500 uppercase">Don&apos;t Panic. Post It.</span>
+              </div>
+            </div>
+
+            <div className="hidden md:flex items-center gap-2 sm:gap-3">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl overflow-hidden bg-surface-0 shadow-sm flex items-center justify-center ring-1 ring-ink-200">
+                <img src="/Khoj_logo.jpeg" alt="Khoj logo" className="w-full h-full object-cover" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-lg sm:text-xl font-semibold text-ink-950 khoj-heading leading-none">Khoj</h1>
+                  <span className="text-[11px] font-medium text-primary-400 tracking-widest hidden sm:inline">
+                    DON&apos;T PANIC. POST IT.
+                  </span>
                 </div>
-              )}
+                {user?.universityName && (
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-0.5">
+                    <Badge variant="primary" className="hidden sm:inline-flex text-[10px] font-semibold">
+                      {user.universityName}
+                    </Badge>
+                    {user?.campusName && (
+                      <span className="text-[10px] text-primary-900 font-semibold hidden sm:inline">
+                        {user.campusName}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </Link>
 
@@ -122,18 +134,29 @@ const Navbar = () => {
 
               <div className="flex items-center gap-2 sm:gap-3">
                 {user?.universityId && (
-                  <button
-                    type="button"
-                    onClick={() => navigate('/notifications')}
-                    className="relative p-1.5 sm:p-2 text-ink-700 hover:bg-surface-100 rounded-xl transition-colors"
-                  >
-                    <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
-                    {unreadCount > 0 && (
-                      <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 min-w-[18px] h-[18px] bg-lost-600 text-white text-[10px] font-extrabold rounded-full flex items-center justify-center px-1">
-                        {unreadCount > 99 ? '99+' : unreadCount}
-                      </span>
-                    )}
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => navigate('/notifications')}
+                      className="relative p-1.5 sm:p-2 text-ink-700 hover:bg-surface-100 rounded-xl transition-colors"
+                    >
+                      <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
+                      {unreadCount > 0 && (
+                        <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 min-w-[18px] h-[18px] bg-lost-600 text-white text-[10px] font-extrabold rounded-full flex items-center justify-center px-1">
+                          {unreadCount > 99 ? '99+' : unreadCount}
+                        </span>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="md:hidden p-1.5 sm:p-2 text-ink-500 hover:text-red-500 hover:bg-surface-100 rounded-xl transition-colors"
+                      title="Logout"
+                      aria-label="Logout"
+                    >
+                      <LogOut className="w-5 h-5" />
+                    </button>
+                  </>
                 )}
 
                 <div className="hidden md:flex items-center gap-3 pl-3 border-l border-ink-200">

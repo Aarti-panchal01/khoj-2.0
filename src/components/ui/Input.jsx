@@ -10,6 +10,9 @@ const Input = forwardRef(({
   icon: Icon,
   required = false,
   className = '',
+  wrapperClassName = '',
+  inputClassName = '',
+  inputStyle,
   ...props
 }, ref) => {
   return (
@@ -20,7 +23,7 @@ const Input = forwardRef(({
           {required && <span className="text-lost-600 ml-1">*</span>}
         </label>
       )}
-      <div className="relative">
+      <div className={`relative ${wrapperClassName}`}>
         {Icon && (
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Icon className="h-5 w-5 text-ink-400" />
@@ -40,8 +43,9 @@ const Input = forwardRef(({
             focus:outline-none focus:ring-2
             transition-all duration-200
             disabled:bg-surface-100 disabled:cursor-not-allowed touch-manipulation
+            ${inputClassName}
           `}
-          style={{ minHeight: '44px' }}
+          style={{ minHeight: '44px', ...(inputStyle || {}) }}
           {...props}
         />
       </div>
