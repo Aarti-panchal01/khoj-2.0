@@ -279,8 +279,8 @@ const PostItem = () => {
               icon={Calendar}
               required
               max={new Date().toISOString().split('T')[0]}
-              wrapperClassName="w-full overflow-hidden"
-              inputClassName="w-full max-w-full box-border"
+              wrapperClassName="w-full overflow-hidden rounded-xl"
+              inputClassName="w-full max-w-full box-border appearance-none"
               inputStyle={{ width: '100%', maxWidth: '100%' }}
             />
 
