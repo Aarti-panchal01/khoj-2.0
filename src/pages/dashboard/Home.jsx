@@ -206,8 +206,9 @@ const Home = () => {
             <span className="khoj-heading text-primary-700 text-6xl font-normal">Khoj</span>{' '}
             <span className="font-sans text-4xl font-light text-ink-600">Lost &amp; Found</span>
           </h1>
-          <p className="text-sm sm:text-base khoj-muted mt-1.5">
-            Browse posts across campus — fast, scannable, student-first.
+          <p className="text-sm text-ink-500 mt-1">
+            <span className="block sm:inline">Browse posts across campus —</span>
+            <span className="block sm:inline"> fast, scannable, student-first.</span>
           </p>
           {showFeedBanner && (
             <p className="text-xs font-semibold text-primary-800 mt-2">
