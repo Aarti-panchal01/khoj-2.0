@@ -48,8 +48,9 @@ const Signup = () => {
 
   return (
     <div className="min-h-0 flex flex-col lg:flex-row flex-1">
-      <div className="hidden lg:flex flex-1 bg-gradient-to-br from-primary-600 to-primary-800 p-12 items-center justify-center text-white">
-        <div className="max-w-md">
+      <div className="hidden lg:flex relative flex-1 bg-primary-950 p-12 items-center justify-center text-white overflow-hidden">
+        <div className="absolute inset-0 opacity-25" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.25) 1px, transparent 0)', backgroundSize: '18px 18px' }}></div>
+        <div className="relative max-w-md">
           <h2 className="text-3xl font-bold mb-4">Join Khoj</h2>
           <p className="text-primary-100 text-lg">
             Create your secure campus account with email and a 6-digit passcode. No social login required.

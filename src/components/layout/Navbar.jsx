@@ -47,8 +47,8 @@ const Navbar = () => {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-extrabold text-ink-950 khoj-heading leading-none">Khoj</h1>
-                <span className="text-[9px] sm:text-[10px] font-extrabold text-primary-900 tracking-[0.14em] hidden sm:inline khoj-heading">
+                <h1 className="text-lg sm:text-xl font-semibold text-ink-950 khoj-heading leading-none">Khoj</h1>
+                <span className="text-[9px] sm:text-[10px] font-bold text-primary-200 tracking-[0.14em] hidden sm:inline">
                   DON&apos;T PANIC. POST IT.
                 </span>
               </div>
@@ -78,7 +78,7 @@ const Navbar = () => {
               </Link>
               <Link
                 to="/signup"
-                className="inline-flex items-center px-3 py-2 text-sm font-extrabold text-ink-950 bg-primary-500 hover:bg-primary-600 rounded-xl shadow-soft transition-colors"
+                className="inline-flex items-center px-3 py-2 text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 rounded-xl shadow-soft transition-colors"
               >
                 Sign up
               </Link>

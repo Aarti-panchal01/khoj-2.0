@@ -15,7 +15,7 @@ const Button = ({
   const baseStyles = 'font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 active:scale-[0.99]';
 
   const variants = {
-    primary: 'bg-primary-500 hover:bg-primary-600 text-ink-950 shadow-soft',
+    primary: 'bg-primary-600 hover:bg-primary-700 text-white shadow-soft',
     secondary: 'bg-surface-100 hover:bg-surface-200 text-ink-900 border border-ink-200',
     outline: 'border border-ink-300 text-ink-900 hover:bg-surface-100',
     danger: 'bg-lost-600 hover:bg-lost-700 text-white shadow-soft',

@@ -18,6 +18,7 @@ import Terms from './pages/legal/Terms';
 import CommunityGuidelines from './pages/legal/CommunityGuidelines';
 import About from './pages/About';
 import HowItWorks from './pages/HowItWorks';
+import ScrollToTop from './components/utils/ScrollToTop';
 
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
@@ -56,6 +57,7 @@ function AppRoutes() {
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <AuthProvider>
         {googleClientId ? (
           <GoogleOAuthProvider clientId={googleClientId}>
