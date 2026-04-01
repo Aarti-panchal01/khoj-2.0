@@ -16,7 +16,7 @@ const Card = ({
     <Component
       onClick={onClick}
       className={`
-        bg-white rounded-2xl border border-slate-200 shadow-soft        ${hover ? 'cursor-pointer' : ''}
+        bg-surface-0 rounded-2xl border border-ink-200 shadow-soft ${hover ? 'cursor-pointer' : ''}
         ${className}
       `}
       {...motionProps}

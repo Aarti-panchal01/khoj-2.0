@@ -143,26 +143,26 @@ const Onboarding = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-gradient-to-br from-sky-50 via-white to-amber-50">
+    <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-[radial-gradient(1200px_500px_at_20%_-10%,theme(colors.primary.100),transparent_60%),radial-gradient(900px_400px_at_90%_0%,theme(colors.surface.100),transparent_55%)] bg-surface-50">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-xl"
       >
-        <div className="bg-white/90 backdrop-blur rounded-3xl shadow-xl border border-sky-100 px-6 sm:px-8 py-8">
+        <div className="bg-surface-0/90 backdrop-blur rounded-3xl shadow-xl border border-ink-200 px-6 sm:px-8 py-8">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-sky-100 rounded-2xl mb-4 shadow-md overflow-hidden">
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-surface-100 rounded-2xl mb-4 shadow-md overflow-hidden ring-1 ring-ink-200">
               <img src="/Khoj_logo.jpeg" alt="Khoj" className="w-full h-full object-cover" />
             </div>
-            <h1 className="text-2xl font-bold text-slate-900">Almost there</h1>
-            <p className="text-slate-600 mt-2 text-sm">
+            <h1 className="text-3xl khoj-heading font-extrabold text-ink-950 leading-[0.95]">Choose your campus</h1>
+            <p className="text-ink-700 mt-2 text-sm">
               Tell us who you are and where you study so we can show you the right lost &amp; found feed.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded-lg text-sm">
+              <div className="bg-lost-50 border border-lost-200 text-lost-800 px-4 py-3 rounded-xl text-sm">
                 {error}
               </div>
             )}
@@ -189,8 +189,8 @@ const Onboarding = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                College / University <span className="text-danger-500">*</span>
+              <label className="block text-sm font-semibold text-ink-800 mb-1.5">
+                College / University <span className="text-lost-600">*</span>
               </label>
               <button
                 type="button"
@@ -199,25 +199,25 @@ const Onboarding = () => {
                   setIsUniversityOpen((prev) => !prev);
                   setIsCampusOpen(false);
                 }}
-                className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-4 py-3 text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-primary-200"
+                className="w-full min-h-[48px] rounded-2xl border border-ink-300 bg-surface-0 px-4 py-3 text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-600"
               >
-                <span className={selectedUniversity ? 'text-slate-900' : 'text-slate-500'}>
+                <span className={selectedUniversity ? 'text-ink-950 font-semibold' : 'text-ink-600'}>
                   {selectedUniversity?.name || (loadingUniversities ? 'Loading universities...' : 'Select your college')}
                 </span>
-                <ChevronDown className={`w-5 h-5 text-slate-500 transition-transform ${isUniversityOpen ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-5 h-5 text-ink-600 transition-transform ${isUniversityOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {isUniversityOpen && !loadingUniversities && (
-                <div className="mt-2 rounded-2xl border border-slate-200 bg-white shadow-lg overflow-hidden">
-                  <div className="p-3 border-b border-slate-100">
+                <div className="mt-2 rounded-2xl border border-ink-200 bg-surface-0 shadow-lg overflow-hidden">
+                  <div className="p-3 border-b border-ink-100">
                     <div className="relative">
-                      <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <Search className="w-4 h-4 text-ink-400 absolute left-3 top-1/2 -translate-y-1/2" />
                       <input
                         type="text"
                         value={universityQuery}
                         onChange={(e) => setUniversityQuery(e.target.value)}
                         placeholder="Search college..."
-                        className="w-full h-10 rounded-lg border border-slate-200 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-200"
+                        className="w-full h-10 rounded-xl border border-ink-200 bg-surface-0 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-600"
                       />
                     </div>
                   </div>
@@ -235,20 +235,20 @@ const Onboarding = () => {
                             setUniversityQuery('');
                             setIsCampusOpen(true);
                           }}
-                          className={`w-full px-4 py-3 text-left border-b border-slate-100 last:border-b-0 flex items-center justify-between ${
-                            isActive ? 'bg-primary-50 text-primary-700' : 'text-slate-800'
+                          className={`w-full px-4 py-3 text-left border-b border-ink-100 last:border-b-0 flex items-center justify-between ${
+                            isActive ? 'bg-primary-50 text-primary-950' : 'text-ink-900'
                           }`}
                         >
                           <span>
-                            <span className="block font-medium">{option.label}</span>
-                            <span className="block text-xs text-slate-500">{option.subtitle}</span>
+                            <span className="block font-semibold">{option.label}</span>
+                            <span className="block text-xs text-ink-600">{option.subtitle}</span>
                           </span>
                           {isActive && <Check className="w-4 h-4" />}
                         </button>
                       );
                     })}
                     {!filteredUniversityOptions.length && (
-                      <p className="px-4 py-3 text-sm text-slate-500">No matching college found</p>
+                      <p className="px-4 py-3 text-sm text-ink-600">No matching college found</p>
                     )}
                   </div>
                 </div>
@@ -258,12 +258,12 @@ const Onboarding = () => {
             {selectedUniversity && (
               <div className="rounded-2xl border border-primary-200 bg-primary-50/60 px-4 py-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-primary-100 text-primary-700 font-semibold flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-2xl bg-primary-100 text-primary-950 font-extrabold flex items-center justify-center khoj-heading">
                     {selectedUniversityLogoText || 'U'}
                   </div>
                   <div className="min-w-0">
-                    <p className="font-semibold text-slate-900 truncate">{selectedUniversity.name}</p>
-                    <p className="text-xs text-primary-700 flex items-center gap-1">
+                    <p className="font-bold text-ink-950 truncate">{selectedUniversity.name}</p>
+                    <p className="text-xs text-primary-950 flex items-center gap-1 font-semibold">
                       <Building2 className="w-3.5 h-3.5" />
                       {(selectedUniversity.campuses?.length || 0)} {(selectedUniversity.campuses?.length || 0) === 1 ? 'campus' : 'campuses'}
                     </p>
@@ -274,8 +274,8 @@ const Onboarding = () => {
 
             {selectedUniversity && (
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
-                  Campus <span className="text-danger-500">*</span>
+                <label className="block text-sm font-semibold text-ink-800 mb-1.5">
+                  Campus <span className="text-lost-600">*</span>
                 </label>
                 <button
                   type="button"
@@ -284,26 +284,26 @@ const Onboarding = () => {
                     setIsCampusOpen((prev) => !prev);
                     setIsUniversityOpen(false);
                   }}
-                  className="w-full min-h-[48px] rounded-xl border border-slate-300 bg-white px-4 py-3 text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-primary-200 disabled:opacity-60"
+                  className="w-full min-h-[48px] rounded-2xl border border-ink-300 bg-surface-0 px-4 py-3 text-left flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-600 disabled:opacity-60"
                 >
-                  <span className={selectedCampusId ? 'text-slate-900' : 'text-slate-500'}>
+                  <span className={selectedCampusId ? 'text-ink-950 font-semibold' : 'text-ink-600'}>
                     {campusOptions.find((opt) => opt.value === selectedCampusId)?.label || 'Select campus'}
                   </span>
-                  <ChevronDown className={`w-5 h-5 text-slate-500 transition-transform ${isCampusOpen ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-5 h-5 text-ink-600 transition-transform ${isCampusOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {isCampusOpen && (
-                  <div className="mt-2 rounded-2xl border border-slate-200 bg-white shadow-lg overflow-hidden">
+                  <div className="mt-2 rounded-2xl border border-ink-200 bg-surface-0 shadow-lg overflow-hidden">
                     {campusOptions.length > 6 && (
-                      <div className="p-3 border-b border-slate-100">
+                      <div className="p-3 border-b border-ink-100">
                         <div className="relative">
-                          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                          <Search className="w-4 h-4 text-ink-400 absolute left-3 top-1/2 -translate-y-1/2" />
                           <input
                             type="text"
                             value={campusQuery}
                             onChange={(e) => setCampusQuery(e.target.value)}
                             placeholder="Search campus..."
-                            className="w-full h-10 rounded-lg border border-slate-200 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-200"
+                            className="w-full h-10 rounded-xl border border-ink-200 bg-surface-0 pl-9 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-600"
                           />
                         </div>
                       </div>
@@ -320,11 +320,11 @@ const Onboarding = () => {
                               setIsCampusOpen(false);
                               setCampusQuery('');
                             }}
-                            className={`w-full px-4 py-3 text-left border-b border-slate-100 last:border-b-0 flex items-center justify-between ${
-                              isActive ? 'bg-primary-50 text-primary-700' : 'text-slate-800'
+                            className={`w-full px-4 py-3 text-left border-b border-ink-100 last:border-b-0 flex items-center justify-between ${
+                              isActive ? 'bg-primary-50 text-primary-950' : 'text-ink-900'
                             }`}
                           >
-                            <span className="font-medium">{option.label}</span>
+                            <span className="font-semibold">{option.label}</span>
                             {isActive && <Check className="w-4 h-4" />}
                           </button>
                         );
