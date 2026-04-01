@@ -108,11 +108,11 @@ const Login = () => {
         </motion.div>
       </div>
 
-      <div className="hidden lg:flex relative flex-1 bg-primary-950 p-12 items-center justify-center text-white overflow-hidden">
+      <div className="hidden lg:flex relative flex-1 bg-primary-900 p-12 items-center justify-center text-white overflow-hidden">
         <div className="absolute inset-0 opacity-25" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.25) 1px, transparent 0)', backgroundSize: '18px 18px' }}></div>
         <div className="relative max-w-md">
-          <h2 className="text-3xl font-bold mb-4">Khoj</h2>
-          <p className="text-primary-100 text-lg">
+          <h2 className="khoj-heading text-5xl font-normal text-white mb-4">Khoj</h2>
+          <p className="text-primary-200 text-lg font-sans">
             Campus lost &amp; found for Bengaluru — sign in to see your university feed and contact details.
           </p>
         </div>

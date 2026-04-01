@@ -383,7 +383,7 @@ const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId
                     {hasEmail && (
                       <a
                         href={`mailto:${email}?subject=${encodeURIComponent(`Regarding: ${item.title}`)}`}
-                        className="flex items-center justify-center w-full rounded-xl bg-primary-500 text-ink-950 py-3 text-sm font-extrabold shadow-md hover:bg-primary-600 transition-colors"
+                        className="flex items-center justify-center w-full rounded-xl bg-primary-600 text-white py-3 text-sm font-extrabold shadow-md hover:bg-primary-700 transition-colors"
                       >
                         Contact via Email
                       </a>
