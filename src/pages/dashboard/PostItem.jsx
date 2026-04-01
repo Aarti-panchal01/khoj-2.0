@@ -279,6 +279,9 @@ const PostItem = () => {
               icon={Calendar}
               required
               max={new Date().toISOString().split('T')[0]}
+              wrapperClassName="w-full overflow-hidden"
+              inputClassName="w-full max-w-full box-border"
+              inputStyle={{ width: '100%', maxWidth: '100%' }}
             />
 
             {/* Image Upload */}
