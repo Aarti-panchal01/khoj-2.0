@@ -38,27 +38,27 @@ const Navbar = () => {
   }, [user?.universityId]);
 
   return (
-    <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+    <nav className="bg-surface-0/85 backdrop-blur-md border-b border-ink-200 sticky top-0 z-30 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14 sm:h-16">
           <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl overflow-hidden bg-white shadow-sm flex items-center justify-center">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl overflow-hidden bg-surface-0 shadow-sm flex items-center justify-center ring-1 ring-ink-200">
               <img src="/Khoj_logo.jpeg" alt="Khoj logo" className="w-full h-full object-cover" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg sm:text-xl font-bold text-gray-900">Khoj</h1>
-                <span className="text-[9px] sm:text-[10px] font-semibold text-primary-600 tracking-wide hidden sm:inline">
+                <h1 className="text-xl sm:text-2xl font-extrabold text-ink-950 khoj-heading leading-none">Khoj</h1>
+                <span className="text-[9px] sm:text-[10px] font-extrabold text-primary-900 tracking-[0.14em] hidden sm:inline khoj-heading">
                   DON&apos;T PANIC. POST IT.
                 </span>
               </div>
               {user?.universityName && (
                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-0.5">
-                  <Badge variant="primary" className="hidden sm:inline-flex text-[10px] font-medium">
+                  <Badge variant="primary" className="hidden sm:inline-flex text-[10px] font-semibold">
                     {user.universityName}
                   </Badge>
                   {user?.campusName && (
-                    <span className="text-[10px] text-primary-600 font-semibold hidden sm:inline">
+                    <span className="text-[10px] text-primary-900 font-semibold hidden sm:inline">
                       {user.campusName}
                     </span>
                   )}
@@ -71,14 +71,14 @@ const Navbar = () => {
             <div className="flex items-center gap-2 sm:gap-3">
               <Link
                 to="/login"
-                className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-primary-600 hover:bg-primary-50 rounded-lg"
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-primary-950 hover:bg-primary-50 rounded-xl transition-colors"
               >
                 <LogIn className="w-4 h-4" />
                 Sign in
               </Link>
               <Link
                 to="/signup"
-                className="inline-flex items-center px-3 py-2 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-lg"
+                className="inline-flex items-center px-3 py-2 text-sm font-extrabold text-ink-950 bg-primary-500 hover:bg-primary-600 rounded-xl shadow-soft transition-colors"
               >
                 Sign up
               </Link>
@@ -88,32 +88,35 @@ const Navbar = () => {
               <div className="hidden md:flex items-center gap-6">
                 <Link
                   to="/"
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-                    isActive('/') ? 'bg-primary-50 text-primary-700 font-medium' : 'text-gray-600 hover:bg-gray-100'
+                  className={`relative flex items-center gap-2 px-3 py-2 rounded-xl transition-colors ${
+                    isActive('/') ? 'bg-primary-50 text-primary-950 font-extrabold' : 'text-ink-700 hover:bg-surface-100 font-semibold'
                   }`}
                 >
                   <Home className="w-5 h-5" />
                   <span>Home</span>
+                  {isActive('/') && <span className="absolute -bottom-[10px] left-3 right-3 h-0.5 bg-primary-600 rounded-full" />}
                 </Link>
 
                 <Link
                   to="/post"
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-                    isActive('/post') ? 'bg-primary-50 text-primary-700 font-medium' : 'text-gray-600 hover:bg-gray-100'
+                  className={`relative flex items-center gap-2 px-3 py-2 rounded-xl transition-colors ${
+                    isActive('/post') ? 'bg-primary-50 text-primary-950 font-extrabold' : 'text-ink-700 hover:bg-surface-100 font-semibold'
                   }`}
                 >
                   <Plus className="w-5 h-5" />
                   <span>Post Item</span>
+                  {isActive('/post') && <span className="absolute -bottom-[10px] left-3 right-3 h-0.5 bg-primary-600 rounded-full" />}
                 </Link>
 
                 <Link
                   to="/profile"
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-                    isActive('/profile') ? 'bg-primary-50 text-primary-700 font-medium' : 'text-gray-600 hover:bg-gray-100'
+                  className={`relative flex items-center gap-2 px-3 py-2 rounded-xl transition-colors ${
+                    isActive('/profile') ? 'bg-primary-50 text-primary-950 font-extrabold' : 'text-ink-700 hover:bg-surface-100 font-semibold'
                   }`}
                 >
                   <User className="w-5 h-5" />
                   <span>Profile</span>
+                  {isActive('/profile') && <span className="absolute -bottom-[10px] left-3 right-3 h-0.5 bg-primary-600 rounded-full" />}
                 </Link>
               </div>
 
@@ -122,23 +125,23 @@ const Navbar = () => {
                   <button
                     type="button"
                     onClick={() => navigate('/notifications')}
-                    className="relative p-1.5 sm:p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="relative p-1.5 sm:p-2 text-ink-700 hover:bg-surface-100 rounded-xl transition-colors"
                   >
                     <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
                     {unreadCount > 0 && (
-                      <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 min-w-[18px] h-[18px] bg-danger-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
+                      <span className="absolute top-0.5 right-0.5 sm:top-1 sm:right-1 min-w-[18px] h-[18px] bg-lost-600 text-white text-[10px] font-extrabold rounded-full flex items-center justify-center px-1">
                         {unreadCount > 99 ? '99+' : unreadCount}
                       </span>
                     )}
                   </button>
                 )}
 
-                <div className="hidden md:flex items-center gap-3 pl-3 border-l border-gray-200">
+                <div className="hidden md:flex items-center gap-3 pl-3 border-l border-ink-200">
                   <div className="text-right">
-                    <p className="text-sm font-medium text-gray-900 truncate max-w-[150px]">{user?.name}</p>
-                    <p className="text-xs text-gray-500 truncate max-w-[150px]">{user?.email}</p>
+                    <p className="text-sm font-semibold text-ink-950 truncate max-w-[150px]">{user?.name}</p>
+                    <p className="text-xs text-ink-600 truncate max-w-[150px]">{user?.email}</p>
                     {user?.universityName && (
-                      <p className="text-xs text-primary-600 font-semibold truncate max-w-[150px]">
+                      <p className="text-xs text-primary-900 font-semibold truncate max-w-[150px]">
                         {user.universityName}{user?.campusName ? ` • ${user.campusName}` : ''}
                       </p>
                     )}
@@ -146,7 +149,7 @@ const Navbar = () => {
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className="p-2 text-gray-600 hover:bg-danger-50 hover:text-danger-600 rounded-lg transition-colors"
+                    className="p-2 text-ink-700 hover:bg-lost-50 hover:text-lost-700 rounded-xl transition-colors"
                     title="Logout"
                   >
                     <LogOut className="w-5 h-5" />
@@ -159,36 +162,36 @@ const Navbar = () => {
       </div>
 
       {isAuthenticated && (
-        <div className="md:hidden border-t border-gray-200 bg-white/90 backdrop-blur-md safe-bottom">
-          <div className="flex justify-around py-2">
+        <div className="md:hidden border-t border-ink-200 bg-surface-0/92 backdrop-blur-md safe-bottom">
+          <div className="flex justify-around py-2 px-2">
             <Link
               to="/"
-              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
-                isActive('/') ? 'text-primary-600' : 'text-gray-600'
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${
+                isActive('/') ? 'text-primary-950' : 'text-ink-700'
               }`}
             >
               <Home className="w-5 h-5" />
-              <span className="text-[10px] font-medium">Home</span>
+              <span className="text-[10px] font-extrabold khoj-heading tracking-wide">Home</span>
             </Link>
 
             <Link
               to="/post"
-              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
-                isActive('/post') ? 'text-primary-600' : 'text-gray-600'
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${
+                isActive('/post') ? 'text-primary-950' : 'text-ink-700'
               }`}
             >
               <Plus className="w-5 h-5" />
-              <span className="text-[10px] font-medium">Post</span>
+              <span className="text-[10px] font-extrabold khoj-heading tracking-wide">Post</span>
             </Link>
 
             <Link
               to="/profile"
-              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
-                isActive('/profile') ? 'text-primary-600' : 'text-gray-600'
+              className={`flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-colors ${
+                isActive('/profile') ? 'text-primary-950' : 'text-ink-700'
               }`}
             >
               <User className="w-5 h-5" />
-              <span className="text-[10px] font-medium">Profile</span>
+              <span className="text-[10px] font-extrabold khoj-heading tracking-wide">Profile</span>
             </Link>
           </div>
         </div>
