@@ -2,7 +2,7 @@ import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 
 const MainLayout = () => (
-  <div className="min-h-0 flex flex-col flex-1 bg-gradient-to-br from-blue-50 via-white to-primary-50">
+  <div className="min-h-0 flex flex-col flex-1 bg-[radial-gradient(1200px_500px_at_20%_-10%,theme(colors.primary.100),transparent_60%),radial-gradient(900px_400px_at_90%_0%,theme(colors.surface.100),transparent_55%)] bg-surface-50">
     <Navbar />
     <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       <Outlet />
