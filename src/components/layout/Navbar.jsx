@@ -48,7 +48,7 @@ const Navbar = () => {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-lg sm:text-xl font-semibold text-ink-950 khoj-heading leading-none">Khoj</h1>
-                <span className="text-[9px] sm:text-[10px] font-bold text-primary-200 tracking-[0.14em] hidden sm:inline">
+                <span className="text-sm font-medium text-primary-400 tracking-[0.14em] hidden sm:inline">
                   DON&apos;T PANIC. POST IT.
                 </span>
               </div>
