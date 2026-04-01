@@ -202,8 +202,9 @@ const Home = () => {
         className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4"
       >
         <div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl khoj-heading font-extrabold leading-[0.95] text-ink-950">
-            Khoj <span className="text-ink-700 font-bold">Lost &amp; Found</span>
+          <h1 className="leading-[0.95] whitespace-nowrap">
+            <span className="khoj-heading text-primary-700 text-6xl font-normal">Khoj</span>{' '}
+            <span className="font-sans text-4xl font-light text-ink-600">Lost &amp; Found</span>
           </h1>
           <p className="text-sm sm:text-base khoj-muted mt-1.5">
             Browse posts across campus — fast, scannable, student-first.
