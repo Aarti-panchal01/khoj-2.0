@@ -77,8 +77,8 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
-        heading: ['"DM Serif Display"', '"DM Sans"', 'serif'],
+        sans: ['Geist', 'system-ui', 'sans-serif'],
+        heading: ['"Instrument Serif"', 'Geist', 'serif'],
       },
       boxShadow: {
         soft: '0 1px 2px 0 rgba(15, 23, 42, 0.06), 0 1px 3px 0 rgba(15, 23, 42, 0.1)',
