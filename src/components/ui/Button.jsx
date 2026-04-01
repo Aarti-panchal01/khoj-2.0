@@ -12,14 +12,16 @@ const Button = ({
   loading = false,
   className = '',
 }) => {
-  const baseStyles = 'font-medium rounded-xl transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 active:scale-[0.99]';
+  const baseStyles = 'font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-300 active:scale-[0.99]';
 
   const variants = {
-    primary: 'bg-primary-600 hover:bg-primary-700 text-white shadow-soft',
-    secondary: 'bg-slate-100 hover:bg-slate-200 text-slate-800',
-    outline: 'border border-slate-300 text-slate-700 hover:bg-slate-50',
-    danger: 'bg-danger-600 hover:bg-danger-700 text-white shadow-soft',
-    ghost: 'hover:bg-slate-100 text-slate-700',
+    primary: 'bg-primary-500 hover:bg-primary-600 text-ink-950 shadow-soft',
+    secondary: 'bg-surface-100 hover:bg-surface-200 text-ink-900 border border-ink-200',
+    outline: 'border border-ink-300 text-ink-900 hover:bg-surface-100',
+    danger: 'bg-lost-600 hover:bg-lost-700 text-white shadow-soft',
+    ghost: 'hover:bg-surface-100 text-ink-800',
+    found: 'bg-found-600 hover:bg-found-700 text-white shadow-soft',
+    lost: 'bg-lost-600 hover:bg-lost-700 text-white shadow-soft',
   };
 
   const sizes = {

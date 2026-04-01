@@ -120,12 +120,12 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
             </Card>
 
             {/* Info Alert */}
-            <Card className="p-4 mb-5 sm:mb-6 bg-blue-50 border-2 border-blue-200">
+            <Card className="p-4 mb-5 sm:mb-6 bg-primary-50 border-2 border-primary-200">
               <div className="flex gap-3">
-                <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-primary-900 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-blue-900 mb-1">Verification Required</p>
-                  <p className="text-sm text-blue-700">
+                  <p className="text-sm font-extrabold text-ink-950 mb-1 khoj-heading">Verification required</p>
+                  <p className="text-sm text-ink-800">
                     Please answer these questions to help verify ownership. Your responses will be sent to the person who found this item.
                   </p>
                 </div>
