@@ -16,7 +16,6 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login, setUser } = useAuth();
   const navigate = useNavigate();
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   const afterAuth = async () => {
     try {
@@ -53,23 +52,7 @@ const Login = () => {
       const user = result.user;
       const idToken = await user.getIdToken();
       
-      const response = await fetch(`${API_URL}/api/auth/google`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          credential: idToken,
-        }),
-      });
-      
-      const backendResponse = await response.json();
-      
-      if (!response.ok) {
-        setLoading(false);
-        setError(backendResponse.message || 'Backend authentication failed');
-        return;
-      }
+      const backendResponse = await AuthAPI.google({ credential: idToken });
       
       localStorage.setItem('khoj_token', backendResponse.token);
       setUser(backendResponse.user);
