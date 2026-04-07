@@ -7,7 +7,7 @@ import Input from '../../components/ui/Input';
 import { AuthAPI } from '../../lib/apiClient';
 import { motion } from 'framer-motion';
 import { signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from '../../firebase';
+import { auth, googleProvider } from '../../firebase.js';
 
 const Login = () => {
   const [email, setEmail] = useState('');
