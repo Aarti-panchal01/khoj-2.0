@@ -6,7 +6,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { AuthAPI } from '../../lib/apiClient';
 import { motion } from 'framer-motion';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
 
 const Login = () => {
@@ -49,37 +49,60 @@ const Login = () => {
     setError('');
     setLoading(true);
     try {
+      console.log('🔐 Starting Google login...');
       const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      const idToken = await user.getIdToken();
+      console.log('✅ Google signin successful:', result.user.email);
       
-      const response = await fetch(`${API_URL}/api/auth/google`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      // Extract the Google OAuth ID token from the credential
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const googleIdToken = credential.idToken;
       
-      const backendResponse = await response.json();
-      
-      if (!response.ok) {
+      if (!googleIdToken) {
         setLoading(false);
-        setError(backendResponse.error || 'Backend authentication failed');
+        setError('Failed to get Google OAuth token');
         return;
       }
       
-      localStorage.setItem('khoj_token', backendResponse.token);
-      setUser(backendResponse.user);
+      console.log('✅ Google OAuth credential obtained');
+      
+      try {
+        const backendResponse = await AuthAPI.google({ credential: googleIdToken });
+        console.log('✅ Backend authentication successful:', backendResponse);
+        
+        if (backendResponse.token) {
+          localStorage.setItem('khoj_token', backendResponse.token);
+          setUser(backendResponse.user);
+          setLoading(false);
+          
+          setTimeout(() => {
+            afterAuth();
+          }, 50);
+        } else {
+          console.error('❌ No token in backend response:', backendResponse);
+          setLoading(false);
+          setError('Authentication failed: No token received from server');
+        }
+      } catch (backendError) {
+        console.error('❌ Backend authentication error:', backendError);
+        setLoading(false);
+        setError(backendError.data?.message || backendError.message || 'Backend authentication failed');
+      }
+    } catch (firebaseError) {
+      console.error('❌ Firebase error:', firebaseError.code, firebaseError.message);
       setLoading(false);
       
-      setTimeout(() => {
-        afterAuth();
-      }, 50);
-    } catch (error) {
-      console.error('Google login error:', error);
-      setLoading(false);
-      setError(error.message || 'Failed to sign in with Google');
+      // Provide user-friendly error messages for Firebase errors
+      if (firebaseError.code === 'auth/popup-closed-by-user') {
+        setError('Sign-in popup was closed');
+      } else if (firebaseError.code === 'auth/network-request-failed') {
+        setError('Network error. Please check your internet connection');
+      } else if (firebaseError.code === 'auth/operation-not-allowed') {
+        setError('Google sign-in is not enabled');
+      } else if (firebaseError.code === 'auth/popup-blocked') {
+        setError('Pop-up was blocked. Please allow pop-ups for this site');
+      } else {
+        setError(firebaseError.message || 'Firebase authentication failed');
+      }
     }
   };
 

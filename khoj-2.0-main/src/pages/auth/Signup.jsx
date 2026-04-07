@@ -6,7 +6,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { AuthAPI } from '../../lib/apiClient';
 import { motion } from 'framer-motion';
-import { signInWithPopup } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
 
 const Signup = () => {
@@ -56,12 +56,20 @@ const Signup = () => {
       const result = await signInWithPopup(auth, googleProvider);
       console.log('✅ Google signin successful:', result.user.email);
       
-      const user = result.user;
-      const idToken = await user.getIdToken();
-      console.log('✅ ID token obtained');
+      // Extract the Google OAuth ID token from the credential
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const googleIdToken = credential.idToken;
+      
+      if (!googleIdToken) {
+        setLoading(false);
+        setError('Failed to get Google OAuth token');
+        return;
+      }
+      
+      console.log('✅ Google OAuth credential obtained');
       
       try {
-        const backendResponse = await AuthAPI.google({ credential: idToken });
+        const backendResponse = await AuthAPI.google({ credential: googleIdToken });
         console.log('✅ Backend authentication successful:', backendResponse);
         
         if (backendResponse.token) {
