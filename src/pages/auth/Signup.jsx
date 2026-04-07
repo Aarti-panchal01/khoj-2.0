@@ -52,11 +52,16 @@ const Signup = () => {
     setError('');
     setLoading(true);
     try {
+      console.log('🔐 Starting Google signup...');
       const result = await signInWithPopup(auth, googleProvider);
+      console.log('✅ Google signin successful:', result.user.email);
+      
       const user = result.user;
       const idToken = await user.getIdToken();
+      console.log('✅ ID token obtained');
       
       const backendResponse = await AuthAPI.google({ credential: idToken });
+      console.log('✅ Backend authentication successful');
       
       localStorage.setItem('khoj_token', backendResponse.token);
       setLoading(false);
@@ -65,9 +70,21 @@ const Signup = () => {
         afterAuth();
       }, 50);
     } catch (error) {
-      console.error('Google signup error:', error);
+      console.error('❌ Google signup error:', error.code, error.message);
       setLoading(false);
-      setError(error.message || 'Failed to sign up with Google');
+      
+      // Provide user-friendly error messages
+      if (error.code === 'auth/popup-closed-by-user') {
+        setError('Sign-up popup was closed');
+      } else if (error.code === 'auth/network-request-failed') {
+        setError('Network error. Please check your internet connection');
+      } else if (error.code === 'auth/operation-not-allowed') {
+        setError('Google sign-up is not enabled');
+      } else if (error.code === 'auth/popup-blocked') {
+        setError('Pop-up was blocked. Please allow pop-ups for this site');
+      } else {
+        setError(error.message || 'Failed to sign up with Google');
+      }
     }
   };
 
