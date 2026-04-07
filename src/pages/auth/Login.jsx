@@ -6,6 +6,8 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { AuthAPI } from '../../lib/apiClient';
 import { motion } from 'framer-motion';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../../firebase';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -42,6 +44,33 @@ const Login = () => {
     setError(result.error || 'Invalid credentials');
   };
 
+  const handleGoogleLogin = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      
+      // Log user information to console
+      console.log('Google Login Successful!');
+      console.log('User ID:', user.uid);
+      console.log('User Email:', user.email);
+      console.log('User Name:', user.displayName);
+      console.log('User Photo:', user.photoURL);
+      console.log('Full User Object:', user);
+      
+      // TODO: Here you would typically:
+      // 1. Create or update user in your backend
+      // 2. Redirect to dashboard or complete profile page
+      navigate('/');
+    } catch (error) {
+      console.error('Google login error:', error);
+      setError(error.message || 'Failed to sign in with Google');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-0 flex flex-col lg:flex-row flex-1">
       <div className="flex-1 flex items-center justify-center p-4 sm:p-8 bg-gradient-to-br from-white via-blue-50/30 to-primary-50/40">
@@ -65,6 +94,7 @@ const Login = () => {
             </h1>
           </div>
 
+<<<<<<< Updated upstream
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -74,6 +104,49 @@ const Login = () => {
               {error}
             </motion.div>
           )}
+=======
+          {/* Google Login Button */}
+          <Button 
+            onClick={handleGoogleLogin} 
+            fullWidth 
+            loading={loading}
+            className="mb-4 bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 shadow-md"
+          >
+            🔍 Continue with Google
+          </Button>
+
+          {/* Divider */}
+          <div className="relative mb-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-gradient-to-br from-white via-blue-50/30 to-primary-50/40 text-gray-500">Or continue with email</span>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded-lg text-sm"
+              >
+                {error}
+              </motion.div>
+            )}
+
+            <Input
+              label="Full Name"
+              type="text"
+              name="name"
+              placeholder="John Doe"
+              value={formData.name}
+              onChange={handleChange}
+              icon={User}
+              required
+            />
+>>>>>>> Stashed changes
 
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <Input
