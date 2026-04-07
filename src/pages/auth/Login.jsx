@@ -56,16 +56,18 @@ const Login = () => {
       const response = await fetch(`${API_URL}/api/auth/google`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${idToken}`,
           'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          credential: idToken,
+        }),
       });
       
       const backendResponse = await response.json();
       
       if (!response.ok) {
         setLoading(false);
-        setError(backendResponse.error || 'Backend authentication failed');
+        setError(backendResponse.message || 'Backend authentication failed');
         return;
       }
       
