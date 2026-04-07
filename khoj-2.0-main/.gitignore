@@ -53,3 +53,11 @@ coverage/
 *.tmp
 *.temp
 .cache/
+
+
+.env
+serviceAccountKey.json
+node_modules
+
+.env
+.env.production

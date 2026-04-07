@@ -1,21 +1,29 @@
 const { z } = require('zod');
 
 const signupSchema = z.object({
-  name: z.string().min(2).max(100),
   email: z.string().email().max(254),
   password: z.string().min(6).max(128),
-  phone: z.string().min(8).max(20),
-  college: z.string().min(2).max(200),
-  campus: z.string().max(200).optional(),
 });
 
 const loginSchema = z.object({
-  name: z.string().min(2).max(100),
   email: z.string().email().max(254),
-  phone: z.string().min(8).max(20),
   password: z.string().min(6).max(128),
-  college: z.string().min(2).max(200),
-  campus: z.string().max(200).optional(),
+});
+
+const authProfilePatchSchema = z.object({
+  name: z.string().min(2).max(100),
+  universityId: z.string().min(1),
+  campusId: z.string().optional().nullable(),
+  phone: z
+    .string()
+    .min(7)
+    .max(20)
+    .regex(/^\+?[0-9\s\-()]{7,20}$/, 'Enter a valid phone number')
+    .optional(),
+});
+
+const googleAuthSchema = z.object({
+  credential: z.string().min(10),
 });
 
 const itemSchema = z.object({
@@ -35,12 +43,12 @@ const itemSchema = z.object({
   urgent: z.boolean().optional(),
   reward: z.enum(['gratitude', 'food_treat', 'coffee', 'cash_reward', 'gift', 'none']).optional(),
   contactPreference: z.enum(['both', 'email', 'phone']).optional(),
-  status: z.enum(['active', 'resolved']).optional(),
-  campus: z.string().max(200).optional(),
 });
 
 module.exports = {
   signupSchema,
   loginSchema,
+  authProfilePatchSchema,
+  googleAuthSchema,
   itemSchema,
 };

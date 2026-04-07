@@ -2,10 +2,16 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+const firebaseAdmin = require('../../firebaseAdmin');
 const User = require('../models/User');
 const University = require('../models/University');
-const { signupSchema, loginSchema } = require('../utils/validators');
-const { generateOtp, sendVerificationEmail } = require('../utils/email');
+const {
+  signupSchema,
+  loginSchema,
+  authProfilePatchSchema,
+  googleAuthSchema,
+} = require('../utils/validators');
 const authMiddleware = require('../middleware/authMiddleware');
 
 const router = express.Router();
@@ -52,11 +58,11 @@ const formatUser = (user) => ({
   id: user._id,
   name: user.name,
   email: user.email,
-  phone: user.phone,
-  universityId: user.universityId,
-  campusId: user.campusId,
-  universityName: user.universityName,
-  campusName: user.campusName,
+  phone: user.phone ?? '',
+  universityId: user.universityId || null,
+  campusId: user.campusId || null,
+  universityName: user.universityName || '',
+  campusName: user.campusName || '',
   reputation: user.reputation,
   isEmailVerified: user.isEmailVerified,
 });
@@ -67,6 +73,38 @@ const formatUser = (user) => ({
  * Looks up a university by name (case-insensitive) and optionally a campus by name.
  * Returns { university, campus } or throws a user-facing error.
  */
+const resolveCampusForUniversityDoc = (university, campusIdInput) => {
+  if (!university?.campuses?.length) {
+    const err = new Error('University has no campuses configured.');
+    err.status = 400;
+    throw err;
+  }
+
+  if (university.campuses.length === 1) {
+    return university.campuses[0];
+  }
+
+  if (!campusIdInput || !String(campusIdInput).trim()) {
+    const err = new Error('Campus is required for this university.');
+    err.status = 400;
+    throw err;
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(campusIdInput)) {
+    const err = new Error('Invalid campusId');
+    err.status = 400;
+    throw err;
+  }
+
+  const campus = university.campuses.id(campusIdInput);
+  if (!campus) {
+    const err = new Error('Campus does not belong to this university.');
+    err.status = 400;
+    throw err;
+  }
+  return campus;
+};
+
 const resolveUniversityAndCampus = async (universityName, campusName) => {
   const university = await University.findOne({
     name: { $regex: new RegExp(`^${universityName.trim()}$`, 'i') },
@@ -107,25 +145,19 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Resolve university + campus to ObjectIds — never trust raw name strings for access control
-    let university, campus;
-    try {
-      ({ university, campus } = await resolveUniversityAndCampus(payload.college, payload.campus));
-    } catch (err) {
-      return res.status(err.status || 400).json({ message: err.message });
-    }
-
     const passwordHash = await bcrypt.hash(payload.password, 10);
+    const provisionalName = payload.email.split('@')[0]?.trim() || 'Student';
 
     const user = await User.create({
-      name: payload.name,
+      name: provisionalName.slice(0, 100),
       email: payload.email,
       passwordHash,
-      phone: payload.phone,
-      universityId: university._id,
-      campusId: campus?._id || null,
-      universityName: university.name,
-      campusName: campus?.name || '',
+      phone: '',
+      universityId: null,
+      campusId: null,
+      universityName: '',
+      campusName: '',
+      // Basic signup flow: create account and continue to onboarding directly.
       isEmailVerified: true,
     });
 
@@ -217,9 +249,16 @@ router.post('/resend-otp', async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
     if (user.isEmailVerified) return res.status(400).json({ message: 'Email already verified' });
 
-    if (user.emailOtpExpiry && user.emailOtpExpiry > Date.now() + 9 * 60 * 1000) {
+    // Cooldown: block resend if the previous OTP was generated very recently.
+    // Previously ~60s; slightly relaxed to ~45s.
+    if (user.emailOtpExpiry && user.emailOtpExpiry > Date.now() + 9.25 * 60 * 1000) {
       return res.status(429).json({ message: 'Please wait before requesting a new code' });
     }
+
+    console.log('[OTP_DEBUG] resend-otp generating OTP', {
+      userId: String(user._id),
+      email: user.email,
+    });
 
     const otp = generateOtp();
     const otpHash = await bcrypt.hash(otp, 8);
@@ -230,13 +269,25 @@ router.post('/resend-otp', async (req, res) => {
       emailOtpAttempts: 0,
     });
 
-    sendVerificationEmail(user.email, otp, user.name).catch((err) =>
-      console.error('Failed to resend verification email:', err.message)
-    );
+    try {
+      console.log('[OTP_DEBUG] resend-otp sending verification email', {
+        userId: String(user._id),
+        email: user.email,
+      });
+      await sendVerificationEmail(user.email, otp, user.name);
+    } catch (err) {
+      console.error('[OTP_DEBUG] resend-otp sendVerificationEmail failed', {
+        userId: String(user._id),
+        message: err?.message || err,
+      });
+      const status = err?.status || 500;
+      const message = err?.publicMessage || 'Failed to send verification email';
+      return res.status(status).json({ message });
+    }
 
     return res.json({ message: 'New verification code sent' });
   } catch (error) {
-    console.error('Resend OTP error:', error.name);
+    console.error('Resend OTP error:', error?.name, error?.message);
     return res.status(500).json({ message: 'Failed to resend code' });
   }
 });
@@ -263,20 +314,6 @@ router.post('/login', async (req, res) => {
     if (!passwordMatch) {
       await user.incLoginAttempts();
       return res.status(401).json({ message: 'Invalid credentials' });
-    }
-
-    // Validate university by resolving the submitted name to an ObjectId and comparing
-    let university;
-    try {
-      ({ university } = await resolveUniversityAndCampus(payload.college, null));
-    } catch {
-      await user.incLoginAttempts();
-      return res.status(403).json({ message: 'University not found' });
-    }
-
-    if (!user.universityId.equals(university._id)) {
-      await user.incLoginAttempts();
-      return res.status(403).json({ message: 'University mismatch' });
     }
 
     await user.resetLoginAttempts();
@@ -362,6 +399,115 @@ router.post('/logout', authMiddleware, async (req, res) => {
 
 router.get('/me', authMiddleware, async (req, res) => {
   return res.json(formatUser(req.user));
+});
+
+// ─── Google OAuth (Firebase ID token verification) ──────────────────────────
+
+router.post('/google', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ message: 'Authorization header missing' });
+    }
+
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+    if (!token) {
+      return res.status(401).json({ message: 'No token provided' });
+    }
+
+    let decoded;
+    try {
+      decoded = await firebaseAdmin.auth().verifyIdToken(token);
+    } catch (error) {
+      console.error('Firebase token verification failed:', error.message);
+      return res.status(401).json({ message: 'Invalid or expired token' });
+    }
+
+    const email = decoded.email?.toLowerCase();
+    const name = decoded.name || decoded.email?.split('@')[0] || 'Student';
+
+    if (!email) {
+      return res.status(400).json({ message: 'Token does not contain email' });
+    }
+
+    let user = await User.findOne({ email }).select('+tokenVersion +refreshTokenHash');
+
+    if (!user) {
+      const passwordHash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
+      user = await User.create({
+        name: (name && name.trim()) || email.split('@')[0] || 'Student',
+        email,
+        passwordHash,
+        phone: '',
+        universityId: null,
+        campusId: null,
+        universityName: '',
+        campusName: '',
+        isEmailVerified: true,
+      });
+    }
+
+    user = await User.findById(user._id).select('+tokenVersion +refreshTokenHash');
+    const accessToken = createAccessToken(user);
+    const refreshToken = createRefreshToken(user);
+    await User.findByIdAndUpdate(user._id, { refreshTokenHash: hashToken(refreshToken) });
+    res.cookie(REFRESH_COOKIE_NAME, refreshToken, COOKIE_OPTS);
+    return res.json({ token: accessToken, user: formatUser(user) });
+  } catch (error) {
+    console.error('Google auth error:', error.message);
+    return res.status(500).json({ message: 'Google sign-in failed' });
+  }
+});
+
+// ─── Complete onboarding / profile (university + campus) ───────────────────
+
+router.patch('/profile', authMiddleware, async (req, res) => {
+  try {
+    if (req.user.universityId) {
+      return res.status(400).json({ message: 'Profile already has a university. Contact support to change it.' });
+    }
+
+    const body = authProfilePatchSchema.parse(req.body);
+
+    if (!mongoose.Types.ObjectId.isValid(body.universityId)) {
+      return res.status(400).json({ message: 'Invalid universityId' });
+    }
+
+    const university = await University.findById(body.universityId);
+    if (!university) {
+      return res.status(400).json({ message: 'University not found' });
+    }
+
+    let campus;
+    try {
+      campus = resolveCampusForUniversityDoc(university, body.campusId);
+    } catch (err) {
+      return res.status(err.status || 400).json({ message: err.message });
+    }
+
+    const updateDoc = {
+      name: body.name.trim(),
+      universityId: university._id,
+      universityName: university.name,
+      campusId: campus?._id || null,
+      campusName: campus?.name || '',
+    };
+
+    if (body.phone) {
+      updateDoc.phone = body.phone.trim();
+    }
+
+    const updated = await User.findByIdAndUpdate(req.user._id, updateDoc, { new: true });
+
+    return res.json(formatUser(updated));
+  } catch (error) {
+    console.error('PATCH profile error:', error.name);
+    if (error.name === 'ZodError') {
+      const firstError = error.errors[0];
+      return res.status(400).json({ message: `${firstError.path.join('.')}: ${firstError.message}` });
+    }
+    return res.status(500).json({ message: 'Failed to update profile' });
+  }
 });
 
 module.exports = router;

@@ -16,7 +16,7 @@ const ALLOWED_STATUSES = new Set(['active', 'resolved']);
 const SEARCH_MAX_LENGTH = 200;
 
 // Fields that must never be overwritten via client input
-const PROTECTED_ITEM_FIELDS = ['user', 'userName', 'universityId', 'campusId', 'universityName', 'campusName', 'status'];
+const PROTECTED_ITEM_FIELDS = ['user', 'userName', 'universityId', 'campusId', 'universityName', 'campusName'];
 
 // ─── Helper: build the base university filter ─────────────────────────────────
 
@@ -155,22 +155,36 @@ router.get('/:id', async (req, res) => {
 
     if (!item) return res.status(404).json({ message: 'Item not found' });
 
-    const isOwner = String(item.user) === String(req.user._id);
-    if (isOwner) return res.json(item);
-
-    // Non-owner: attach contact info per poster's preference
-    const poster = await User.findById(item.user).select('email phone').lean();
-    const contact = {};
-    if (poster) {
-      if (item.contactPreference === 'both' || item.contactPreference === 'email') {
-        contact.userEmail = poster.email;
-      }
-      if (item.contactPreference === 'both' || item.contactPreference === 'phone') {
-        contact.userPhone = poster.phone;
+    // Attach contact info for LOST items (so finders can contact owner)
+    // For FOUND items, contact info is hidden until claim is approved
+    if (item.type === 'lost') {
+      const poster = await User.findById(item.user).select('email phone').lean();
+      console.log('📧 Contact Info Debug:', {
+        itemId: item._id,
+        itemType: item.type,
+        contactPreference: item.contactPreference,
+        posterFound: !!poster,
+        posterEmail: poster?.email,
+        posterPhone: poster?.phone
+      });
+      
+      if (poster) {
+        // Always attach email and phone if they exist - let frontend decide what to show
+        if (poster.email && (item.contactPreference === 'both' || item.contactPreference === 'email')) {
+          item.userEmail = poster.email;
+        }
+        if (poster.phone && (item.contactPreference === 'both' || item.contactPreference === 'phone')) {
+          item.userPhone = poster.phone;
+        }
+        
+        console.log('📤 Sending response with contact:', {
+          userEmail: item.userEmail,
+          userPhone: item.userPhone
+        });
       }
     }
 
-    res.json({ ...item, ...contact });
+    res.json(item);
   } catch (error) {
     console.error('Get item error', error);
     res.status(500).json({ message: 'Failed to fetch item' });
@@ -193,6 +207,16 @@ router.put('/:id', async (req, res) => {
     });
 
     if (!item) return res.status(404).json({ message: 'Item not found' });
+
+    // Check if status is changing from active to resolved
+    const wasActive = item.status === 'active';
+    const nowResolved = payload.status === 'resolved';
+    
+    if (wasActive && nowResolved) {
+      // Award +10 reputation points to the user for resolving the item
+      const User = require('../models/User');
+      await User.findByIdAndUpdate(req.user._id, { $inc: { reputation: 10 } });
+    }
 
     Object.assign(item, payload);
     await item.save();
