@@ -6,6 +6,8 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { AuthAPI } from '../../lib/apiClient';
 import { motion } from 'framer-motion';
+import { signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../../firebase';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
@@ -46,6 +48,46 @@ const Signup = () => {
     setError(result.error || 'Failed to create account');
   };
 
+  const handleGoogleSignup = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      const idToken = await user.getIdToken();
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      
+      const response = await fetch(`${API_URL}/api/auth/google`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          credential: idToken,
+        }),
+      });
+      
+      const backendResponse = await response.json();
+      
+      if (!response.ok) {
+        setLoading(false);
+        setError(backendResponse.message || 'Backend authentication failed');
+        return;
+      }
+      
+      localStorage.setItem('khoj_token', backendResponse.token);
+      setLoading(false);
+      
+      setTimeout(() => {
+        afterAuth();
+      }, 50);
+    } catch (error) {
+      console.error('Google signup error:', error);
+      setLoading(false);
+      setError(error.message || 'Failed to sign up with Google');
+    }
+  };
+
   return (
     <div className="min-h-0 flex flex-col lg:flex-row flex-1">
       <div className="hidden lg:flex relative flex-1 bg-primary-900 p-12 items-center justify-center text-white overflow-hidden">
@@ -53,7 +95,7 @@ const Signup = () => {
         <div className="relative max-w-md">
           <h2 className="khoj-heading text-4xl font-normal text-white mb-4">Join Khoj</h2>
           <p className="text-primary-200 text-lg font-sans">
-            Create your secure campus account with email and a 6-digit passcode. No social login required.
+            Create your secure campus account with email, Google, or a 6-digit passcode.
           </p>
         </div>
       </div>
@@ -88,6 +130,26 @@ const Signup = () => {
               {error}
             </motion.div>
           )}
+
+          <Button 
+            onClick={handleGoogleSignup} 
+            fullWidth 
+            loading={loading}
+            className="mb-4 bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg"
+          >
+            🔍 Sign up with Google
+          </Button>
+
+          {/* Divider */}
+          <div className="relative mb-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-gradient-to-br from-white via-blue-50/30 to-primary-50/40 text-gray-500">Or sign up with email</span>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               label="Email"
