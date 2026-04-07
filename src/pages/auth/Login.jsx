@@ -48,11 +48,16 @@ const Login = () => {
     setError('');
     setLoading(true);
     try {
+      console.log('🔐 Starting Google login...');
       const result = await signInWithPopup(auth, googleProvider);
+      console.log('✅ Google signin successful:', result.user.email);
+      
       const user = result.user;
       const idToken = await user.getIdToken();
+      console.log('✅ ID token obtained');
       
       const backendResponse = await AuthAPI.google({ credential: idToken });
+      console.log('✅ Backend authentication successful');
       
       localStorage.setItem('khoj_token', backendResponse.token);
       setUser(backendResponse.user);
@@ -62,9 +67,21 @@ const Login = () => {
         afterAuth();
       }, 50);
     } catch (error) {
-      console.error('Google login error:', error);
+      console.error('❌ Google login error:', error.code, error.message);
       setLoading(false);
-      setError(error.message || 'Failed to sign in with Google');
+      
+      // Provide user-friendly error messages
+      if (error.code === 'auth/popup-closed-by-user') {
+        setError('Sign-in popup was closed');
+      } else if (error.code === 'auth/network-request-failed') {
+        setError('Network error. Please check your internet connection');
+      } else if (error.code === 'auth/operation-not-allowed') {
+        setError('Google sign-in is not enabled');
+      } else if (error.code === 'auth/popup-blocked') {
+        setError('Pop-up was blocked. Please allow pop-ups for this site');
+      } else {
+        setError(error.message || 'Failed to sign in with Google');
+      }
     }
   };
 
