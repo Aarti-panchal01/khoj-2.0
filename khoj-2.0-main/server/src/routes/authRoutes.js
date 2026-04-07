@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const { OAuth2Client } = require('google-auth-library');
 const firebaseAdmin = require('../../firebaseAdmin');
 const User = require('../models/User');
 const University = require('../models/University');
@@ -401,7 +402,7 @@ router.get('/me', authMiddleware, async (req, res) => {
   return res.json(formatUser(req.user));
 });
 
-// ─── Google OAuth (Firebase ID token verification) ──────────────────────────
+// ─── Google OAuth (Google ID token verification) ──────────────────────────
 
 router.post('/google', async (req, res) => {
   try {
@@ -415,12 +416,23 @@ router.post('/google', async (req, res) => {
       return res.status(401).json({ message: 'No token provided' });
     }
 
+    // Verify Google OAuth ID Token
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      console.error('❌ GOOGLE_CLIENT_ID not set!');
+      return res.status(500).json({ message: 'Server misconfigured: missing GOOGLE_CLIENT_ID' });
+    }
+
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
     let decoded;
     try {
-      decoded = await firebaseAdmin.auth().verifyIdToken(token);
+      const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      decoded = ticket.getPayload();
     } catch (error) {
-      console.error('Firebase token verification failed:', error.message);
-      return res.status(401).json({ message: 'Invalid or expired token' });
+      console.error('Google token verification failed:', error.message);
+      return res.status(401).json({ message: 'Invalid or expired Google token' });
     }
 
     const email = decoded.email?.toLowerCase();
