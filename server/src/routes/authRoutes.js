@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-const { OAuth2Client } = require('google-auth-library');
+const { initializeFirebaseAdmin, admin } = require('../config/firebase');
 const User = require('../models/User');
 const University = require('../models/University');
 const {
@@ -13,6 +13,13 @@ const {
   googleAuthSchema,
 } = require('../utils/validators');
 const authMiddleware = require('../middleware/authMiddleware');
+
+// Initialize Firebase Admin SDK
+try {
+  initializeFirebaseAdmin();
+} catch (error) {
+  console.error('⚠️  Firebase Admin initialization failed. Google sign-in will not work.');
+}
 
 const router = express.Router();
 
@@ -401,63 +408,93 @@ router.get('/me', authMiddleware, async (req, res) => {
   return res.json(formatUser(req.user));
 });
 
-// ─── Google OAuth (ID token from Google Identity Services) ───────────────────
+// ─── Google OAuth (Firebase ID token verification) ──────────────────────────
 
 router.post('/google', async (req, res) => {
   try {
     const payload = googleAuthSchema.parse(req.body);
-    const clientId = process.env.GOOGLE_CLIENT_ID;
-    if (!clientId) {
-      return res.status(503).json({ message: 'Google sign-in is not configured on this server.' });
+    const idToken = payload.credential;
+
+    if (!idToken) {
+      return res.status(400).json({ message: 'Firebase ID token is required' });
     }
 
-    const client = new OAuth2Client(clientId);
-    const ticket = await client.verifyIdToken({
-      idToken: payload.credential,
-      audience: clientId,
-    });
-    const g = ticket.getPayload();
-    if (!g?.email) {
-      return res.status(400).json({ message: 'Google did not return an email address.' });
+    // Verify Firebase ID token using Firebase Admin SDK
+    let decoded;
+    try {
+      decoded = await admin.auth().verifyIdToken(idToken);
+      console.log('✅ Firebase token verified successfully');
+      console.log('   UID:', decoded.uid);
+      console.log('   Email:', decoded.email);
+    } catch (verifyError) {
+      console.error('❌ Firebase verify error:', verifyError.code, verifyError.message);
+      return res.status(401).json({ 
+        message: 'Invalid Firebase token',
+        error: verifyError.message 
+      });
     }
 
-    const email = String(g.email).toLowerCase();
+    // Extract user info from decoded token
+    const uid = decoded.uid;
+    const email = decoded.email ? String(decoded.email).toLowerCase() : null;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Firebase token does not contain an email address' });
+    }
+
+    // Find or create user
     let user = await User.findOne({ email }).select('+googleSub +tokenVersion +refreshTokenHash');
 
     if (!user) {
+      console.log('📝 Creating new user for:', email);
       const passwordHash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
       user = await User.create({
-        name: (g.name && g.name.trim()) || email.split('@')[0] || 'Student',
+        name: decoded.name || email.split('@')[0] || 'Student',
         email,
         passwordHash,
-        googleSub: g.sub,
+        googleSub: uid,
         phone: '',
         universityId: null,
         campusId: null,
         universityName: '',
         campusName: '',
-        isEmailVerified: Boolean(g.email_verified),
+        isEmailVerified: Boolean(decoded.email_verified),
       });
+      console.log('✅ User created successfully:', user._id);
     } else {
-      if (!user.googleSub && g.sub) {
-        user.googleSub = g.sub;
+      console.log('✅ Existing user found:', user._id);
+      // Update googleSub if not set
+      if (!user.googleSub && uid) {
+        user.googleSub = uid;
         await user.save();
+        console.log('✅ Updated user googleSub');
       }
     }
 
+    // Refresh user data
     user = await User.findById(user._id);
+    
+    // Create tokens
     const accessToken = createAccessToken(user);
     const refreshToken = createRefreshToken(user);
+    
+    // Save refresh token hash
     await User.findByIdAndUpdate(user._id, { refreshTokenHash: hashToken(refreshToken) });
+    
+    // Set cookie
     res.cookie(REFRESH_COOKIE_NAME, refreshToken, COOKIE_OPTS);
+    
+    console.log('✅ User logged in successfully:', email);
     return res.json({ token: accessToken, user: formatUser(user) });
   } catch (error) {
-    console.error('Google auth error:', error.name || error.message);
+    console.error('❌ Google auth error:', error.name || error.message);
+    console.error('   Stack:', error.stack);
+    
     if (error.name === 'ZodError') {
       const firstError = error.errors[0];
       return res.status(400).json({ message: `${firstError.path.join('.')}: ${firstError.message}` });
     }
-    return res.status(401).json({ message: 'Google sign-in failed' });
+    return res.status(401).json({ message: 'Google sign-in failed', error: error.message });
   }
 });
 
