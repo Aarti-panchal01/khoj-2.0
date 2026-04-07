@@ -14,7 +14,7 @@ const Signup = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signup } = useAuth();
+  const { signup, setUser } = useAuth();
   const navigate = useNavigate();
 
   const afterAuth = async () => {
@@ -60,30 +60,43 @@ const Signup = () => {
       const idToken = await user.getIdToken();
       console.log('✅ ID token obtained');
       
-      const backendResponse = await AuthAPI.google({ credential: idToken });
-      console.log('✅ Backend authentication successful');
-      
-      localStorage.setItem('khoj_token', backendResponse.token);
+      try {
+        const backendResponse = await AuthAPI.google({ credential: idToken });
+        console.log('✅ Backend authentication successful:', backendResponse);
+        
+        if (backendResponse.token) {
+          localStorage.setItem('khoj_token', backendResponse.token);
+          setUser(backendResponse.user);
+          setLoading(false);
+          
+          setTimeout(() => {
+            afterAuth();
+          }, 50);
+        } else {
+          console.error('❌ No token in backend response:', backendResponse);
+          setLoading(false);
+          setError('Authentication failed: No token received from server');
+        }
+      } catch (backendError) {
+        console.error('❌ Backend authentication error:', backendError);
+        setLoading(false);
+        setError(backendError.data?.message || backendError.message || 'Backend authentication failed');
+      }
+    } catch (firebaseError) {
+      console.error('❌ Firebase error:', firebaseError.code, firebaseError.message);
       setLoading(false);
       
-      setTimeout(() => {
-        afterAuth();
-      }, 50);
-    } catch (error) {
-      console.error('❌ Google signup error:', error.code, error.message);
-      setLoading(false);
-      
-      // Provide user-friendly error messages
-      if (error.code === 'auth/popup-closed-by-user') {
+      // Provide user-friendly error messages for Firebase errors
+      if (firebaseError.code === 'auth/popup-closed-by-user') {
         setError('Sign-up popup was closed');
-      } else if (error.code === 'auth/network-request-failed') {
+      } else if (firebaseError.code === 'auth/network-request-failed') {
         setError('Network error. Please check your internet connection');
-      } else if (error.code === 'auth/operation-not-allowed') {
+      } else if (firebaseError.code === 'auth/operation-not-allowed') {
         setError('Google sign-up is not enabled');
-      } else if (error.code === 'auth/popup-blocked') {
+      } else if (firebaseError.code === 'auth/popup-blocked') {
         setError('Pop-up was blocked. Please allow pop-ups for this site');
       } else {
-        setError(error.message || 'Failed to sign up with Google');
+        setError(firebaseError.message || 'Firebase authentication failed');
       }
     }
   };
