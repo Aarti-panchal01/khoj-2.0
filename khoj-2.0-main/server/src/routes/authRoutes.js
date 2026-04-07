@@ -422,6 +422,9 @@ router.post('/google', async (req, res) => {
       return res.status(500).json({ message: 'Server misconfigured: missing GOOGLE_CLIENT_ID' });
     }
 
+    console.log('✅ GOOGLE_CLIENT_ID found:', process.env.GOOGLE_CLIENT_ID);
+    console.log('Token received (first 50 chars):', token.substring(0, 50));
+
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
     let decoded;
     try {
@@ -430,9 +433,11 @@ router.post('/google', async (req, res) => {
         audience: process.env.GOOGLE_CLIENT_ID,
       });
       decoded = ticket.getPayload();
+      console.log('✅ Token verified successfully:', decoded.email);
     } catch (error) {
-      console.error('Google token verification failed:', error.message);
-      return res.status(401).json({ message: 'Invalid or expired Google token' });
+      console.error('❌ Google token verification failed:', error.message);
+      console.error('Full error:', error);
+      return res.status(401).json({ message: 'Invalid or expired Google token', error: error.message });
     }
 
     const email = decoded.email?.toLowerCase();
