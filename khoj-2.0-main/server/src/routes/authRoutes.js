@@ -406,14 +406,12 @@ router.get('/me', authMiddleware, async (req, res) => {
 
 router.post('/google', async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ message: 'Authorization header missing' });
-    }
-
-    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
+    // Get token from request body (frontend sends { credential: googleIdToken })
+    const token = req.body?.credential;
+    
     if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
+      console.error('❌ No credential in request body');
+      return res.status(401).json({ message: 'No Google OAuth token provided' });
     }
 
     // Verify Google OAuth ID Token
@@ -423,7 +421,7 @@ router.post('/google', async (req, res) => {
     }
 
     console.log('✅ GOOGLE_CLIENT_ID found:', process.env.GOOGLE_CLIENT_ID);
-    console.log('Token received (first 50 chars):', token.substring(0, 50));
+    console.log('✅ Token received (first 50 chars):', token.substring(0, 50));
 
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
     let decoded;
