@@ -16,7 +16,6 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const { signup, setUser } = useAuth();
   const navigate = useNavigate();
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   const afterAuth = async () => {
     try {
@@ -53,37 +52,52 @@ const Signup = () => {
     setError('');
     setLoading(true);
     try {
+      console.log('🔐 Starting Google signup...');
       const result = await signInWithPopup(auth, googleProvider);
+      console.log('✅ Google signin successful:', result.user.email);
+      
       const user = result.user;
       const idToken = await user.getIdToken();
+      console.log('✅ ID token obtained');
       
-      const response = await fetch(`${API_URL}/api/auth/google`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${idToken}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      const backendResponse = await response.json();
-      
-      if (!response.ok) {
+      try {
+        const backendResponse = await AuthAPI.google({ credential: idToken });
+        console.log('✅ Backend authentication successful:', backendResponse);
+        
+        if (backendResponse.token) {
+          localStorage.setItem('khoj_token', backendResponse.token);
+          setUser(backendResponse.user);
+          setLoading(false);
+          
+          setTimeout(() => {
+            afterAuth();
+          }, 50);
+        } else {
+          console.error('❌ No token in backend response:', backendResponse);
+          setLoading(false);
+          setError('Authentication failed: No token received from server');
+        }
+      } catch (backendError) {
+        console.error('❌ Backend authentication error:', backendError);
         setLoading(false);
-        setError(backendResponse.error || 'Backend authentication failed');
-        return;
+        setError(backendError.data?.message || backendError.message || 'Backend authentication failed');
       }
-      
-      localStorage.setItem('khoj_token', backendResponse.token);
-      setUser(backendResponse.user);
+    } catch (firebaseError) {
+      console.error('❌ Firebase error:', firebaseError.code, firebaseError.message);
       setLoading(false);
       
-      setTimeout(() => {
-        afterAuth();
-      }, 50);
-    } catch (error) {
-      console.error('Google login error:', error);
-      setLoading(false);
-      setError(error.message || 'Failed to sign in with Google');
+      // Provide user-friendly error messages for Firebase errors
+      if (firebaseError.code === 'auth/popup-closed-by-user') {
+        setError('Sign-in popup was closed');
+      } else if (firebaseError.code === 'auth/network-request-failed') {
+        setError('Network error. Please check your internet connection');
+      } else if (firebaseError.code === 'auth/operation-not-allowed') {
+        setError('Google sign-in is not enabled');
+      } else if (firebaseError.code === 'auth/popup-blocked') {
+        setError('Pop-up was blocked. Please allow pop-ups for this site');
+      } else {
+        setError(firebaseError.message || 'Firebase authentication failed');
+      }
     }
   };
 
