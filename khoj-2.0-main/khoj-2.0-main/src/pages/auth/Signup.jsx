@@ -4,6 +4,7 @@ import { Mail, Lock, User, Phone, Building2, MapPin } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import CustomSelect from '../../components/ui/CustomSelect';
 import { UniversityAPI } from '../../lib/apiClient';
 import { motion } from 'framer-motion';
 
@@ -20,20 +21,43 @@ const Signup = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [universities, setUniversities] = useState([]);
+  const [loadingUniversities, setLoadingUniversities] = useState(true);
 
   const { signup } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
+    setLoadingUniversities(true);
+    console.log('Fetching universities from API...');
     UniversityAPI.list()
-      .then(setUniversities)
-      .catch(() => {});
+      .then((data) => {
+        console.log('Universities loaded:', data);
+        console.log('Number of universities:', data?.length);
+        console.log('[Mobile Debug] Universities array:', JSON.stringify(data));
+        console.log('[Mobile Debug] Setting universities state...');
+        setUniversities(Array.isArray(data) ? data : []);
+        setLoadingUniversities(false);
+        console.log('[Mobile Debug] Universities state set successfully');
+      })
+      .catch((err) => {
+        console.error('Failed to load universities:', err);
+        setUniversities([]);
+        setLoadingUniversities(false);
+      });
   }, []);
 
   const matchedUniversity = useMemo(
     () => universities.find((u) => u.name === formData.college) || null,
     [universities, formData.college]
   );
+
+  // Log options array for mobile debugging
+  useEffect(() => {
+    const options = universities.map(u => ({ value: u.name, label: u.name }));
+    console.log('[Mobile Debug - Signup] Universities state length:', universities.length);
+    console.log('[Mobile Debug - Signup] Options array length:', options.length);
+    console.log('[Mobile Debug - Signup] Options array:', options);
+  }, [universities]);
 
   // Auto-select campus when only one exists
   useEffect(() => {
@@ -52,6 +76,10 @@ const Signup = () => {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
     setError('');
+  };
+
+  const handleSelectChange = (name) => (e) => {
+    handleChange({ target: { name, value: e.target.value } });
   };
 
   const validateForm = () => {
@@ -156,57 +184,31 @@ const Signup = () => {
               value={formData.phone} onChange={handleChange} icon={Phone} required />
 
             {/* ── University select ── */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                College/University <span className="text-danger-500">*</span>
-              </label>
-              <div className="relative">
-                <Building2 className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <select
-                  name="college"
-                  value={formData.college}
-                  onChange={handleChange}
-                  required
-                  className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white appearance-none"
-                >
-                  <option value="">Select your university</option>
-                  {universities.map((u) => (
-                    <option key={u._id} value={u.name}>{u.name}</option>
-                  ))}
-                </select>
-                <svg className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                  fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
+            <CustomSelect
+              label="College/University"
+              required
+              placeholder={loadingUniversities ? "Loading universities..." : "Select your university"}
+              icon={Building2}
+              name="college"
+              value={formData.college}
+              onChange={handleSelectChange('college')}
+              options={universities.map(u => ({ value: u.name, label: u.name }))}
+              error={error && !formData.college ? error : ''}
+            />
 
             {/* ── Campus select — shown when university has multiple campuses ── */}
             {matchedUniversity && matchedUniversity.campuses.length > 1 && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Campus <span className="text-danger-500">*</span>
-                </label>
-                <div className="relative">
-                  <MapPin className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  <select
-                    name="campus"
-                    value={formData.campus}
-                    onChange={handleChange}
-                    required
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 bg-white appearance-none"
-                  >
-                    <option value="">Select your campus</option>
-                    {matchedUniversity.campuses.map((c) => (
-                      <option key={c._id} value={c.name}>{c.name}</option>
-                    ))}
-                  </select>
-                  <svg className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
+              <CustomSelect
+                label="Campus"
+                required
+                placeholder="Select your campus"
+                icon={MapPin}
+                name="campus"
+                value={formData.campus}
+                onChange={handleSelectChange('campus')}
+                options={matchedUniversity.campuses.map(c => ({ value: c.name, label: c.name }))}
+                error={error && !formData.campus ? error : ''}
+              />
             )}
 
             <Input label="Password" type="password" name="password" placeholder="At least 6 characters"

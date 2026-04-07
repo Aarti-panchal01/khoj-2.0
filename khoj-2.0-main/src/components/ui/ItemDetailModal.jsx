@@ -1,50 +1,27 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { X, MapPin, Calendar, Mail, Phone, Package, AlertCircle, User, Building2, Gift } from 'lucide-react';
+import { X, MapPin, Calendar, Package, AlertCircle, User, Building2, Gift, Mail, Phone, Tag } from 'lucide-react';
 import { format } from 'date-fns';
 import Badge from './Badge';
 import Button from './Button';
 import Card from './Card';
 import ClaimModal from './ClaimModal';
 
-const ItemDetailModal = ({ isOpen, onClose, item }) => {
+const ItemDetailModal = ({ isOpen, onClose, item, isGuest = false, currentUserId = null }) => {
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   if (!isOpen || !item) return null;
 
-  // Debug: Log item data to see what we're receiving
-  console.log('🔍 ItemDetailModal - Item data:', {
-    type: item.type,
-    contactPreference: item.contactPreference,
-    userEmail: item.userEmail,
-    userPhone: item.userPhone,
-    hasUserEmail: !!item.userEmail,
-    hasUserPhone: !!item.userPhone,
-    fullItem: item
-  });
+  const isOwner = currentUserId && String(item.user) === String(currentUserId);
 
-  const handleContact = (method) => {
-    switch (method) {
-      case 'email':
-        if (item.userEmail) {
-          window.location.href = `mailto:${item.userEmail}?subject=Regarding: ${item.title}`;
-        }
-        break;
-      case 'phone':
-        if (item.userPhone) {
-          window.location.href = `tel:${item.userPhone}`;
-        }
-        break;
-      case 'both':
-        // Show both options - user can choose
-        break;
-      default:
-        break;
-    }
-  };
+  const uniLine = [item.universityName, item.campusName].filter(Boolean).join(' · ');
 
-  const canShowEmail = item.contactPreference === 'email' || item.contactPreference === 'both';
-  const canShowPhone = item.contactPreference === 'phone' || item.contactPreference === 'both';
+  const email = item.userEmail?.trim() || '';
+  const phone = item.userPhone?.trim() || '';
+  const hasEmail = Boolean(email);
+  const hasPhone = Boolean(phone);
 
   return (
     <>
@@ -54,7 +31,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="fixed inset-0 bg-black bg-opacity-50 z-40 backdrop-blur-sm"
+        className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm"
       />
 
       {/* Modal */}
@@ -64,20 +41,20 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 100 }}
           transition={{ duration: 0.3, type: 'spring' }}
-          className="bg-white rounded-t-3xl sm:rounded-xl shadow-2xl w-full max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col"
+          className="bg-surface-0 rounded-t-3xl sm:rounded-2xl shadow-2xl w-full max-w-3xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col border border-ink-200"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header with Close Button */}
-          <div className="sticky top-0 bg-white border-b border-gray-200 px-5 sm:px-6 py-4 flex items-center justify-between z-10">
+          <div className="sticky top-0 bg-surface-0 border-b border-ink-200 px-5 sm:px-6 py-4 flex items-center justify-between z-10">
             {/* Mobile drag indicator */}
-            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-gray-300 rounded-full sm:hidden"></div>
-            <h2 className="text-lg sm:text-2xl font-bold text-gray-900 mt-2 sm:mt-0">Item Details</h2>
+            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-12 h-1 bg-ink-200 rounded-full sm:hidden"></div>
+            <h2 className="text-lg sm:text-2xl font-extrabold text-ink-950 mt-2 sm:mt-0 khoj-heading">Item details</h2>
             <button
               onClick={onClose}
-              className="p-2.5 sm:p-2 hover:bg-gray-100 rounded-xl sm:rounded-lg transition-colors flex-shrink-0 touch-manipulation min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center"
+              className="p-2.5 sm:p-2 hover:bg-surface-100 rounded-xl sm:rounded-2xl transition-colors flex-shrink-0 touch-manipulation min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center"
               aria-label="Close modal"
             >
-              <X className="w-5 h-5 sm:w-6 sm:h-6 text-gray-500" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6 text-ink-600" />
             </button>
           </div>
 
@@ -99,7 +76,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                     </Badge>
                     {/* Reward Badge */}
                     {item.type === 'lost' && item.reward && item.reward !== 'none' && (
-                      <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0 shadow-lg">
+                      <Badge className="bg-gradient-to-r from-primary-500 to-primary-700 text-white border-0 shadow-lg">
                         {item.reward === 'gratitude' && '🙏 Gratitude'}
                         {item.reward === 'food_treat' && '🍕 Food Treat'}
                         {item.reward === 'coffee' && '☕ Coffee'}
@@ -127,7 +104,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                   </Badge>
                   {/* Reward Badge */}
                   {item.type === 'lost' && item.reward && item.reward !== 'none' && (
-                    <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0 shadow-lg">
+                  <Badge className="bg-gradient-to-r from-primary-500 to-primary-700 text-white border-0 shadow-lg">
                       {item.reward === 'gratitude' && '🙏 Gratitude'}
                       {item.reward === 'food_treat' && '🍕 Food Treat'}
                       {item.reward === 'coffee' && '☕ Coffee'}
@@ -150,13 +127,13 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
             {/* Title and Category */}
             <div className="mb-6">
               <div className="flex items-start justify-between gap-3 mb-3">
-                <h3 className="text-2xl sm:text-3xl font-bold text-gray-900">{item.title}</h3>
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-ink-950 khoj-heading">{item.title}</h3>
                 <Badge variant="default" className="flex-shrink-0">{item.category}</Badge>
               </div>
 
               {/* Description */}
-              <Card className="p-4 bg-gray-50 border border-gray-200">
-                <p className="text-base text-gray-700 leading-relaxed whitespace-pre-line">
+              <Card className="p-4 bg-surface-100 border border-ink-200">
+                <p className="text-base text-ink-800 leading-relaxed whitespace-pre-line">
                   {item.description}
                 </p>
               </Card>
@@ -164,33 +141,33 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
 
             {/* Details Section */}
             <div className="space-y-4 mb-6">
-              <h4 className="text-lg font-semibold text-gray-900">Details</h4>
+              <h4 className="text-lg font-extrabold text-ink-950 khoj-heading">Details</h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Location */}
-                <Card className="p-4 border-2 border-gray-200 hover:border-primary-300 transition-colors">
+                <Card className="p-4 border-2 border-ink-200 hover:border-primary-300 transition-colors">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-5 h-5 text-primary-600" />
+                    <div className="w-10 h-10 bg-primary-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-5 h-5 text-primary-900" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Location</p>
-                      <p className="text-sm font-semibold text-gray-900 break-words">{item.location}</p>
+                      <p className="text-xs font-semibold text-ink-600 uppercase tracking-wide mb-1">Location</p>
+                      <p className="text-sm font-bold text-ink-950 break-words">{item.location}</p>
                     </div>
                   </div>
                 </Card>
 
                 {/* Date */}
-                <Card className="p-4 border-2 border-gray-200 hover:border-primary-300 transition-colors">
+                <Card className="p-4 border-2 border-ink-200 hover:border-primary-300 transition-colors">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Calendar className="w-5 h-5 text-blue-600" />
+                    <div className="w-10 h-10 bg-surface-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                      <Calendar className="w-5 h-5 text-ink-800" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                      <p className="text-xs font-semibold text-ink-600 uppercase tracking-wide mb-1">
                         {item.type === 'found' ? 'Date Found' : 'Date Lost'}
                       </p>
-                      <p className="text-sm font-semibold text-gray-900">
+                      <p className="text-sm font-bold text-ink-950">
                         {format(new Date(item.date), 'MMMM dd, yyyy')}
                       </p>
                     </div>
@@ -198,33 +175,28 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                 </Card>
               </div>
 
-              {item.college && (
-                <Card className="p-4 border-2 border-gray-200 hover:border-primary-300 transition-colors">
+              {(item.universityName || item.college) && (
+                <Card className="p-4 border-2 border-ink-200 hover:border-primary-300 transition-colors">
                   <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Building2 className="w-5 h-5 text-purple-600" />
+                    <div className="w-10 h-10 bg-primary-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                      <Building2 className="w-5 h-5 text-primary-900" />
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
-                        College & Campus
+                      <p className="text-xs font-semibold text-ink-600 uppercase tracking-wide mb-1">
+                        University &amp; Campus
                       </p>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {item.college}
-                      </p>
-                      {item.campus && (
-                        <p className="text-xs text-gray-600 mt-1">{item.campus}</p>
-                      )}
+                      <p className="text-sm font-bold text-ink-950">{uniLine}</p>
                     </div>
                   </div>
                 </Card>
               )}
 
               {/* Status */}
-              <Card className="p-4 border-2 border-gray-200">
+              <Card className="p-4 border-2 border-ink-200">
                 <div className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded-full ${item.status === 'active' ? 'bg-success-500 animate-pulse' : 'bg-gray-400'}`} />
-                  <p className="text-sm font-medium text-gray-700">
-                    Status: <span className={`${item.status === 'active' ? 'text-success-600' : 'text-gray-600'} font-semibold`}>
+                  <div className={`w-3 h-3 rounded-full ${item.status === 'active' ? 'bg-found-600 animate-pulse' : 'bg-ink-400'}`} />
+                  <p className="text-sm font-semibold text-ink-700">
+                    Status: <span className={`${item.status === 'active' ? 'text-found-700' : 'text-ink-600'} font-bold`}>
                       {item.status === 'active' ? 'Active' : item.status}
                     </span>
                   </p>
@@ -234,32 +206,41 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
 
             {/* Posted By Section */}
             <div className="mb-6">
-              <h4 className="text-lg font-semibold text-gray-900 mb-3">Posted By</h4>
-              <Card className="p-4 bg-gradient-to-br from-primary-50 to-blue-50 border-2 border-primary-200">
+              <h4 className="text-lg font-extrabold text-ink-950 mb-3 khoj-heading">Posted by</h4>
+              <Card className="p-4 bg-primary-50/50 border-2 border-primary-200">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-primary-600 rounded-2xl flex items-center justify-center flex-shrink-0">
                     <User className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-900">{item.userName}</p>
-                    {(item.college || item.campus) && (
-                      <p className="text-sm text-gray-600">
-                        {item.college}
-                        {item.campus ? ` • ${item.campus}` : ''}
-                      </p>
-                    )}
+                    <p className="font-bold text-ink-950">{item.userName}</p>
+                    {uniLine && <p className="text-sm text-ink-700">{uniLine}</p>}
                   </div>
                 </div>
+
+                {item.type === 'found' && (
+                  <div className="mt-3 pt-3 border-t border-primary-200 text-xs text-gray-700 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <p className="flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-primary-900" />
+                      Posted {format(new Date(item.createdAt), 'MMM dd, yyyy')}
+                    </p>
+                    <p className="flex items-center gap-1.5">
+                      <Tag className="w-3.5 h-3.5 text-primary-900" />
+                      Category: {item.category}
+                    </p>
+                    <p className="text-primary-900 font-semibold">Claim flow unlocks contact after approval</p>
+                  </div>
+                )}
                 
                 {/* Contact Information - Only show for LOST items */}
                 {item.type === 'lost' && (item.userEmail || item.userPhone) && (
                   <div className="mt-3 pt-3 border-t border-primary-200 space-y-2">
                     {item.userEmail && (
                       <div className="flex items-center gap-2 text-sm">
-                        <Mail className="w-4 h-4 text-primary-600 flex-shrink-0" />
+                        <Mail className="w-4 h-4 text-primary-900 flex-shrink-0" />
                         <a 
                           href={`mailto:${item.userEmail}`}
-                          className="text-primary-700 hover:text-primary-800 hover:underline break-all"
+                          className="text-primary-900 hover:text-primary-950 hover:underline break-all font-semibold"
                         >
                           {item.userEmail}
                         </a>
@@ -267,10 +248,10 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                     )}
                     {item.userPhone && (
                       <div className="flex items-center gap-2 text-sm">
-                        <Phone className="w-4 h-4 text-primary-600 flex-shrink-0" />
+                        <Phone className="w-4 h-4 text-primary-900 flex-shrink-0" />
                         <a 
                           href={`tel:${item.userPhone}`}
-                          className="text-primary-700 hover:text-primary-800 hover:underline"
+                          className="text-primary-900 hover:text-primary-950 hover:underline font-semibold"
                         >
                           {item.userPhone}
                         </a>
@@ -293,9 +274,9 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
             {/* Reward Section for Lost Items */}
             {item.type === 'lost' && item.reward && item.reward !== 'none' && (
               <div className="mb-6">
-                <Card className="p-5 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 border-2 border-amber-300">
+                <Card className="p-5 bg-gradient-to-br from-primary-50 via-primary-100 to-surface-100 border-2 border-primary-300">
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg">
                       <span className="text-3xl">
                         {item.reward === 'gratitude' && '🙏'}
                         {item.reward === 'food_treat' && '🍕'}
@@ -306,12 +287,12 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <Gift className="w-5 h-5 text-amber-700" />
-                        <h4 className="text-lg font-bold text-amber-900">Reward Offered</h4>
+                        <Gift className="w-5 h-5 text-primary-900" />
+                        <h4 className="text-lg font-extrabold text-ink-950 khoj-heading">Reward offered</h4>
                       </div>
-                      <p className="text-sm text-amber-800">
+                      <p className="text-sm text-ink-800">
                         The owner is offering{' '}
-                        <span className="font-bold">
+                        <span className="font-extrabold">
                           {item.reward === 'gratitude' && 'Gratitude'}
                           {item.reward === 'food_treat' && 'a Food Treat'}
                           {item.reward === 'coffee' && 'Coffee'}
@@ -328,69 +309,99 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
 
             {/* Contact/Claim Section */}
             {item.type === 'found' ? (
-              // Claim button for FOUND items
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-400">
-                <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <div className="bg-gradient-to-br from-found-50 to-success-50 rounded-2xl p-6 border-2 border-found-200">
+                <h4 className="text-lg font-extrabold text-ink-950 mb-4 flex items-center gap-2 khoj-heading">
                   <span className="text-xl">✓</span>
-                  Is This Your Item?
+                  {isOwner ? 'Your listing' : 'Is This Your Item?'}
                 </h4>
-                <p className="text-sm text-gray-700 mb-4">
-                  If you believe this is your lost item, click below to submit a claim. You'll need to answer verification questions to prove ownership.
-                </p>
-                <Button
-                  variant="primary"
-                  fullWidth
-                  onClick={() => setIsClaimModalOpen(true)}
-                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-xl text-white font-bold text-base py-4"
-                >
-                  🔐 Claim This Item
-                </Button>
+                {isOwner ? (
+                  <p className="text-sm text-ink-800">
+                    You posted this found item. Manage claims from your profile and notifications.
+                  </p>
+                ) : (
+                  <>
+                    <p className="text-sm text-ink-800 mb-4">
+                      If you believe this is your lost item, submit a claim and answer a few verification questions.
+                    </p>
+                    {isGuest ? (
+                      <Button
+                        variant="primary"
+                        fullWidth
+                        onClick={() => { onClose(); navigate('/login'); }}
+                        className="shadow-lg"
+                      >
+                        Sign in to claim
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="found"
+                        fullWidth
+                        onClick={() => setIsClaimModalOpen(true)}
+                        className="shadow-lg"
+                      >
+                        🔐 Claim Test (3 quick questions)
+                      </Button>
+                    )}
+                  </>
+                )}
               </div>
             ) : (
-              // Contact section for LOST items - show contact buttons
-              <div className="bg-gradient-to-br from-primary-50 to-blue-50 rounded-xl p-6 border-2 border-primary-200">
-                <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <div className="bg-gradient-to-br from-primary-50 to-surface-100 rounded-2xl p-6 border-2 border-primary-200 relative overflow-hidden">
+                <h4 className="text-lg font-extrabold text-ink-950 mb-4 flex items-center gap-2 khoj-heading">
                   <span className="text-xl">💬</span>
                   Contact Owner
                 </h4>
-                <p className="text-sm text-gray-600 mb-4">
-                  Have information about this item? Reach out to the owner:
+                <p className="text-sm text-ink-700 mb-4">
+                  {isOwner
+                    ? 'This is your lost-item post. Others can contact you using the methods you chose when posting.'
+                    : 'Have information about this item? Reach out to the owner:'}
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {/* Email Box */}
-                  {item.userEmail && (
-                    <Card className="p-4 bg-white border-2 border-primary-300 hover:border-primary-500 transition-all cursor-pointer" onClick={() => handleContact('email')}>
-                      <div className="flex flex-col items-center gap-2 text-center">
-                        <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
-                          <Mail className="w-6 h-6 text-primary-600" />
-                        </div>
-                        <p className="text-xs font-medium text-gray-500 uppercase">Email</p>
-                        <p className="text-sm font-semibold text-primary-700 break-all">{item.userEmail}</p>
-                      </div>
-                    </Card>
-                  )}
-                  {/* Phone Box */}
-                  {item.userPhone && (
-                    <Card className="p-4 bg-white border-2 border-primary-300 hover:border-primary-500 transition-all cursor-pointer" onClick={() => handleContact('phone')}>
-                      <div className="flex flex-col items-center gap-2 text-center">
-                        <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
-                          <Phone className="w-6 h-6 text-primary-600" />
-                        </div>
-                        <p className="text-xs font-medium text-gray-500 uppercase">Phone</p>
-                        <p className="text-sm font-semibold text-primary-700">{item.userPhone}</p>
-                      </div>
-                    </Card>
-                  )}
-                  {/* Show warning only if no contact info is available */}
-                  {!item.userEmail && !item.userPhone && (
-                    <Card className="p-4 bg-yellow-50 border border-yellow-200 col-span-full">
-                      <p className="text-sm text-yellow-800 text-center">
-                        No contact methods available for this item.
-                      </p>
-                    </Card>
-                  )}
-                </div>
-                <p className="text-xs text-gray-500 text-center mt-4">
+                {isOwner ? (
+                  <Card className="p-4 bg-surface-0/90 border border-primary-200">
+                    <p className="text-sm text-ink-800 text-center">
+                      You&apos;ll receive email or phone outreach based on your contact preference (
+                      <span className="font-semibold">{item.contactPreference || 'both'}</span>
+                      ).
+                    </p>
+                  </Card>
+                ) : isGuest ? (
+                  <div className="relative min-h-[120px]">
+                    <div className="space-y-3 blur-md select-none pointer-events-none opacity-80" aria-hidden>
+                      <div className="h-11 rounded-lg bg-primary-200/80" />
+                      <div className="h-11 rounded-lg bg-primary-200/60" />
+                    </div>
+                    <button
+                      type="button"
+                      className="absolute inset-0 flex items-center justify-center rounded-xl bg-surface-0/80 backdrop-blur-[2px] text-sm font-extrabold text-primary-950 px-4 py-3 hover:bg-surface-0/90 transition-colors border border-primary-200"
+                      onClick={() => { onClose(); navigate('/login'); }}
+                    >
+                      Sign in to see contact details
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {hasEmail && (
+                      <a
+                        href={`mailto:${email}?subject=${encodeURIComponent(`Regarding: ${item.title}`)}`}
+                        className="flex items-center justify-center w-full rounded-xl bg-primary-600 text-white py-3 text-sm font-extrabold shadow-md hover:bg-primary-700 transition-colors"
+                      >
+                        Contact via Email
+                      </a>
+                    )}
+                    {hasPhone && (
+                      <a
+                        href={`tel:${phone}`}
+                        className="flex items-center justify-center w-full rounded-xl border-2 border-ink-300 bg-surface-0 py-3 text-sm font-extrabold text-ink-950 hover:bg-surface-100 transition-colors"
+                      >
+                        Contact via Phone
+                      </a>
+                    )}
+                    {!hasEmail && !hasPhone && (
+                      <p className="text-sm text-center text-ink-700 py-2">No contact details available</p>
+                    )}
+                  </div>
+                )}
+                <p className="text-xs text-ink-600 text-center mt-4">
                   Posted on {format(new Date(item.createdAt), 'MMM dd, yyyy')}
                 </p>
               </div>

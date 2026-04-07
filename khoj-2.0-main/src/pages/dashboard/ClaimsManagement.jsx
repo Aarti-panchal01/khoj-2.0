@@ -229,7 +229,7 @@ const ClaimsManagement = () => {
                             {/* When */}
                             <Card className="p-4 bg-white border border-gray-200">
                               <div className="flex items-start gap-3">
-                                <Calendar className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                                <Calendar className="w-5 h-5 text-ink-700 flex-shrink-0 mt-0.5" />
                                 <div className="flex-1">
                                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
                                     When did you lose it?
@@ -242,7 +242,7 @@ const ClaimsManagement = () => {
                             {/* Specific Details */}
                             <Card className="p-4 bg-white border border-gray-200">
                               <div className="flex items-start gap-3">
-                                <FileText className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                                <FileText className="w-5 h-5 text-primary-900 flex-shrink-0 mt-0.5" />
                                 <div className="flex-1">
                                   <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
                                     Specific Details

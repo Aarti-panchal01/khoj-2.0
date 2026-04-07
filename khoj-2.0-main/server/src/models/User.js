@@ -5,38 +5,36 @@ const userSchema = new mongoose.Schema(
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true, lowercase: true, index: true },
     passwordHash: { type: String, required: true, select: false },
-    phone: { type: String, required: true },
+    /** Google "sub" — present when the account can sign in with Google */
+    googleSub: { type: String, select: false, sparse: true, unique: true },
+    phone: { type: String, default: '' },
 
-    // ── University / Campus (ObjectId refs — source of truth for access control) ──
+    // ── University / Campus (optional until onboarding completes) ──
     universityId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'University',
-      required: true,
+      default: null,
       index: true,
     },
     campusId: {
-      type: mongoose.Schema.Types.ObjectId, // references University.campuses._id
+      type: mongoose.Schema.Types.ObjectId,
       default: null,
       index: true,
     },
 
-    // ── Display cache — denormalised for fast reads, never used for access control ──
-    universityName: { type: String, required: true },
+    universityName: { type: String, default: '' },
     campusName: { type: String, default: '' },
 
     reputation: { type: Number, default: 0 },
 
-    // ── Email verification ────────────────────────────────────────────────────────
     isEmailVerified: { type: Boolean, default: false, index: true },
     emailOtp: { type: String, select: false },
     emailOtpExpiry: { type: Date, select: false },
     emailOtpAttempts: { type: Number, default: 0, select: false },
 
-    // ── Token versioning ──────────────────────────────────────────────────────────
     tokenVersion: { type: Number, default: 0, select: false },
     refreshTokenHash: { type: String, select: false },
 
-    // ── Account lockout ───────────────────────────────────────────────────────────
     loginAttempts: { type: Number, default: 0, select: false },
     lockUntil: { type: Date, select: false },
   },
@@ -46,13 +44,12 @@ const userSchema = new mongoose.Schema(
 userSchema.index({ email: 1, universityId: 1 });
 userSchema.index({ universityId: 1, campusId: 1 });
 
-// Returns true if account is currently locked
 userSchema.virtual('isLocked').get(function () {
   return this.lockUntil && this.lockUntil > Date.now();
 });
 
 const MAX_LOGIN_ATTEMPTS = 10;
-const LOCK_DURATION_MS = 30 * 60 * 1000; // 30 minutes
+const LOCK_DURATION_MS = 30 * 60 * 1000;
 
 userSchema.methods.incLoginAttempts = function () {
   if (this.lockUntil && this.lockUntil < Date.now()) {

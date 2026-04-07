@@ -62,30 +62,30 @@ const Notifications = () => {
   const getNotificationIcon = (type) => {
     switch (type) {
       case 'claim_request':
-        return <AlertCircle className="w-5 h-5 text-warning-600" />;
+        return <AlertCircle className="w-5 h-5 text-primary-900" />;
       case 'claim_approved':
-        return <CheckCheck className="w-5 h-5 text-success-600" />;
+        return <CheckCheck className="w-5 h-5 text-found-700" />;
       case 'claim_rejected':
-        return <AlertCircle className="w-5 h-5 text-danger-600" />;
+        return <AlertCircle className="w-5 h-5 text-lost-700" />;
       case 'item_resolved':
-        return <Package className="w-5 h-5 text-primary-600" />;
+        return <Package className="w-5 h-5 text-ink-700" />;
       default:
-        return <Bell className="w-5 h-5 text-gray-600" />;
+        return <Bell className="w-5 h-5 text-ink-700" />;
     }
   };
 
   const getNotificationColor = (type) => {
     switch (type) {
       case 'claim_request':
-        return 'from-warning-50 to-yellow-50 border-warning-200';
+        return 'from-primary-50 to-surface-100 border-primary-200';
       case 'claim_approved':
-        return 'from-success-50 to-green-50 border-success-200';
+        return 'from-found-50 to-surface-100 border-found-200';
       case 'claim_rejected':
-        return 'from-danger-50 to-red-50 border-danger-200';
+        return 'from-lost-50 to-surface-100 border-lost-200';
       case 'item_resolved':
-        return 'from-primary-50 to-blue-50 border-primary-200';
+        return 'from-surface-100 to-surface-0 border-ink-200';
       default:
-        return 'from-gray-50 to-gray-100 border-gray-200';
+        return 'from-surface-100 to-surface-0 border-ink-200';
     }
   };
 
@@ -99,10 +99,10 @@ const Notifications = () => {
         {/* Header */}
         <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
-              🔔 Notifications
+            <h1 className="text-3xl sm:text-4xl md:text-5xl khoj-heading font-extrabold leading-[0.95] text-ink-950">
+              Notifications
             </h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-1">
+            <p className="text-sm sm:text-base text-ink-700 mt-1.5">
               Stay updated on your claims and items
             </p>
           </div>
@@ -121,7 +121,7 @@ const Notifications = () => {
 
         {/* Error State */}
         {error && (
-          <Card className="p-4 border border-danger-200 bg-danger-50 text-danger-700 mb-4">
+          <Card className="p-4 border border-lost-200 bg-lost-50 text-lost-800 mb-4">
             <p>{error}</p>
             <Button onClick={fetchNotifications} className="mt-2" size="sm">
               Retry
@@ -133,16 +133,16 @@ const Notifications = () => {
         {loading ? (
           <Card className="p-8 sm:p-12 text-center">
             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600 mx-auto mb-4"></div>
-            <p className="text-sm text-gray-600">Loading notifications...</p>
+            <p className="text-sm text-ink-700">Loading notifications...</p>
           </Card>
         ) : notifications.length === 0 ? (
           /* Empty State */
-          <Card className="p-8 sm:p-12 text-center bg-gradient-to-br from-gray-50 to-white">
-            <Inbox className="w-16 h-16 sm:w-20 sm:h-20 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2">
+          <Card className="p-8 sm:p-12 text-center bg-surface-0 border border-ink-200">
+            <Inbox className="w-16 h-16 sm:w-20 sm:h-20 text-ink-300 mx-auto mb-4" />
+            <h3 className="text-lg sm:text-xl font-extrabold text-ink-950 mb-2 khoj-heading">
               No notifications yet
             </h3>
-            <p className="text-sm sm:text-base text-gray-600 mb-4">
+            <p className="text-sm sm:text-base text-ink-700 mb-4">
               You'll see notifications here when someone claims your items or responds to your claims
             </p>
             <Button onClick={() => navigate('/')} variant="primary">
@@ -171,7 +171,7 @@ const Notifications = () => {
                 >
                   <div className="flex items-start gap-3 sm:gap-4">
                     {/* Icon */}
-                    <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-full flex items-center justify-center shadow-sm">
+                    <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-surface-0 rounded-2xl flex items-center justify-center shadow-sm ring-1 ring-ink-200">
                       {getNotificationIcon(notification.type)}
                     </div>
 
@@ -179,11 +179,11 @@ const Notifications = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <div className="flex-1">
-                          <p className="text-sm sm:text-base font-semibold text-gray-900">
+                          <p className="text-sm sm:text-base font-semibold text-ink-950">
                             {notification.message}
                           </p>
                           {notification.itemId && (
-                            <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                            <p className="text-xs sm:text-sm text-ink-700 mt-1">
                               Item: {notification.itemId.title || 'Unknown'}
                               {notification.itemId.type && (
                                 <Badge variant={notification.itemId.type === 'found' ? 'found' : 'lost'} className="ml-2">
@@ -194,12 +194,21 @@ const Notifications = () => {
                           )}
                         </div>
                         {!notification.read && (
-                          <div className="w-2 h-2 bg-primary-500 rounded-full flex-shrink-0 mt-1"></div>
+                          <div
+                            className={`w-2.5 h-2.5 rounded-full flex-shrink-0 mt-1 ring-2 ring-surface-0 ${
+                              notification.itemId?.type === 'lost'
+                                ? 'bg-lost-600'
+                                : notification.itemId?.type === 'found'
+                                  ? 'bg-found-600'
+                                  : 'bg-primary-600'
+                            }`}
+                            aria-hidden
+                          />
                         )}
                       </div>
 
                       {/* Timestamp */}
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-2 text-xs text-ink-600">
                         <Clock className="w-3 h-3" />
                         <span>{format(new Date(notification.createdAt), 'MMM dd, yyyy • h:mm a')}</span>
                       </div>

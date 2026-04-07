@@ -14,13 +14,17 @@ const PostItem = () => {
   const editId = searchParams.get('edit');
   const isEditMode = Boolean(editId);
 
+  const todayLocal = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+    .toISOString()
+    .split('T')[0];
+
   const [formData, setFormData] = useState({
     type: 'found',
     title: '',
     description: '',
     category: '',
     location: '',
-    date: new Date().toISOString().split('T')[0],
+    date: todayLocal,
     images: [],
     urgent: false,
     reward: 'none',
@@ -44,7 +48,7 @@ const PostItem = () => {
           description: item.description,
           category: item.category,
           location: item.location,
-          date: item.date ? item.date.split('T')[0] : new Date().toISOString().split('T')[0],
+          date: item.date ? item.date.split('T')[0] : todayLocal,
           images: item.images || [],
           urgent: item.urgent,
           reward: item.reward || 'none',
@@ -79,11 +83,11 @@ const PostItem = () => {
       return;
     }
 
-    // Validate file sizes (max 10MB each)
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    // Keep in sync with backend multer max size (5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
     for (const file of files) {
       if (file.size > maxSize) {
-        setError(`Image ${file.name} is too large. Maximum size is 10MB`);
+        setError(`Image ${file.name} is too large. Maximum size is 5MB`);
         e.target.value = ''; // Reset file input
         return;
       }
@@ -94,7 +98,7 @@ const PostItem = () => {
 
     try {
       const result = await UploadAPI.uploadImages(files);
-      setFormData({ ...formData, images: result.images });
+      setFormData((prev) => ({ ...prev, images: [...(prev.images || []), ...(result.images || [])].slice(0, 5) }));
     } catch (err) {
       console.error('Image upload error:', err);
       setError(err.message || 'Failed to upload images. Please try again.');
@@ -149,30 +153,30 @@ const PostItem = () => {
       >
         {/* Header */}
         <div className="mb-4 sm:mb-6">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">
-            {isEditMode ? '✏️ Edit Item' : '📝 Post an Item'}
+          <h1 className="text-3xl sm:text-4xl md:text-5xl khoj-heading font-extrabold leading-[0.95] text-ink-950">
+            {isEditMode ? 'Edit post' : 'Post an item'}
           </h1>
-          <p className="text-sm sm:text-base text-gray-600 mt-1 sm:mt-2">
+          <p className="text-sm sm:text-base text-ink-700 mt-1.5 sm:mt-2">
             {isEditMode ? 'Update your item details' : 'Help reunite items with their owners'}
           </p>
         </div>
 
-        <Card className="p-4 sm:p-5 md:p-6 bg-gradient-to-br from-white to-gray-50/30 border-2 border-gray-100">
+        <Card className="p-4 sm:p-5 md:p-6 bg-surface-0 border border-ink-200">
           <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
             {error && (
-              <div className="bg-danger-50 border border-danger-200 text-danger-700 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base">
+              <div className="bg-lost-50 border border-lost-200 text-lost-800 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-sm sm:text-base">
                 {error}
               </div>
             )}
 
             {/* Item Type */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
-                Item Type <span className="text-danger-500">*</span>
+              <label className="block text-sm font-semibold text-ink-800 mb-2 sm:mb-3">
+                Item type <span className="text-lost-600">*</span>
               </label>
               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <label className={`relative flex items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                  formData.type === 'found' ? 'border-success-500 bg-success-50' : 'border-gray-300 hover:border-gray-400'
+                  formData.type === 'found' ? 'border-found-600 bg-found-50' : 'border-ink-300 hover:border-ink-400'
                 }`}>
                   <input
                     type="radio"
@@ -183,11 +187,11 @@ const PostItem = () => {
                     className="sr-only"
                   />
                   <div className="flex-1">
-                    <p className="text-sm sm:text-base font-medium text-gray-900">Found Item</p>
-                    <p className="text-xs sm:text-sm text-gray-500">I found something</p>
+                    <p className="text-sm sm:text-base font-bold text-ink-950 khoj-heading">Found</p>
+                    <p className="text-xs sm:text-sm text-ink-600">I found something</p>
                   </div>
                   {formData.type === 'found' && (
-                    <div className="w-5 h-5 bg-success-500 rounded-full flex items-center justify-center">
+                    <div className="w-5 h-5 bg-found-600 rounded-full flex items-center justify-center">
                       <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                       </svg>
@@ -196,7 +200,7 @@ const PostItem = () => {
                 </label>
 
                 <label className={`relative flex items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                  formData.type === 'lost' ? 'border-danger-500 bg-danger-50' : 'border-gray-300 hover:border-gray-400'
+                  formData.type === 'lost' ? 'border-lost-600 bg-lost-50' : 'border-ink-300 hover:border-ink-400'
                 }`}>
                   <input
                     type="radio"
@@ -207,11 +211,11 @@ const PostItem = () => {
                     className="sr-only"
                   />
                   <div className="flex-1">
-                    <p className="text-sm sm:text-base font-medium text-gray-900">Lost Item</p>
-                    <p className="text-xs sm:text-sm text-gray-500">I lost something</p>
+                    <p className="text-sm sm:text-base font-bold text-ink-950 khoj-heading">Lost</p>
+                    <p className="text-xs sm:text-sm text-ink-600">I lost something</p>
                   </div>
                   {formData.type === 'lost' && (
-                    <div className="w-5 h-5 bg-danger-500 rounded-full flex items-center justify-center">
+                    <div className="w-5 h-5 bg-lost-600 rounded-full flex items-center justify-center">
                       <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                       </svg>
@@ -233,8 +237,8 @@ const PostItem = () => {
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Description <span className="text-danger-500">*</span>
+              <label className="block text-sm font-semibold text-ink-800 mb-1.5">
+                Description <span className="text-lost-600">*</span>
               </label>
               <textarea
                 name="description"
@@ -242,7 +246,7 @@ const PostItem = () => {
                 onChange={handleChange}
                 placeholder="Provide detailed description including distinguishing features, colors, brands, etc."
                 rows={4}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-2.5 border border-ink-300 rounded-xl bg-surface-0 text-ink-950 placeholder:text-ink-500 focus:outline-none focus:ring-2 focus:ring-primary-200 focus:border-primary-600 transition-all duration-200"
                 required
               />
             </div>
@@ -278,28 +282,31 @@ const PostItem = () => {
               onChange={handleChange}
               icon={Calendar}
               required
-              max={new Date().toISOString().split('T')[0]}
+              max={todayLocal}
+              wrapperClassName="w-full overflow-hidden rounded-xl border border-ink-300 bg-surface-0"
+              inputClassName="w-full max-w-full box-border appearance-none !border-0 !rounded-none"
+              inputStyle={{ width: '100%', maxWidth: '100%' }}
             />
 
             {/* Image Upload */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
+              <label className="block text-sm font-semibold text-ink-800 mb-2 sm:mb-3">
                 Images (Optional - Max 5)
               </label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 text-center hover:border-primary-500 transition-colors">
+              <div className="border-2 border-dashed border-ink-300 rounded-2xl p-4 sm:p-6 text-center hover:border-primary-600 transition-colors bg-surface-0">
                 {uploadingImages ? (
                   <div className="py-4">
                     <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-primary-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                    <p className="text-sm text-gray-600">Uploading images...</p>
+                    <p className="text-sm text-ink-700">Uploading images...</p>
                   </div>
                 ) : (
                   <>
-                    <Upload className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 mx-auto mb-2 sm:mb-3" />
+                    <Upload className="w-10 h-10 sm:w-12 sm:h-12 text-ink-400 mx-auto mb-2 sm:mb-3" />
                     <label className="cursor-pointer">
-                      <span className="text-sm sm:text-base text-primary-600 hover:text-primary-700 font-medium">
+                      <span className="text-sm sm:text-base text-primary-900 hover:text-primary-950 font-bold">
                         Click to upload
                       </span>
-                      <span className="text-sm sm:text-base text-gray-600"> or drag and drop</span>
+                      <span className="text-sm sm:text-base text-ink-700"> or drag and drop</span>
                       <input
                         type="file"
                         accept="image/*"
@@ -309,7 +316,7 @@ const PostItem = () => {
                         disabled={uploadingImages}
                       />
                     </label>
-                    <p className="text-xs text-gray-500 mt-2">PNG, JPG up to 10MB each (Max 5 images)</p>
+                    <p className="text-xs text-ink-600 mt-2">PNG, JPG up to 5MB each (Max 5 images)</p>
                   </>
                 )}
               </div>
@@ -343,29 +350,29 @@ const PostItem = () => {
             {/* Urgent Checkbox */}
             {formData.type === 'lost' && (
               <>
-                <label className="flex items-center gap-3 p-4 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50">
+                <label className="flex items-center gap-3 p-4 border border-ink-300 rounded-2xl cursor-pointer hover:bg-surface-100">
                   <input
                     type="checkbox"
                     name="urgent"
                     checked={formData.urgent}
                     onChange={handleChange}
-                    className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                    className="w-5 h-5 text-primary-700 border-ink-300 rounded focus:ring-primary-200"
                   />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <AlertCircle className="w-5 h-5 text-warning-600" />
-                      <span className="font-medium text-gray-900">Mark as Urgent</span>
+                      <AlertCircle className="w-5 h-5 text-lost-600" />
+                      <span className="font-bold text-ink-950 khoj-heading">Mark as urgent</span>
                     </div>
-                    <p className="text-sm text-gray-500">For important items like ID cards, keys, or wallets</p>
+                    <p className="text-sm text-ink-700">For important items like ID cards, keys, or wallets</p>
                   </div>
                 </label>
 
                 {/* Reward Offering */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
-                    <span className="text-lg">🎁</span> Reward Offering
+                  <label className="block text-sm font-semibold text-ink-800 mb-3">
+                    Reward offering
                   </label>
-                  <p className="text-sm text-gray-600 mb-4">Offer a reward to incentivize people to help find your item</p>
+                  <p className="text-sm text-ink-700 mb-4">Offer a small reward to increase replies (optional).</p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {[
                       { value: 'gratitude', label: 'Gratitude', icon: '🙏' },
@@ -378,41 +385,41 @@ const PostItem = () => {
                       const isSelected = formData.reward === reward.value;
                       
                       // Define color classes based on reward type
-                      let borderColor = 'border-gray-200 hover:border-gray-300';
+                      let borderColor = 'border-ink-200 hover:border-ink-300';
                       let bgColor = '';
-                      let checkmarkBg = 'bg-primary-500';
+                      let checkmarkBg = 'bg-primary-600';
                       
                       if (isSelected) {
                         switch (reward.value) {
                           case 'gratitude':
-                            borderColor = 'border-purple-500';
-                            bgColor = 'bg-purple-50';
-                            checkmarkBg = 'bg-purple-500';
+                            borderColor = 'border-primary-600';
+                            bgColor = 'bg-primary-50';
+                            checkmarkBg = 'bg-primary-700';
                             break;
                           case 'food_treat':
-                            borderColor = 'border-orange-500';
-                            bgColor = 'bg-orange-50';
-                            checkmarkBg = 'bg-orange-500';
+                            borderColor = 'border-warning-600';
+                            bgColor = 'bg-warning-50';
+                            checkmarkBg = 'bg-warning-600';
                             break;
                           case 'coffee':
-                            borderColor = 'border-amber-500';
-                            bgColor = 'bg-amber-50';
-                            checkmarkBg = 'bg-amber-500';
+                            borderColor = 'border-primary-700';
+                            bgColor = 'bg-primary-50';
+                            checkmarkBg = 'bg-primary-700';
                             break;
                           case 'cash_reward':
-                            borderColor = 'border-green-500';
-                            bgColor = 'bg-green-50';
-                            checkmarkBg = 'bg-green-500';
+                            borderColor = 'border-found-700';
+                            bgColor = 'bg-found-50';
+                            checkmarkBg = 'bg-found-700';
                             break;
                           case 'gift':
-                            borderColor = 'border-pink-500';
-                            bgColor = 'bg-pink-50';
-                            checkmarkBg = 'bg-pink-500';
+                            borderColor = 'border-primary-800';
+                            bgColor = 'bg-primary-50';
+                            checkmarkBg = 'bg-primary-800';
                             break;
                           case 'none':
-                            borderColor = 'border-gray-500';
-                            bgColor = 'bg-gray-50';
-                            checkmarkBg = 'bg-gray-500';
+                            borderColor = 'border-ink-500';
+                            bgColor = 'bg-surface-100';
+                            checkmarkBg = 'bg-ink-700';
                             break;
                         }
                       }
@@ -420,8 +427,8 @@ const PostItem = () => {
                       return (
                         <label
                           key={reward.value}
-                          className={`relative flex flex-col items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${borderColor} ${bgColor} ${
-                            isSelected ? 'shadow-lg scale-105' : 'hover:shadow-md'
+                          className={`relative flex flex-col items-center p-4 border-2 rounded-2xl cursor-pointer transition-all ${borderColor} ${bgColor} ${
+                            isSelected ? 'shadow-lg scale-[1.02]' : 'hover:shadow-md'
                           }`}
                         >
                           <input
@@ -433,7 +440,7 @@ const PostItem = () => {
                             className="sr-only"
                           />
                           <span className="text-3xl mb-2">{reward.icon}</span>
-                          <span className="text-xs font-medium text-gray-900 text-center">{reward.label}</span>
+                          <span className="text-xs font-semibold text-ink-950 text-center">{reward.label}</span>
                           {isSelected && (
                             <div className={`absolute -top-2 -right-2 w-6 h-6 ${checkmarkBg} rounded-full flex items-center justify-center`}>
                               <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -451,7 +458,7 @@ const PostItem = () => {
 
             {/* Contact Preference */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
+              <label className="block text-sm font-semibold text-ink-800 mb-3">
                 Contact Preference
               </label>
               <div className="space-y-2">
@@ -467,9 +474,9 @@ const PostItem = () => {
                       value={option.value}
                       checked={formData.contactPreference === option.value}
                       onChange={handleChange}
-                      className="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                      className="w-4 h-4 text-primary-700 border-ink-300 focus:ring-primary-200"
                     />
-                    <span className="text-gray-700">{option.label}</span>
+                    <span className="text-ink-800">{option.label}</span>
                   </label>
                 ))}
               </div>
@@ -522,7 +529,7 @@ const PostItem = () => {
                 loading={loading}
                 className="order-1 sm:order-2 shadow-lg shadow-primary-200 hover:shadow-xl hover:shadow-primary-300"
               >
-                {isEditMode ? '✓ Update Item' : '📤 Post Item'}
+                {isEditMode ? 'Update post' : 'Post item'}
               </Button>
             </div>
           </form>

@@ -12,6 +12,17 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
 
   if (!isOpen || !item) return null;
 
+  // Debug: Log item data to see what we're receiving
+  console.log('🔍 ItemDetailModal - Item data:', {
+    type: item.type,
+    contactPreference: item.contactPreference,
+    userEmail: item.userEmail,
+    userPhone: item.userPhone,
+    hasUserEmail: !!item.userEmail,
+    hasUserPhone: !!item.userPhone,
+    fullItem: item
+  });
+
   const handleContact = (method) => {
     switch (method) {
       case 'email':
@@ -82,10 +93,20 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                     className="w-full h-full object-cover"
                   />
                   {/* Badges on Image */}
-                  <div className="absolute top-3 left-3 flex gap-2">
+                  <div className="absolute top-3 left-3 flex gap-2 flex-wrap">
                     <Badge variant={item.type === 'found' ? 'found' : 'lost'}>
                       {item.type === 'found' ? '✓ Found' : '✗ Lost'}
                     </Badge>
+                    {/* Reward Badge */}
+                    {item.type === 'lost' && item.reward && item.reward !== 'none' && (
+                      <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0 shadow-lg">
+                        {item.reward === 'gratitude' && '🙏 Gratitude'}
+                        {item.reward === 'food_treat' && '🍕 Food Treat'}
+                        {item.reward === 'coffee' && '☕ Coffee'}
+                        {item.reward === 'cash_reward' && '💵 Cash Reward'}
+                        {item.reward === 'gift' && '🎁 Gift'}
+                      </Badge>
+                    )}
                   </div>
                   {item.urgent && (
                     <div className="absolute top-3 right-3">
@@ -100,10 +121,20 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
             ) : (
               <div className="mb-6 relative h-48 sm:h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center overflow-hidden">
                 <Package className="w-20 h-20 sm:w-24 sm:h-24 text-gray-300" />
-                <div className="absolute top-3 left-3 flex gap-2">
+                <div className="absolute top-3 left-3 flex gap-2 flex-wrap">
                   <Badge variant={item.type === 'found' ? 'found' : 'lost'}>
                     {item.type === 'found' ? '✓ Found' : '✗ Lost'}
                   </Badge>
+                  {/* Reward Badge */}
+                  {item.type === 'lost' && item.reward && item.reward !== 'none' && (
+                    <Badge className="bg-gradient-to-r from-amber-400 to-orange-500 text-white border-0 shadow-lg">
+                      {item.reward === 'gratitude' && '🙏 Gratitude'}
+                      {item.reward === 'food_treat' && '🍕 Food Treat'}
+                      {item.reward === 'coffee' && '☕ Coffee'}
+                      {item.reward === 'cash_reward' && '💵 Cash Reward'}
+                      {item.reward === 'gift' && '🎁 Gift'}
+                    </Badge>
+                  )}
                 </div>
                 {item.urgent && (
                   <div className="absolute top-3 right-3">
@@ -205,7 +236,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
             <div className="mb-6">
               <h4 className="text-lg font-semibold text-gray-900 mb-3">Posted By</h4>
               <Card className="p-4 bg-gradient-to-br from-primary-50 to-blue-50 border-2 border-primary-200">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 mb-3">
                   <div className="w-12 h-12 bg-primary-500 rounded-full flex items-center justify-center flex-shrink-0">
                     <User className="w-6 h-6 text-white" />
                   </div>
@@ -219,6 +250,43 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                     )}
                   </div>
                 </div>
+                
+                {/* Contact Information - Only show for LOST items */}
+                {item.type === 'lost' && (item.userEmail || item.userPhone) && (
+                  <div className="mt-3 pt-3 border-t border-primary-200 space-y-2">
+                    {item.userEmail && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Mail className="w-4 h-4 text-primary-600 flex-shrink-0" />
+                        <a 
+                          href={`mailto:${item.userEmail}`}
+                          className="text-primary-700 hover:text-primary-800 hover:underline break-all"
+                        >
+                          {item.userEmail}
+                        </a>
+                      </div>
+                    )}
+                    {item.userPhone && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Phone className="w-4 h-4 text-primary-600 flex-shrink-0" />
+                        <a 
+                          href={`tel:${item.userPhone}`}
+                          className="text-primary-700 hover:text-primary-800 hover:underline"
+                        >
+                          {item.userPhone}
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {/* Note for FOUND items */}
+                {item.type === 'found' && (
+                  <div className="mt-3 pt-3 border-t border-primary-200">
+                    <p className="text-xs text-gray-500 italic">
+                      Contact information will be shared after your claim is approved
+                    </p>
+                  </div>
+                )}
               </Card>
             </div>
 
@@ -261,7 +329,7 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
             {/* Contact/Claim Section */}
             {item.type === 'found' ? (
               // Claim button for FOUND items
-              <div className="bg-gradient-to-br from-success-50 to-green-50 rounded-xl p-6 border-2 border-success-300">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-400">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <span className="text-xl">✓</span>
                   Is This Your Item?
@@ -273,13 +341,13 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                   variant="primary"
                   fullWidth
                   onClick={() => setIsClaimModalOpen(true)}
-                  className="bg-gradient-to-r from-success-500 to-green-600 hover:from-success-600 hover:to-green-700 shadow-lg"
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-xl text-white font-bold text-base py-4"
                 >
                   🔐 Claim This Item
                 </Button>
               </div>
             ) : (
-              // Contact section for LOST items
+              // Contact section for LOST items - show contact buttons
               <div className="bg-gradient-to-br from-primary-50 to-blue-50 rounded-xl p-6 border-2 border-primary-200">
                 <h4 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <span className="text-xl">💬</span>
@@ -288,31 +356,34 @@ const ItemDetailModal = ({ isOpen, onClose, item }) => {
                 <p className="text-sm text-gray-600 mb-4">
                   Have information about this item? Reach out to the owner:
                 </p>
-                <div className="space-y-3">
-                  {canShowEmail && item.userEmail && (
-                    <Button
-                      variant="primary"
-                      fullWidth
-                      icon={Mail}
-                      onClick={() => handleContact('email')}
-                      className="shadow-md hover:shadow-lg transition-all"
-                    >
-                      Contact via Email
-                    </Button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Email Box */}
+                  {item.userEmail && (
+                    <Card className="p-4 bg-white border-2 border-primary-300 hover:border-primary-500 transition-all cursor-pointer" onClick={() => handleContact('email')}>
+                      <div className="flex flex-col items-center gap-2 text-center">
+                        <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                          <Mail className="w-6 h-6 text-primary-600" />
+                        </div>
+                        <p className="text-xs font-medium text-gray-500 uppercase">Email</p>
+                        <p className="text-sm font-semibold text-primary-700 break-all">{item.userEmail}</p>
+                      </div>
+                    </Card>
                   )}
-                  {canShowPhone && item.userPhone && (
-                    <Button
-                      variant="outline"
-                      fullWidth
-                      icon={Phone}
-                      onClick={() => handleContact('phone')}
-                      className="border-2"
-                    >
-                      Contact via Phone
-                    </Button>
+                  {/* Phone Box */}
+                  {item.userPhone && (
+                    <Card className="p-4 bg-white border-2 border-primary-300 hover:border-primary-500 transition-all cursor-pointer" onClick={() => handleContact('phone')}>
+                      <div className="flex flex-col items-center gap-2 text-center">
+                        <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                          <Phone className="w-6 h-6 text-primary-600" />
+                        </div>
+                        <p className="text-xs font-medium text-gray-500 uppercase">Phone</p>
+                        <p className="text-sm font-semibold text-primary-700">{item.userPhone}</p>
+                      </div>
+                    </Card>
                   )}
-                  {!canShowEmail && !canShowPhone && (
-                    <Card className="p-4 bg-yellow-50 border border-yellow-200">
+                  {/* Show warning only if no contact info is available */}
+                  {!item.userEmail && !item.userPhone && (
+                    <Card className="p-4 bg-yellow-50 border border-yellow-200 col-span-full">
                       <p className="text-sm text-yellow-800 text-center">
                         No contact methods available for this item.
                       </p>

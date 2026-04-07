@@ -7,10 +7,15 @@ let authToken = localStorage.getItem('khoj_token') || null;
 let isRefreshing = false;
 let refreshQueue = []; // queued requests waiting for a new token
 
-const mapItem = (item) => ({
-  ...item,
-  id: item?._id || item?.id,
-});
+const mapItem = (item) => {
+  console.log('🔧 mapItem - Raw item from API:', item);
+  const mapped = {
+    ...item,
+    id: item?._id || item?.id,
+  };
+  console.log('🔧 mapItem - Mapped item:', mapped);
+  return mapped;
+};
 
 export const setAuthToken = (token) => {
   authToken = token;
@@ -121,7 +126,7 @@ export const ItemsAPI = {
 };
 
 export const UniversityAPI = {
-  list: () => apiRequest('/universities'),
+  list: () => apiRequest('/universities', { auth: false }),
 };
 
 export const UploadAPI = {
