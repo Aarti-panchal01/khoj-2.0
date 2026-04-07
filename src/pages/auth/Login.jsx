@@ -14,8 +14,9 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, setUser } = useAuth();
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   const afterAuth = async () => {
     try {
@@ -50,24 +51,35 @@ const Login = () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
+      const idToken = await user.getIdToken();
       
-      // Log user information to console
-      console.log('Google Login Successful!');
-      console.log('User ID:', user.uid);
-      console.log('User Email:', user.email);
-      console.log('User Name:', user.displayName);
-      console.log('User Photo:', user.photoURL);
-      console.log('Full User Object:', user);
+      const response = await fetch(`${API_URL}/api/auth/google`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
       
-      // TODO: Here you would typically:
-      // 1. Create or update user in your backend
-      // 2. Redirect to dashboard or complete profile page
-      navigate('/');
+      const backendResponse = await response.json();
+      
+      if (!response.ok) {
+        setLoading(false);
+        setError(backendResponse.error || 'Backend authentication failed');
+        return;
+      }
+      
+      localStorage.setItem('khoj_token', backendResponse.token);
+      setUser(backendResponse.user);
+      setLoading(false);
+      
+      setTimeout(() => {
+        afterAuth();
+      }, 50);
     } catch (error) {
       console.error('Google login error:', error);
-      setError(error.message || 'Failed to sign in with Google');
-    } finally {
       setLoading(false);
+      setError(error.message || 'Failed to sign in with Google');
     }
   };
 
@@ -94,7 +106,6 @@ const Login = () => {
             </h1>
           </div>
 
-<<<<<<< Updated upstream
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -104,13 +115,13 @@ const Login = () => {
               {error}
             </motion.div>
           )}
-=======
-          {/* Google Login Button */}
+
+          {/* Continue with Google Button */}
           <Button 
             onClick={handleGoogleLogin} 
             fullWidth 
             loading={loading}
-            className="mb-4 bg-white text-gray-700 border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 shadow-md"
+            className="mb-4 bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg"
           >
             🔍 Continue with Google
           </Button>
@@ -124,29 +135,6 @@ const Login = () => {
               <span className="px-2 bg-gradient-to-br from-white via-blue-50/30 to-primary-50/40 text-gray-500">Or continue with email</span>
             </div>
           </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bg-danger-50 border border-danger-200 text-danger-700 px-4 py-3 rounded-lg text-sm"
-              >
-                {error}
-              </motion.div>
-            )}
-
-            <Input
-              label="Full Name"
-              type="text"
-              name="name"
-              placeholder="John Doe"
-              value={formData.name}
-              onChange={handleChange}
-              icon={User}
-              required
-            />
->>>>>>> Stashed changes
 
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <Input
