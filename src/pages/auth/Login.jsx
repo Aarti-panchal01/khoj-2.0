@@ -4,7 +4,7 @@ import { Mail, Lock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import { AuthAPI } from '../../lib/apiClient';
+import { AuthAPI, setAuthToken } from '../../lib/apiClient';
 import { motion } from 'framer-motion';
 import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
@@ -61,8 +61,10 @@ const Login = () => {
         console.log('✅ Backend authentication successful:', backendResponse);
         
         if (backendResponse.token) {
-          localStorage.setItem('khoj_token', backendResponse.token);
+          // CRITICAL: Use setAuthToken to update both localStorage AND module cache
+          setAuthToken(backendResponse.token);
           setUser(backendResponse.user);
+          console.log('✅ Token saved, user set');
           setLoading(false);
           
           setTimeout(() => {

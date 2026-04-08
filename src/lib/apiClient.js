@@ -15,7 +15,6 @@ const API_BASE_URL = getAPIBaseUrl();
 // Public endpoints that should never trigger auth:expired on 401 (defense-in-depth)
 const PUBLIC_PATHS = ['/universities'];
 
-let authToken = localStorage.getItem('khoj_token') || null;
 let isRefreshing = false;
 let refreshQueue = []; // queued requests waiting for a new token
 
@@ -29,19 +28,21 @@ const mapItem = (item) => {
   return mapped;
 };
 
-export const setAuthToken = (token) => {
-  authToken = token;
-  if (token) {
-    localStorage.setItem('khoj_token', token);
-  } else {
-    localStorage.removeItem('khoj_token');
-  }
+// CRITICAL: Always get token from localStorage dynamically - never cache it
+const getAuthToken = () => {
+  const token = localStorage.getItem('khoj_token');
+  console.log('🔑 Token being sent:', token ? `${token.substring(0, 20)}...` : 'null');
+  return token;
 };
 
-const buildHeaders = (extra = {}) => {
-  const headers = { 'Content-Type': 'application/json', ...extra };
-  if (authToken) headers.Authorization = `Bearer ${authToken}`;
-  return headers;
+export const setAuthToken = (token) => {
+  if (token) {
+    localStorage.setItem('khoj_token', token);
+    console.log('✅ Token saved to localStorage');
+  } else {
+    localStorage.removeItem('khoj_token');
+    console.log('🗑️ Token removed from localStorage');
+  }
 };
 
 /** Attempt to get a new access token using the HTTP-only refresh cookie */
@@ -58,8 +59,9 @@ const refreshAccessToken = async () => {
 };
 
 export const apiRequest = async (path, { method = 'GET', body, headers, auth = true } = {}) => {
-  const doFetch = (token) =>
-    fetch(`${API_BASE_URL}/api${path}`, {
+  const doFetch = (token) => {
+    console.log(`📡 ${method} ${path} - Auth: ${auth}, Token: ${token ? 'present' : 'missing'}`);
+    return fetch(`${API_BASE_URL}/api${path}`, {
       method,
       credentials: 'include',
       headers: auth
@@ -67,11 +69,15 @@ export const apiRequest = async (path, { method = 'GET', body, headers, auth = t
         : { 'Content-Type': 'application/json', ...headers },
       body: body ? JSON.stringify(body) : undefined,
     });
+  };
 
-  let response = await doFetch(authToken);
+  // CRITICAL: Get token dynamically from localStorage for EVERY request
+  const currentToken = getAuthToken();
+  let response = await doFetch(currentToken);
 
   // Auto-refresh on 401 — only for authenticated requests, not auth endpoints or public paths
   if (response.status === 401 && auth && !path.startsWith('/auth/') && !PUBLIC_PATHS.some(p => path.startsWith(p))) {
+    console.log('⚠️ 401 received, attempting token refresh...');
     if (isRefreshing) {
       // Queue this request until the in-flight refresh completes
       const newToken = await new Promise((resolve, reject) => {
@@ -86,6 +92,7 @@ export const apiRequest = async (path, { method = 'GET', body, headers, auth = t
         refreshQueue = [];
         response = await doFetch(newToken);
       } catch {
+        console.error('❌ Token refresh failed - session expired');
         refreshQueue.forEach(({ reject }) => reject(new Error('Session expired')));
         refreshQueue = [];
         setAuthToken(null);
@@ -150,8 +157,15 @@ export const UploadAPI = {
     const formData = new FormData();
     Array.from(files).forEach(file => formData.append('images', file));
 
+    // CRITICAL: Get token dynamically from localStorage
+    const token = getAuthToken();
     const headers = {};
-    if (authToken) headers.Authorization = `Bearer ${authToken}`;
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+      console.log('📤 Upload with token:', token.substring(0, 20) + '...');
+    } else {
+      console.warn('⚠️ Upload without token');
+    }
 
     const response = await fetch(`${API_BASE_URL}/api/upload/images`, {
       method: 'POST',
