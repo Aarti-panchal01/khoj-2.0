@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Upload, MapPin, Calendar, AlertCircle } from 'lucide-react';
 import { ItemsAPI, UploadAPI } from '../../lib/apiClient';
 import { CATEGORIES } from '../../lib/constants';
+import { REWARD_STYLES, getRewardStyle } from '../../lib/rewardStyles';
 import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
 import Select from '../../components/ui/Select';
@@ -374,81 +375,43 @@ const PostItem = () => {
                   </label>
                   <p className="text-sm text-ink-700 mb-4">Offer a small reward to increase replies (optional).</p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {[
-                      { value: 'gratitude', label: 'Gratitude', icon: '🙏' },
-                      { value: 'food_treat', label: 'Food Treat', icon: '🍕' },
-                      { value: 'coffee', label: 'Coffee', icon: '☕' },
-                      { value: 'cash_reward', label: 'Cash Reward', icon: '💵' },
-                      { value: 'gift', label: 'Gift', icon: '🎁' },
-                      { value: 'none', label: 'No Reward', icon: '—' },
-                    ].map((reward) => {
-                      const isSelected = formData.reward === reward.value;
-                      
-                      // Define color classes based on reward type
-                      let borderColor = 'border-ink-200 hover:border-ink-300';
-                      let bgColor = '';
-                      let checkmarkBg = 'bg-primary-600';
-                      
-                      if (isSelected) {
-                        switch (reward.value) {
-                          case 'gratitude':
-                            borderColor = 'border-primary-600';
-                            bgColor = 'bg-primary-50';
-                            checkmarkBg = 'bg-primary-700';
-                            break;
-                          case 'food_treat':
-                            borderColor = 'border-warning-600';
-                            bgColor = 'bg-warning-50';
-                            checkmarkBg = 'bg-warning-600';
-                            break;
-                          case 'coffee':
-                            borderColor = 'border-primary-700';
-                            bgColor = 'bg-primary-50';
-                            checkmarkBg = 'bg-primary-700';
-                            break;
-                          case 'cash_reward':
-                            borderColor = 'border-found-700';
-                            bgColor = 'bg-found-50';
-                            checkmarkBg = 'bg-found-700';
-                            break;
-                          case 'gift':
-                            borderColor = 'border-primary-800';
-                            bgColor = 'bg-primary-50';
-                            checkmarkBg = 'bg-primary-800';
-                            break;
-                          case 'none':
-                            borderColor = 'border-ink-500';
-                            bgColor = 'bg-surface-100';
-                            checkmarkBg = 'bg-ink-700';
-                            break;
-                        }
-                      }
+                    {Object.entries(REWARD_STYLES).map(([value, style]) => {
+                      const isSelected = formData.reward === value;
                       
                       return (
-                        <label
-                          key={reward.value}
-                          className={`relative flex flex-col items-center p-4 border-2 rounded-2xl cursor-pointer transition-all ${borderColor} ${bgColor} ${
-                            isSelected ? 'shadow-lg scale-[1.02]' : 'hover:shadow-md'
-                          }`}
+                        <motion.button
+                          key={value}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, reward: value })}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.98 }}
+                          className={`
+                            relative p-4 rounded-xl border-2 transition-all duration-200
+                            ${isSelected 
+                              ? `${style.selectedBorder} ${style.selectedBg} ring-2 ring-offset-2 ${style.ring}` 
+                              : `${style.border} bg-white ${style.hoverBorder}`
+                            }
+                            hover:shadow-md
+                          `}
                         >
-                          <input
-                            type="radio"
-                            name="reward"
-                            value={reward.value}
-                            checked={isSelected}
-                            onChange={handleChange}
-                            className="sr-only"
-                          />
-                          <span className="text-3xl mb-2">{reward.icon}</span>
-                          <span className="text-xs font-semibold text-ink-950 text-center">{reward.label}</span>
+                          <div className="flex flex-col items-center gap-2">
+                            <span className="text-3xl">{style.emoji}</span>
+                            <span className={`text-sm font-semibold ${isSelected ? 'text-ink-900' : 'text-ink-700'}`}>
+                              {style.fullLabel}
+                            </span>
+                          </div>
                           {isSelected && (
-                            <div className={`absolute -top-2 -right-2 w-6 h-6 ${checkmarkBg} rounded-full flex items-center justify-center`}>
-                              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className={`absolute top-2 right-2 w-5 h-5 ${style.checkmark} rounded-full flex items-center justify-center`}
+                            >
+                              <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                               </svg>
-                            </div>
+                            </motion.div>
                           )}
-                        </label>
+                        </motion.button>
                       );
                     })}
                   </div>
