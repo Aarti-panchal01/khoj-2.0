@@ -521,24 +521,35 @@ const Home = () => {
                     <Badge variant="default" className="flex-shrink-0">{item.category}</Badge>
                   </div>
 
-                  {/* Reward badge */}
+                  {/* Reward badge - HIGHLIGHTED */}
                   {item.type === 'lost' && item.reward && item.reward !== 'none' && (
-                    <div className="mb-2 inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-blue-50 to-blue-100/50 border border-blue-200 rounded-full self-start">
-                      <span className="text-sm">
-                        {item.reward === 'gratitude' && '🙏'}
-                        {item.reward === 'food_treat' && '🍕'}
-                        {item.reward === 'coffee' && '☕'}
-                        {item.reward === 'cash_reward' && '💵'}
-                        {item.reward === 'gift' && '🎁'}
-                      </span>
-                      <span className="text-xs font-medium text-blue-700">
-                        {item.reward === 'gratitude' && 'Gratitude'}
-                        {item.reward === 'food_treat' && 'Food Treat'}
-                        {item.reward === 'coffee' && 'Coffee'}
-                        {item.reward === 'cash_reward' && 'Cash Reward'}
-                        {item.reward === 'gift' && 'Gift'}
-                      </span>
-                    </div>
+                    <motion.div 
+                      className="mb-3"
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.1 }}
+                      whileHover={{ scale: 1.05, y: -2 }}
+                    >
+                      <div className="inline-flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 border-2 border-amber-300 rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
+                        <span className="text-lg">
+                          {item.reward === 'gratitude' && '🙏'}
+                          {item.reward === 'food_treat' && '🍕'}
+                          {item.reward === 'coffee' && '☕'}
+                          {item.reward === 'cash_reward' && '💵'}
+                          {item.reward === 'gift' && '🎁'}
+                        </span>
+                        <div className="flex flex-col">
+                          <span className="text-xs font-bold text-amber-900 uppercase tracking-wide">Reward Offered</span>
+                          <span className="text-sm font-semibold text-amber-800">
+                            {item.reward === 'gratitude' && 'Gratitude'}
+                            {item.reward === 'food_treat' && 'Food Treat'}
+                            {item.reward === 'coffee' && 'Coffee'}
+                            {item.reward === 'cash_reward' && 'Cash Reward'}
+                            {item.reward === 'gift' && 'Gift'}
+                          </span>
+                        </div>
+                      </div>
+                    </motion.div>
                   )}
 
                   {/* Description */}
