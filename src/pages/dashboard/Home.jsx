@@ -196,44 +196,89 @@ const Home = () => {
 
   return (
     <div className="space-y-6 pb-20 md:pb-6">
-      {/* Hero Section with Gradient Background */}
+      {/* Hero Section - Premium & Alive */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-blue-50 via-white to-blue-50/50 rounded-xl p-6 md:p-8 shadow-sm"
+        className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100 rounded-2xl p-6 md:p-10 shadow-lg"
       >
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        {/* Subtle blur glow behind title */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl -z-10" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl -z-10" />
+        
+        <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
           <div className="flex-1">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-2">
+            <motion.h1 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight mb-3 leading-tight"
+            >
               Khoj Lost & Found
-            </h1>
-            <p className="text-sm md:text-base text-gray-600 mb-3">
-              Browse posts across campus — fast, scannable, student-first.
-            </p>
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-base md:text-lg text-gray-600 mb-4 leading-relaxed"
+            >
+              Helping students recover what matters
+            </motion.p>
             {showFeedBanner && (
-              <p className="text-xs font-medium text-blue-700 mb-2">
-                Showing posts from {user.universityName || 'your university'}
-              </p>
+              <motion.p 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-sm font-semibold text-blue-700 mb-3 inline-flex items-center gap-2"
+              >
+                <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                Real-time from {user.universityName || 'your university'}
+              </motion.p>
             )}
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="primary" className="text-xs">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="flex flex-wrap items-center gap-2"
+            >
+              <Badge variant="primary" className="text-xs backdrop-blur-sm">
                 {feedLabel}
               </Badge>
               <span className="text-xs text-gray-500">{feedHint}</span>
-            </div>
+            </motion.div>
           </div>
-          <Button
-            onClick={() => (isGuest ? navigate('/login') : navigate('/post'))}
-            icon={Package}
-            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] rounded-xl"
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3 }}
+            whileHover={{ scale: 1.05 }}
+            className="w-full sm:w-auto"
           >
-            <span className="hidden sm:inline">{isGuest ? 'Sign in to post' : 'Post New Item'}</span>
-            <span className="sm:hidden">{isGuest ? 'Sign in' : 'Post Item'}</span>
-          </Button>
+            <Button
+              onClick={() => (isGuest ? navigate('/login') : navigate('/post'))}
+              icon={Package}
+              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl group"
+            >
+              <motion.span
+                className="hidden sm:inline"
+                whileHover={{ x: -2 }}
+              >
+                {isGuest ? 'Sign in to post' : 'Post New Item'}
+              </motion.span>
+              <span className="sm:hidden">{isGuest ? 'Sign in' : 'Post Item'}</span>
+              <motion.div
+                animate={{ x: [0, 4, 0] }}
+                transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                className="group-hover:animate-none"
+              >
+                <Package className="w-5 h-5" />
+              </motion.div>
+            </Button>
+          </motion.div>
         </div>
       </motion.div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards - Premium Feel */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {stats.map((stat, index) => (
           <motion.div
@@ -241,43 +286,62 @@ const Home = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.05 }}
+            whileHover={{ y: -6, transition: { duration: 0.3, ease: 'easeOut' } }}
           >
-            <Card className="p-4 md:p-5 bg-white border border-gray-100 hover:shadow-md transition-all duration-200 hover:-translate-y-1 rounded-xl">
+            <Card className="p-4 md:p-5 bg-white/80 backdrop-blur-sm border border-gray-100 hover:border-blue-200 hover:shadow-xl transition-all duration-300 rounded-2xl group">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">{stat.label}</p>
-                  <p className="text-2xl md:text-3xl font-bold text-gray-900 leading-none">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">{stat.label}</p>
+                  <motion.p 
+                    className="text-2xl md:text-3xl font-bold text-gray-900 leading-none"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     {stat.value}
-                  </p>
-                  {stat.subtitle && <p className="text-xs text-gray-500 mt-1.5">{stat.subtitle}</p>}
+                  </motion.p>
+                  {stat.subtitle && <p className="text-xs text-gray-500 mt-2">{stat.subtitle}</p>}
                 </div>
-                <div className={`w-10 h-10 md:w-12 md:h-12 bg-${stat.color === 'primary' ? 'blue' : stat.color}-50 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-110`}>
-                  <stat.icon className={`w-5 h-5 md:w-6 md:h-6 text-${stat.color === 'primary' ? 'blue' : stat.color}-600`} />
-                </div>
+                <motion.div 
+                  className={`w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br ${stat.color === 'primary' ? 'from-blue-50 to-blue-100' : `from-${stat.color}-50 to-${stat.color}-100`} rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm`}
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                >
+                  <stat.icon className={`w-6 h-6 md:w-7 md:h-7 text-${stat.color === 'primary' ? 'blue' : stat.color}-600`} />
+                </motion.div>
               </div>
             </Card>
           </motion.div>
         ))}
       </div>
 
-      {/* Filter Section */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-        <Card className="p-4 md:p-6 bg-white border border-gray-100 shadow-sm rounded-xl">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                <Filter className="w-4 h-4 text-blue-600" />
-              </div>
-              <h3 className="text-base font-semibold text-gray-900">Search & Filter</h3>
+      {/* Filter Section - Smart Panel */}
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ delay: 0.15 }}
+      >
+        <Card className="p-5 md:p-7 bg-white/90 backdrop-blur-md border border-gray-100 shadow-md hover:shadow-lg transition-all duration-300 rounded-2xl">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <motion.div 
+                className="w-10 h-10 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl flex items-center justify-center shadow-sm"
+                whileHover={{ rotate: 360 }}
+                transition={{ duration: 0.6 }}
+              >
+                <Filter className="w-5 h-5 text-blue-600" />
+              </motion.div>
+              <h3 className="text-lg font-bold text-gray-900">Search & Filter</h3>
             </div>
             {hasActiveFilters && (
-              <button
+              <motion.button
                 type="button"
                 onClick={handleClearFilters}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors hover:scale-105 active:scale-95 duration-200"
+                className="text-sm text-blue-600 hover:text-blue-700 font-semibold transition-colors px-3 py-1.5 rounded-lg hover:bg-blue-50"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
                 Clear All
-              </button>
+              </motion.button>
             )}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -323,12 +387,16 @@ const Home = () => {
             />
           </div>
           {hasActiveFilters && (
-            <div className="mt-4 pt-4 border-t border-gray-100">
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="mt-5 pt-5 border-t border-gray-100"
+            >
               <p className="text-sm text-gray-600">
-                Showing <span className="font-semibold text-gray-900">{filteredItems.length}</span> of{' '}
-                <span className="font-medium">{items.length}</span> items
+                Showing <span className="font-bold text-blue-600">{filteredItems.length}</span> of{' '}
+                <span className="font-semibold">{items.length}</span> items
               </p>
-            </div>
+            </motion.div>
           )}
         </Card>
       </motion.div>
@@ -338,16 +406,51 @@ const Home = () => {
       )}
 
       {isLoading ? (
-        <Card className="p-12 text-center bg-white border border-gray-200">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-4" />
-          <p className="text-sm text-gray-600">Loading posts...</p>
-        </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <Card key={i} className="h-full flex flex-col overflow-hidden animate-pulse">
+              <div className="h-48 bg-gradient-to-br from-gray-100 to-gray-200" />
+              <div className="p-4 flex flex-col flex-1 space-y-3">
+                <div className="h-4 bg-gray-200 rounded w-3/4" />
+                <div className="h-3 bg-gray-100 rounded w-1/2" />
+                <div className="h-3 bg-gray-100 rounded w-full" />
+                <div className="h-3 bg-gray-100 rounded w-full" />
+                <div className="mt-auto space-y-2">
+                  <div className="h-3 bg-gray-100 rounded w-2/3" />
+                  <div className="h-3 bg-gray-100 rounded w-1/2" />
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
       ) : filteredItems.length === 0 ? (
-        <Card className="p-12 text-center bg-white border border-gray-200">
-          <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No items found</h3>
-          <p className="text-sm text-gray-600">Try adjusting your filters or search query</p>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="p-16 text-center bg-gradient-to-br from-gray-50 to-white border-2 border-dashed border-gray-200">
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+            >
+              <Package className="w-20 h-20 text-gray-300 mx-auto mb-6" />
+            </motion.div>
+            <h3 className="text-xl font-bold text-gray-900 mb-3">No items found</h3>
+            <p className="text-sm text-gray-600 mb-6 max-w-md mx-auto">
+              Try adjusting your filters or search query to find what you're looking for
+            </p>
+            {hasActiveFilters && (
+              <Button
+                onClick={handleClearFilters}
+                variant="primary"
+                className="mx-auto"
+              >
+                Clear All Filters
+              </Button>
+            )}
+          </Card>
+        </motion.div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
           {filteredItems.map((item, index) => (
@@ -361,7 +464,7 @@ const Home = () => {
               <Card
                 hover
                 onClick={() => handleItemClick(item)}
-                className="h-full flex flex-col overflow-hidden bg-white border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer rounded-xl group"
+                className="h-full flex flex-col overflow-hidden bg-white/90 backdrop-blur-sm border border-gray-100 hover:border-blue-300 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 cursor-pointer rounded-2xl group"
               >
                 {/* Fixed height image container */}
                 <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden flex-shrink-0">
@@ -369,7 +472,7 @@ const Home = () => {
                     <img
                       src={item.images[0]}
                       alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
                       onError={(e) => {
                         e.target.style.display = 'none';
                         const placeholder = e.target.parentElement.querySelector('.image-placeholder');
@@ -384,19 +487,26 @@ const Home = () => {
                   )}
                   {(!item.images || item.images.length === 0) && (
                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-                      <Package className="w-12 h-12 text-gray-300 group-hover:text-blue-400 transition-colors duration-300" />
+                      <Package className="w-12 h-12 text-gray-300 group-hover:text-blue-400 group-hover:scale-110 transition-all duration-300" />
                     </div>
                   )}
                   
-                  {/* Badges */}
+                  {/* Badges with hover effect */}
                   <div className="absolute top-3 left-3">
-                    <Badge variant={item.type === 'found' ? 'found' : 'lost'} className="shadow-sm">
-                      {item.type === 'found' ? 'Found' : 'Lost'}
-                    </Badge>
+                    <motion.div whileHover={{ scale: 1.1 }}>
+                      <Badge variant={item.type === 'found' ? 'found' : 'lost'} className="shadow-md backdrop-blur-sm">
+                        {item.type === 'found' ? 'Found' : 'Lost'}
+                      </Badge>
+                    </motion.div>
                   </div>
                   {item.urgent && (
                     <div className="absolute top-3 right-3">
-                      <Badge variant="danger" className="shadow-sm">Urgent</Badge>
+                      <motion.div 
+                        animate={{ scale: [1, 1.1, 1] }}
+                        transition={{ repeat: Infinity, duration: 2 }}
+                      >
+                        <Badge variant="danger" className="shadow-md backdrop-blur-sm">Urgent</Badge>
+                      </motion.div>
                     </div>
                   )}
                 </div>

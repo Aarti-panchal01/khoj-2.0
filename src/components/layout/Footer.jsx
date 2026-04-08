@@ -27,38 +27,38 @@ const KhojMark = () => (
   </div>
 );
 
-const footerLink = 'text-surface-200/80 hover:text-surface-50 transition-colors text-sm';
+const footerLink = 'text-gray-300 hover:text-white transition-all duration-200 hover:translate-x-1 inline-block text-sm';
 
 const Footer = () => (
-  <footer className="mt-auto border-t border-ink-900 bg-ink-950 text-surface-100">
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="space-y-3">
+  <footer className="mt-auto border-t border-gray-800 bg-gradient-to-br from-gray-900 via-gray-900 to-blue-950 text-gray-100">
+    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="space-y-4">
           <div className="flex items-center gap-3">
             <KhojMark />
             <div>
-              <p className="text-2xl font-extrabold text-surface-50 khoj-heading leading-none">Khoj</p>
-              <p className="text-xs font-extrabold text-primary-400 tracking-[0.16em] khoj-heading mt-1">DON&apos;T PANIC. POST IT.</p>
+              <p className="text-2xl font-extrabold text-white khoj-heading leading-none">Khoj</p>
+              <p className="text-xs font-extrabold text-blue-400 tracking-[0.16em] khoj-heading mt-1">DON&apos;T PANIC. POST IT.</p>
             </div>
           </div>
-          <p className="text-sm text-surface-200/80 leading-relaxed">
+          <p className="text-sm text-gray-300 leading-relaxed">
             Campus lost &amp; found for Bengaluru students.
           </p>
-          <div className="flex items-center gap-4 text-surface-200/70">
-            <a href="https://www.linkedin.com/company/khoj-app" target="_blank" rel="noreferrer noopener" className="hover:text-surface-50 transition-colors" aria-label="Khoj on LinkedIn">
+          <div className="flex items-center gap-4 text-gray-400">
+            <a href="https://www.linkedin.com/company/khoj-app" target="_blank" rel="noreferrer noopener" className="hover:text-blue-400 transition-all duration-200 hover:scale-110" aria-label="Khoj on LinkedIn">
               <LinkedInIcon />
             </a>
-            <a href="https://www.instagram.com/official.khojapp" target="_blank" rel="noreferrer noopener" className="hover:text-surface-50 transition-colors" aria-label="Khoj on Instagram">
+            <a href="https://www.instagram.com/official.khojapp" target="_blank" rel="noreferrer noopener" className="hover:text-pink-400 transition-all duration-200 hover:scale-110" aria-label="Khoj on Instagram">
               <InstagramIcon />
             </a>
-            <a href="mailto:khojapp.team@gmail.com" className="hover:text-surface-50 transition-colors" aria-label="Email Khoj">
+            <a href="mailto:khojapp.team@gmail.com" className="hover:text-blue-400 transition-all duration-200 hover:scale-110" aria-label="Email Khoj">
               <MailIcon />
             </a>
           </div>
         </div>
 
         <div>
-          <h3 className="text-xs font-extrabold uppercase tracking-[0.16em] text-surface-200/60 mb-4 khoj-heading">Platform</h3>
+          <h3 className="text-xs font-extrabold uppercase tracking-[0.16em] text-gray-400 mb-5 khoj-heading">Platform</h3>
           <ul className="space-y-3">
             <li><Link to="/" className={footerLink}>Home Feed</Link></li>
             <li><Link to="/post" className={footerLink}>Report an Item</Link></li>
@@ -69,7 +69,7 @@ const Footer = () => (
         </div>
 
         <div>
-          <h3 className="text-xs font-extrabold uppercase tracking-[0.16em] text-surface-200/60 mb-4 khoj-heading">Company</h3>
+          <h3 className="text-xs font-extrabold uppercase tracking-[0.16em] text-gray-400 mb-5 khoj-heading">Company</h3>
           <ul className="space-y-3">
             <li><Link to="/about" className={footerLink}>About Khoj</Link></li>
             <li><Link to="/how-it-works" className={footerLink}>How It Works</Link></li>
@@ -80,29 +80,30 @@ const Footer = () => (
         </div>
 
         <div>
-          <h3 className="text-xs font-extrabold uppercase tracking-[0.16em] text-surface-200/60 mb-4 khoj-heading">Legal</h3>
-          <ul className="space-y-3 mb-5">
+          <h3 className="text-xs font-extrabold uppercase tracking-[0.16em] text-gray-400 mb-5 khoj-heading">Legal</h3>
+          <ul className="space-y-3 mb-6">
             <li><Link to="/privacy" className={footerLink}>Privacy Policy</Link></li>
             <li><Link to="/terms" className={footerLink}>Terms of Service</Link></li>
             <li><Link to="/community-guidelines" className={footerLink}>Community Guidelines</Link></li>
           </ul>
-          <div className="rounded-2xl border border-primary-400/30 bg-primary-500/10 px-4 py-4">
-            <p className="text-3xl font-extrabold text-primary-200 khoj-heading leading-none">150+</p>
-            <p className="text-sm text-surface-200/80 mt-1">Items recovered across Bengaluru</p>
+          <div className="rounded-2xl border border-blue-500/30 bg-gradient-to-br from-blue-500/10 to-purple-500/10 backdrop-blur-sm px-5 py-5 hover:border-blue-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20">
+            <p className="text-sm text-gray-300 mb-1 font-medium">Helping students across</p>
+            <p className="text-3xl font-extrabold text-blue-400 khoj-heading leading-none">Bengaluru</p>
+            <p className="text-xs text-gray-400 mt-2">Real-time campus activity</p>
           </div>
         </div>
       </div>
     </div>
 
-    <div className="border-t border-ink-900">
-      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-surface-200/60">
+    <div className="border-t border-gray-800">
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-gray-400">
         <span>© 2026 Khoj · Built for campus students</span>
-        <span className="flex flex-wrap gap-x-3 gap-y-1">
-          <Link to="/privacy" className="hover:text-surface-200/90">Privacy</Link>
+        <span className="flex flex-wrap gap-x-4 gap-y-1">
+          <Link to="/privacy" className="hover:text-gray-200 transition-colors">Privacy</Link>
           <span aria-hidden>·</span>
-          <Link to="/terms" className="hover:text-surface-200/90">Terms</Link>
+          <Link to="/terms" className="hover:text-gray-200 transition-colors">Terms</Link>
           <span aria-hidden>·</span>
-          <a href="mailto:khojapp.team@gmail.com" className="hover:text-surface-200/90">khojapp.team@gmail.com</a>
+          <a href="mailto:khojapp.team@gmail.com" className="hover:text-gray-200 transition-colors">khojapp.team@gmail.com</a>
         </span>
       </div>
     </div>

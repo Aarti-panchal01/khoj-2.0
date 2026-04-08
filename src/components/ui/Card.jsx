@@ -9,16 +9,16 @@ const Card = ({
 }) => {
   const Component = onClick ? motion.div : 'div';
   const motionProps = onClick ? {
-    whileHover: { y: -4, boxShadow: '0 10px 25px rgba(0, 0, 0, 0.08)' },
-    transition: { duration: 0.2, ease: 'easeOut' }
+    whileHover: { y: -6, boxShadow: '0 20px 40px rgba(0, 0, 0, 0.12)' },
+    transition: { duration: 0.3, ease: 'easeOut' }
   } : {};
 
   return (
     <Component
       onClick={onClick}
       className={`
-        bg-white rounded-xl border border-gray-100 shadow-sm
-        ${hover ? 'cursor-pointer' : ''}
+        bg-white rounded-2xl border border-gray-100 shadow-sm
+        ${hover ? 'cursor-pointer hover:border-blue-200' : ''}
         ${className}
       `}
       {...motionProps}
