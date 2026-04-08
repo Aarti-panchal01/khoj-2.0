@@ -20,8 +20,8 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
 // Set persistence to LOCAL so login persists across sessions
-setPersistence(auth, browserLocalPersistence).catch(error => {
-  console.warn('Firebase persistence error:', error);
+setPersistence(auth, browserLocalPersistence).catch(() => {
+  // Silently handle persistence errors in production
 });
 
 // Initialize Google Auth Provider
@@ -32,11 +32,6 @@ googleProvider.addScope('profile');
 googleProvider.addScope('email');
 googleProvider.setCustomParameters({
   'prompt': 'consent'
-});
-
-console.log('✅ Firebase initialized with config:', {
-  projectId: firebaseConfig.projectId,
-  authDomain: firebaseConfig.authDomain,
 });
 
 export default app;

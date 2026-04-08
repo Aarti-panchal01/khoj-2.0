@@ -19,29 +19,22 @@ let isRefreshing = false;
 let refreshQueue = []; // queued requests waiting for a new token
 
 const mapItem = (item) => {
-  console.log('🔧 mapItem - Raw item from API:', item);
-  const mapped = {
+  return {
     ...item,
     id: item?._id || item?.id,
   };
-  console.log('🔧 mapItem - Mapped item:', mapped);
-  return mapped;
 };
 
 // CRITICAL: Always get token from localStorage dynamically - never cache it
 const getAuthToken = () => {
-  const token = localStorage.getItem('khoj_token');
-  console.log('🔑 Token being sent:', token ? `${token.substring(0, 20)}...` : 'null');
-  return token;
+  return localStorage.getItem('khoj_token');
 };
 
 export const setAuthToken = (token) => {
   if (token) {
     localStorage.setItem('khoj_token', token);
-    console.log('✅ Token saved to localStorage');
   } else {
     localStorage.removeItem('khoj_token');
-    console.log('🗑️ Token removed from localStorage');
   }
 };
 
@@ -60,7 +53,6 @@ const refreshAccessToken = async () => {
 
 export const apiRequest = async (path, { method = 'GET', body, headers, auth = true } = {}) => {
   const doFetch = (token) => {
-    console.log(`📡 ${method} ${path} - Auth: ${auth}, Token: ${token ? 'present' : 'missing'}`);
     return fetch(`${API_BASE_URL}/api${path}`, {
       method,
       credentials: 'include',
@@ -77,7 +69,6 @@ export const apiRequest = async (path, { method = 'GET', body, headers, auth = t
 
   // Auto-refresh on 401 — only for authenticated requests, not auth endpoints or public paths
   if (response.status === 401 && auth && !path.startsWith('/auth/') && !PUBLIC_PATHS.some(p => path.startsWith(p))) {
-    console.log('⚠️ 401 received, attempting token refresh...');
     if (isRefreshing) {
       // Queue this request until the in-flight refresh completes
       const newToken = await new Promise((resolve, reject) => {
@@ -92,7 +83,6 @@ export const apiRequest = async (path, { method = 'GET', body, headers, auth = t
         refreshQueue = [];
         response = await doFetch(newToken);
       } catch {
-        console.error('❌ Token refresh failed - session expired');
         refreshQueue.forEach(({ reject }) => reject(new Error('Session expired')));
         refreshQueue = [];
         setAuthToken(null);
@@ -109,7 +99,23 @@ export const apiRequest = async (path, { method = 'GET', body, headers, auth = t
 
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
-    const error = new Error(errorBody.message || 'Request failed');
+    // User-friendly error messages for production
+    let userMessage = 'Something went wrong. Please try again.';
+    
+    if (response.status === 401) {
+      userMessage = 'Session expired. Please log in again.';
+    } else if (response.status === 403) {
+      userMessage = 'You do not have permission to perform this action.';
+    } else if (response.status === 404) {
+      userMessage = 'The requested resource was not found.';
+    } else if (response.status >= 500) {
+      userMessage = 'Server error. Please try again later.';
+    } else if (errorBody.message) {
+      // Only show backend message if it's safe (not exposing internals)
+      userMessage = errorBody.message;
+    }
+    
+    const error = new Error(userMessage);
     error.status = response.status;
     error.data = errorBody;
     throw error;
@@ -162,9 +168,6 @@ export const UploadAPI = {
     const headers = {};
     if (token) {
       headers.Authorization = `Bearer ${token}`;
-      console.log('📤 Upload with token:', token.substring(0, 20) + '...');
-    } else {
-      console.warn('⚠️ Upload without token');
     }
 
     const response = await fetch(`${API_BASE_URL}/api/upload/images`, {
@@ -176,7 +179,7 @@ export const UploadAPI = {
 
     if (!response.ok) {
       const errorBody = await response.json().catch(() => ({}));
-      const error = new Error(errorBody.message || 'Upload failed');
+      const error = new Error(errorBody.message || 'Upload failed. Please try again.');
       error.status = response.status;
       throw error;
     }
