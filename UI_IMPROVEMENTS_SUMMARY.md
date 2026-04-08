@@ -215,3 +215,168 @@ The UI now feels:
 - ✅ Desktop layout still works
 - ✅ Touch targets maintained
 - ✅ Accessibility preserved
+
+
+---
+
+## 🎯 Task 6: Premium Mobile-First UI Upgrade ✅ COMPLETE
+
+### Goal
+Upgrade UI to a premium, modern, mobile-first experience using Khoj brand aesthetics (blue-600 primary color) with subtle animations and improved interactions.
+
+### ✅ Completed Changes
+
+#### 1. Input Component (`src/components/ui/Input.jsx`)
+- **Focus Ring**: Updated to `focus:ring-2 focus:ring-blue-500` (Khoj blue)
+- **Border Radius**: Changed from `rounded-xl` to `rounded-lg` for consistency
+- **Border Colors**: 
+  - Default: `border-gray-200`
+  - Hover: `border-gray-300`
+  - Focus: `border-blue-500`
+- **Text Colors**: Updated to standard gray palette
+  - Input text: `text-gray-900`
+  - Placeholder: `placeholder:text-gray-400`
+  - Icon: `text-gray-400`
+- **Touch Targets**: Maintained 44px minimum height
+- **Transitions**: `transition-all duration-200` for smooth interactions
+
+#### 2. Select Component (`src/components/ui/Select.jsx`)
+- **Consistent with Input**: Matches Input component styling exactly
+- **Border Radius**: `rounded-lg` (8px)
+- **Focus States**: `focus:ring-2 focus:ring-blue-500`
+- **Border Colors**: Same as Input (gray-200 → gray-300 → blue-500)
+- **Height**: Consistent 44px minimum with Input
+- **Hover State**: `hover:border-gray-300`
+- **Icon Color**: `text-gray-400` for ChevronDown
+
+#### 3. Home Page Enhancements (`src/pages/dashboard/Home.jsx`)
+
+**Hero Section**:
+- Added gradient background: `bg-gradient-to-r from-blue-50 via-white to-blue-50/50`
+- Improved spacing: `p-6 md:p-8`
+- Enhanced title: `text-3xl md:text-4xl font-bold tracking-tight`
+- Better subtitle: `text-sm md:text-base text-gray-600`
+
+**Button Interactions**:
+- Primary button: `bg-blue-600 hover:bg-blue-700`
+- Hover scale: `hover:scale-[1.02]`
+- Active scale: `active:scale-[0.98]`
+- Enhanced shadow: `shadow-md hover:shadow-lg`
+- Smooth transitions: `transition-all duration-200`
+
+**Stats Cards**:
+- Hover animation: `hover:-translate-y-1`
+- Enhanced shadow on hover: `hover:shadow-md`
+- Icon background: `bg-blue-50` (for primary), matching color for others
+- Icon hover scale: `group-hover:scale-110`
+- Smooth transitions: `transition-all duration-200`
+
+**Filter Section**:
+- Clean white background with `shadow-sm`
+- Icon in blue-50 background: `bg-blue-50 rounded-lg`
+- Consistent gap: `gap-3`
+- Improved layout with responsive grid
+
+**Item Cards**:
+- Hover lift: `hover:-translate-y-1`
+- Enhanced shadow: `hover:shadow-lg`
+- Border color change: `hover:border-blue-200`
+- Image scale on hover: `group-hover:scale-105`
+- Smooth transitions: `transition-all duration-200`
+- Staggered animations: `delay: index * 0.03` (30ms per card)
+
+### 🎨 Design System Applied
+
+**Brand Colors (Khoj Blue)**:
+- Primary: `blue-600` (#2563eb)
+- Primary hover: `blue-700`
+- Primary light: `blue-50` (backgrounds)
+- Focus ring: `blue-500`
+
+**Border System**:
+- Radius: `rounded-lg` (inputs), `rounded-xl` (cards)
+- Colors: `gray-200` → `gray-300` (hover) → `blue-500` (focus)
+- Width: 1px default, 2px focus ring
+
+**Shadow System**:
+- Default: `shadow-sm`
+- Hover: `shadow-md` or `shadow-lg`
+- Minimal and subtle throughout
+
+**Transitions**:
+- Duration: `200ms` for all interactions
+- Easing: Default ease
+- Properties: `transition-all` for comprehensive smoothness
+
+**Touch Targets**:
+- Minimum height: `44px` on all interactive elements
+- Proper padding for mobile: `px-3` on small screens
+- Touch-friendly spacing: `gap-3` or `gap-4`
+
+### 📱 Mobile-First Responsiveness
+
+**Grid Breakpoints**:
+- Mobile: `grid-cols-1`
+- Tablet: `sm:grid-cols-2`
+- Desktop: `lg:grid-cols-3` or `lg:grid-cols-4`
+
+**Responsive Spacing**:
+- Mobile: `px-3`, `py-2`
+- Desktop: `px-6`, `py-4`
+
+**Responsive Typography**:
+- Base: `text-base sm:text-sm`
+- Headings: `text-3xl md:text-4xl`
+
+**Filter Stacking**:
+- Vertical on mobile: `grid-cols-1`
+- Horizontal on tablet+: `sm:grid-cols-2 lg:grid-cols-4`
+
+### ✨ Micro-Animations
+
+1. **Page Load**: Fade-in with opacity 0 → 1
+2. **Card Stagger**: 30ms delay per card (0.03s)
+3. **Card Hover**: -4px translateY lift
+4. **Button Hover**: 1.02x scale
+5. **Button Active**: 0.98x scale
+6. **Image Hover**: 1.05x scale
+7. **Icon Hover**: 1.1x scale on stats cards
+8. **Shadow Transitions**: sm → md/lg on hover
+
+### 🎯 Consistency Rules Applied
+
+✅ Same padding everywhere (p-4, p-5, p-6)
+✅ Same font sizes (text-xs, text-sm, text-base)
+✅ Same border radius (rounded-lg for inputs, rounded-xl for cards)
+✅ Same spacing scale (gap-3, gap-4, space-y-6)
+✅ Same transition duration (200ms)
+✅ Same hover effects (scale, translate, shadow)
+
+### 🚀 Final Result
+
+The UI now feels:
+- ✅ Modern and premium
+- ✅ Smooth with subtle animations
+- ✅ Lightweight and fast
+- ✅ Brand-consistent (blue identity)
+- ✅ Mobile-friendly and responsive
+- ✅ Professional and polished
+- ✅ Consistent throughout
+
+### 📋 Files Modified
+
+1. **src/components/ui/Input.jsx** - Enhanced with blue focus ring and consistent styling
+2. **src/components/ui/Select.jsx** - Matched Input styling with blue focus states
+3. **src/pages/dashboard/Home.jsx** - Already updated with premium interactions (from previous work)
+
+### ✅ No Functionality Changed
+
+- ✅ All features work exactly the same
+- ✅ No logic changes
+- ✅ No API changes
+- ✅ Only visual and interaction improvements
+- ✅ Same user flows and behaviors
+
+### 🎉 Task Complete
+
+All UI components now follow the premium mobile-first design system with Khoj blue branding, smooth animations, and consistent interactions. The filter inputs (Input and Select) now match the overall design language with proper focus states, hover effects, and responsive behavior.
