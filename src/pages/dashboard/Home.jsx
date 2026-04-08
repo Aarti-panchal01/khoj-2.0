@@ -196,10 +196,11 @@ const Home = () => {
 
   return (
     <div className="space-y-6 pb-20 md:pb-6">
-      {/* Hero Section - Premium & Alive */}
+      {/* Hero Section - Addictive & Conversion Focused */}
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
         className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100 rounded-2xl p-6 md:p-10 shadow-lg"
       >
         {/* Subtle blur glow behind title */}
@@ -208,72 +209,67 @@ const Home = () => {
         
         <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
           <div className="flex-1">
+            {/* Line 1: KHOJ */}
             <motion.h1 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight mb-3 leading-tight"
+              transition={{ delay: 0.1, duration: 0.3 }}
+              className="text-4xl font-bold text-blue-600 tracking-tight leading-none mb-2"
             >
-              Khoj Lost & Found
+              KHOJ
             </motion.h1>
+            
+            {/* Line 2: Lost Something on Campus? */}
+            <motion.h2 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.3 }}
+              className="text-2xl font-semibold text-gray-900 leading-tight mb-2"
+            >
+              Lost Something on Campus?
+            </motion.h2>
+            
+            {/* Subtext */}
             <motion.p 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="text-base md:text-lg text-gray-600 mb-4 leading-relaxed"
+              transition={{ delay: 0.3, duration: 0.3 }}
+              className="text-sm text-gray-600 mt-2 mb-4 leading-relaxed"
             >
-              Helping students recover what matters
+              Post it. Find it. Get it back — faster than asking around.
             </motion.p>
-            {showFeedBanner && (
-              <motion.p 
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                className="text-sm font-semibold text-blue-700 mb-3 inline-flex items-center gap-2"
-              >
-                <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
-                Real-time from {user.universityName || 'your university'}
-              </motion.p>
-            )}
+            
+            {/* Dynamic Trust Indicator */}
             <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="flex flex-wrap items-center gap-2"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4, duration: 0.3 }}
+              className="inline-flex items-center gap-2 text-sm font-medium text-blue-700 mt-4"
             >
-              <Badge variant="primary" className="text-xs backdrop-blur-sm">
-                {feedLabel}
-              </Badge>
-              <span className="text-xs text-gray-500">{feedHint}</span>
+              <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+              {user?.universityName 
+                ? `Live across ${user.universityName}`
+                : 'Live across campuses near you'
+              }
             </motion.div>
           </div>
+          
+          {/* CTA Button */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-            whileHover={{ scale: 1.05 }}
+            transition={{ delay: 0.4, duration: 0.3 }}
             className="w-full sm:w-auto"
           >
-            <Button
+            <motion.button
               onClick={() => (isGuest ? navigate('/login') : navigate('/post'))}
-              icon={Package}
-              className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl group"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group min-h-[48px]"
             >
-              <motion.span
-                className="hidden sm:inline"
-                whileHover={{ x: -2 }}
-              >
-                {isGuest ? 'Sign in to post' : 'Post New Item'}
-              </motion.span>
-              <span className="sm:hidden">{isGuest ? 'Sign in' : 'Post Item'}</span>
-              <motion.div
-                animate={{ x: [0, 4, 0] }}
-                transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                className="group-hover:animate-none"
-              >
-                <Package className="w-5 h-5" />
-              </motion.div>
-            </Button>
+              <Package className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+              <span>{isGuest ? 'Sign in to Post' : 'Post New Item'}</span>
+            </motion.button>
           </motion.div>
         </div>
       </motion.div>
