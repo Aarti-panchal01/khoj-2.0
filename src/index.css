@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,7 +6,7 @@
 
 @layer base {
   * {
-    @apply border-slate-200;
+    @apply border-gray-200;
   }
 
   html {
@@ -17,8 +17,10 @@
   }
 
   body {
-    @apply bg-surface-50 text-ink-950 font-sans antialiased;
+    @apply bg-gray-50 text-gray-900 antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
+  
   /* Safe area support for notched devices */
   body {
     padding-top: env(safe-area-inset-top);
@@ -27,20 +29,26 @@
     padding-right: env(safe-area-inset-right);
   }
 
-  h1, h2, h3, h4 {
-    @apply text-ink-950 tracking-tight font-heading;
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-gray-900 font-semibold;
+  }
+  
+  h1 {
+    @apply text-3xl;
+  }
+  
+  h2 {
+    @apply text-2xl;
+  }
+  
+  h3 {
+    @apply text-xl;
   }
 }
 
 @layer utilities {
-  .khoj-heading {
-    @apply font-heading tracking-tight;
-  }
-  .khoj-paper {
-    @apply bg-surface-0 border border-ink-200 shadow-bulletin;
-  }
-  .khoj-muted {
-    @apply text-ink-600;
+  .text-muted {
+    @apply text-gray-600;
   }
 }
 
