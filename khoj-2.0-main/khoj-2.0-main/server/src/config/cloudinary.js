@@ -1,5 +1,5 @@
-const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinaryPkg = require('cloudinary');
+const cloudinary = cloudinaryPkg.v2;
 const multer = require('multer');
 
 // Verify required environment variables without logging credential values
@@ -13,21 +13,10 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Restrict to static image formats only — no gif/webp to prevent animated content abuse
-const ALLOWED_FORMATS = ['jpg', 'jpeg', 'png'];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB — tightened from 10MB
 
-const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: 'khoj-items',
-    allowed_formats: ALLOWED_FORMATS,
-    resource_type: 'image',
-  },
-});
-
 const upload = multer({
-  storage: storage,
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: MAX_FILE_SIZE,
     files: 5,

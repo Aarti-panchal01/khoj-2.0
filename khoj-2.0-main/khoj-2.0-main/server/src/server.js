@@ -36,21 +36,27 @@ const app = express();
 app.set('trust proxy', 1);
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
-const allowedOrigins = process.env.CLIENT_ORIGIN.split(',').map((o) => o.trim());
+const normalizeOrigin = (value) => String(value || '').trim().replace(/\/+$/, '');
+const allowedOrigins = process.env.CLIENT_ORIGIN.split(',')
+  .map((o) => normalizeOrigin(o))
+  .filter(Boolean);
+const trustedProdDomainRegex = /^https:\/\/([a-z0-9-]+\.)?khojapp\.in$/i;
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow no-origin requests (curl, Postman) only in dev
+      // Allow no-origin requests (health checks, curl, Postman, direct browser hit)
       if (!origin) {
-        return IS_PROD
-          ? callback(new Error('Origin required in production'))
-          : callback(null, true);
+        return callback(null, true);
       }
-      if (allowedOrigins.includes(origin)) {
+      const normalizedOrigin = normalizeOrigin(origin);
+      if (
+        allowedOrigins.includes(normalizedOrigin) ||
+        (IS_PROD && trustedProdDomainRegex.test(normalizedOrigin))
+      ) {
         callback(null, true);
       } else {
-        callback(new Error(`Origin ${origin} not allowed by CORS`));
+        callback(new Error(`Origin ${normalizedOrigin} not allowed by CORS`));
       }
     },
     credentials: true,

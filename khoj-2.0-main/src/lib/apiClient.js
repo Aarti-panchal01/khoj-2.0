@@ -1,4 +1,16 @@
-const API_BASE = `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api`;
+// Construct base API URL - ensure it does NOT include /api path
+// Backend server has app.use('/api/auth', ...) so we'll add /api in the fetch calls
+const getAPIBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl) {
+    // If VITE_API_URL is set, remove /api suffix if present
+    return envUrl.replace(/\/api\/?$/, '');
+  }
+  // Local development default
+  return 'http://localhost:4000';
+};
+
+const API_BASE_URL = getAPIBaseUrl();
 
 // Public endpoints that should never trigger auth:expired on 401 (defense-in-depth)
 const PUBLIC_PATHS = ['/universities'];
@@ -8,10 +20,13 @@ let isRefreshing = false;
 let refreshQueue = []; // queued requests waiting for a new token
 
 const mapItem = (item) => {
-  return {
+  console.log('🔧 mapItem - Raw item from API:', item);
+  const mapped = {
     ...item,
     id: item?._id || item?.id,
   };
+  console.log('🔧 mapItem - Mapped item:', mapped);
+  return mapped;
 };
 
 export const setAuthToken = (token) => {
@@ -31,7 +46,7 @@ const buildHeaders = (extra = {}) => {
 
 /** Attempt to get a new access token using the HTTP-only refresh cookie */
 const refreshAccessToken = async () => {
-  const response = await fetch(`${API_BASE}/auth/refresh`, {
+  const response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
     method: 'POST',
     credentials: 'include', // send the HTTP-only cookie
     headers: { 'Content-Type': 'application/json' },
@@ -43,25 +58,17 @@ const refreshAccessToken = async () => {
 };
 
 export const apiRequest = async (path, { method = 'GET', body, headers, auth = true } = {}) => {
-  // Fetch token dynamically on each request to ensure we get the latest
-  const token = auth ? localStorage.getItem('khoj_token') : null;
-  
-  const doFetch = (currentToken) => {
-    const requestHeaders = {
-      'Content-Type': 'application/json',
-      ...headers,
-      ...(currentToken && { Authorization: `Bearer ${currentToken}` }),
-    };
-    
-    return fetch(`${API_BASE}${path}`, {
+  const doFetch = (token) =>
+    fetch(`${API_BASE_URL}/api${path}`, {
       method,
       credentials: 'include',
-      headers: requestHeaders,
+      headers: auth
+        ? { 'Content-Type': 'application/json', ...headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+        : { 'Content-Type': 'application/json', ...headers },
       body: body ? JSON.stringify(body) : undefined,
     });
-  };
 
-  let response = await doFetch(token);
+  let response = await doFetch(authToken);
 
   // Auto-refresh on 401 — only for authenticated requests, not auth endpoints or public paths
   if (response.status === 401 && auth && !path.startsWith('/auth/') && !PUBLIC_PATHS.some(p => path.startsWith(p))) {
@@ -143,12 +150,10 @@ export const UploadAPI = {
     const formData = new FormData();
     Array.from(files).forEach(file => formData.append('images', file));
 
-    // Fetch token dynamically
-    const token = localStorage.getItem('khoj_token');
     const headers = {};
-    if (token) headers.Authorization = `Bearer ${token}`;
+    if (authToken) headers.Authorization = `Bearer ${authToken}`;
 
-    const response = await fetch(`${API_BASE}/upload/images`, {
+    const response = await fetch(`${API_BASE_URL}/api/upload/images`, {
       method: 'POST',
       credentials: 'include',
       headers,

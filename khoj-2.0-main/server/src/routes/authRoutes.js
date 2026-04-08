@@ -4,7 +4,6 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const { OAuth2Client } = require('google-auth-library');
-const firebaseAdmin = require('../../firebaseAdmin');
 const User = require('../models/User');
 const University = require('../models/University');
 const {
@@ -402,75 +401,63 @@ router.get('/me', authMiddleware, async (req, res) => {
   return res.json(formatUser(req.user));
 });
 
-// ─── Google OAuth (Google ID token verification) ──────────────────────────
+// ─── Google OAuth (ID token from Google Identity Services) ───────────────────
 
 router.post('/google', async (req, res) => {
   try {
-    // Get token from request body (frontend sends { credential: googleIdToken })
-    const token = req.body?.credential;
-    
-    if (!token) {
-      console.error('❌ No credential in request body');
-      return res.status(401).json({ message: 'No Google OAuth token provided' });
+    const payload = googleAuthSchema.parse(req.body);
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      return res.status(503).json({ message: 'Google sign-in is not configured on this server.' });
     }
 
-    // Verify Google OAuth ID Token
-    if (!process.env.GOOGLE_CLIENT_ID) {
-      console.error('❌ GOOGLE_CLIENT_ID not set!');
-      return res.status(500).json({ message: 'Server misconfigured: missing GOOGLE_CLIENT_ID' });
+    const client = new OAuth2Client(clientId);
+    const ticket = await client.verifyIdToken({
+      idToken: payload.credential,
+      audience: clientId,
+    });
+    const g = ticket.getPayload();
+    if (!g?.email) {
+      return res.status(400).json({ message: 'Google did not return an email address.' });
     }
 
-    console.log('✅ GOOGLE_CLIENT_ID found:', process.env.GOOGLE_CLIENT_ID);
-    console.log('✅ Token received (first 50 chars):', token.substring(0, 50));
-
-    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-    let decoded;
-    try {
-      const ticket = await client.verifyIdToken({
-        idToken: token,
-        audience: process.env.GOOGLE_CLIENT_ID,
-      });
-      decoded = ticket.getPayload();
-      console.log('✅ Token verified successfully:', decoded.email);
-    } catch (error) {
-      console.error('❌ Google token verification failed:', error.message);
-      console.error('Full error:', error);
-      return res.status(401).json({ message: 'Invalid or expired Google token', error: error.message });
-    }
-
-    const email = decoded.email?.toLowerCase();
-    const name = decoded.name || decoded.email?.split('@')[0] || 'Student';
-
-    if (!email) {
-      return res.status(400).json({ message: 'Token does not contain email' });
-    }
-
-    let user = await User.findOne({ email }).select('+tokenVersion +refreshTokenHash');
+    const email = String(g.email).toLowerCase();
+    let user = await User.findOne({ email }).select('+googleSub +tokenVersion +refreshTokenHash');
 
     if (!user) {
       const passwordHash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
       user = await User.create({
-        name: (name && name.trim()) || email.split('@')[0] || 'Student',
+        name: (g.name && g.name.trim()) || email.split('@')[0] || 'Student',
         email,
         passwordHash,
+        googleSub: g.sub,
         phone: '',
         universityId: null,
         campusId: null,
         universityName: '',
         campusName: '',
-        isEmailVerified: true,
+        isEmailVerified: Boolean(g.email_verified),
       });
+    } else {
+      if (!user.googleSub && g.sub) {
+        user.googleSub = g.sub;
+        await user.save();
+      }
     }
 
-    user = await User.findById(user._id).select('+tokenVersion +refreshTokenHash');
+    user = await User.findById(user._id);
     const accessToken = createAccessToken(user);
     const refreshToken = createRefreshToken(user);
     await User.findByIdAndUpdate(user._id, { refreshTokenHash: hashToken(refreshToken) });
     res.cookie(REFRESH_COOKIE_NAME, refreshToken, COOKIE_OPTS);
     return res.json({ token: accessToken, user: formatUser(user) });
   } catch (error) {
-    console.error('Google auth error:', error.message);
-    return res.status(500).json({ message: 'Google sign-in failed' });
+    console.error('Google auth error:', error.name || error.message);
+    if (error.name === 'ZodError') {
+      const firstError = error.errors[0];
+      return res.status(400).json({ message: `${firstError.path.join('.')}: ${firstError.message}` });
+    }
+    return res.status(401).json({ message: 'Google sign-in failed' });
   }
 });
 

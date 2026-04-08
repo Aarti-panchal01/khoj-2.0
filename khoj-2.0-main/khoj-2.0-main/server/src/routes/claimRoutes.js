@@ -3,9 +3,20 @@ const Claim = require('../models/Claim');
 const Item = require('../models/Item');
 const Notification = require('../models/Notification');
 const authMiddleware = require('../middleware/authMiddleware');
+const requireUniversity = require('../middleware/requireUniversity');
+const { universityMatchFilter } = require('../utils/universityScope');
 
 const router = express.Router();
 router.use(authMiddleware);
+router.use(requireUniversity);
+
+function itemInUniversityScopeFilter(itemId, user) {
+  const scope = universityMatchFilter(user);
+  if (scope.$or) {
+    return { $and: [{ _id: itemId }, scope] };
+  }
+  return { _id: itemId };
+}
 
 // POST /claims - Create a new claim
 router.post('/', async (req, res) => {
@@ -16,10 +27,7 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ message: 'itemId is required' });
     }
 
-    const item = await Item.findOne({
-      _id: itemId,
-      universityId: req.user.universityId,
-    });
+    const item = await Item.findOne(itemInUniversityScopeFilter(itemId, req.user));
 
     if (!item) {
       return res.status(404).json({ message: 'Item not found' });
@@ -70,13 +78,10 @@ router.post('/', async (req, res) => {
 // GET /claims/item/:itemId - Get all claims for an item (owner only)
 router.get('/item/:itemId', async (req, res) => {
   try {
-    const item = await Item.findOne({
-      _id: req.params.itemId,
-      user: req.user._id,
-      universityId: req.user.universityId,
-    });
-
-    if (!item) {
+    const item = await Item.findOne(
+      itemInUniversityScopeFilter(req.params.itemId, req.user)
+    );
+    if (!item || String(item.user) !== String(req.user._id)) {
       return res.status(404).json({ message: 'Item not found or you are not the owner' });
     }
 
@@ -127,12 +132,18 @@ router.put('/:id/approve', async (req, res) => {
     claim.status = 'approved';
     await claim.save();
 
-    // Update item status to resolved
-    await Item.findByIdAndUpdate(claim.itemId, { status: 'resolved' });
+    // Update item status to resolved and fetch type/owner for rewards logic
+    const item = await Item.findByIdAndUpdate(
+      claim.itemId,
+      { status: 'resolved' },
+      { new: true }
+    ).lean();
 
-    // Award reputation points: +10 for finder (claimer) only
+    // Award reputation points: +10 to found-item poster on successful recovery
     const User = require('../models/User');
-    await User.findByIdAndUpdate(claim.claimerId, { $inc: { reputation: 10 } });
+    if (item?.type === 'found' && String(item.user) === String(claim.ownerId)) {
+      await User.findByIdAndUpdate(claim.ownerId, { $inc: { reputation: 10 } });
+    }
 
     // Create notification for claimer
     await Notification.create({
@@ -140,9 +151,20 @@ router.put('/:id/approve', async (req, res) => {
       type: 'claim_approved',
       itemId: claim.itemId,
       claimId: claim._id,
-      message: 'Your claim has been approved! You earned +10 reputation points.',
+      message: 'Your claim is approved! You can now view the poster contact details.',
       read: false,
     });
+
+    if (item?.type === 'found') {
+      await Notification.create({
+        userId: claim.ownerId,
+        type: 'item_resolved',
+        itemId: claim.itemId,
+        claimId: claim._id,
+        message: 'W recovery! Your found-item post was resolved and you earned +10 reputation.',
+        read: false,
+      });
+    }
 
     res.json(claim);
   } catch (error) {

@@ -6,7 +6,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { AuthAPI } from '../../lib/apiClient';
 import { motion } from 'framer-motion';
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
 
 const Login = () => {
@@ -16,7 +16,6 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const { login, setUser } = useAuth();
   const navigate = useNavigate();
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
   const afterAuth = async () => {
     try {
@@ -26,7 +25,7 @@ const Login = () => {
       } else {
         navigate('/', { replace: true });
       }
-    } catch (error) {
+    } catch {
       navigate('/', { replace: true });
     }
   };
@@ -53,20 +52,12 @@ const Login = () => {
       const result = await signInWithPopup(auth, googleProvider);
       console.log('✅ Google signin successful:', result.user.email);
       
-      // Extract the Google OAuth ID token from the credential
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      const googleIdToken = credential.idToken;
-      
-      if (!googleIdToken) {
-        setLoading(false);
-        setError('Failed to get Google OAuth token');
-        return;
-      }
-      
-      console.log('✅ Google OAuth credential obtained');
+      const user = result.user;
+      const idToken = await user.getIdToken();
+      console.log('✅ ID token obtained');
       
       try {
-        const backendResponse = await AuthAPI.google({ credential: googleIdToken });
+        const backendResponse = await AuthAPI.google({ credential: idToken });
         console.log('✅ Backend authentication successful:', backendResponse);
         
         if (backendResponse.token) {

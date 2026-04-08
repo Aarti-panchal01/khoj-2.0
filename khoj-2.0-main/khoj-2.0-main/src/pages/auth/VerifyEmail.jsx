@@ -13,6 +13,7 @@ const VerifyEmail = () => {
   const [resending, setResending] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
   const inputRefs = useRef([]);
+  const didAutoResendRef = useRef(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { setUser } = useAuth();
@@ -72,7 +73,13 @@ const VerifyEmail = () => {
       const result = await AuthAPI.verifyEmail({ userId, otp: code });
       setAuthToken(result.token);
       setUser(result.user);
-      navigate('/', { replace: true });
+      try {
+        const profile = await AuthAPI.me();
+        if (!profile?.universityId) navigate('/onboarding', { replace: true });
+        else navigate('/', { replace: true });
+      } catch {
+        navigate('/', { replace: true });
+      }
     } catch (err) {
       setError(err.message || 'Invalid or expired code');
       setOtp(['', '', '', '', '', '']);
@@ -94,6 +101,16 @@ const VerifyEmail = () => {
       setResending(false);
     }
   };
+
+  // If a user is routed here with `isEmailVerified=false` (e.g. legacy accounts),
+  // ensure an OTP email is actually sent without requiring an extra click.
+  useEffect(() => {
+    if (!userId) return;
+    if (didAutoResendRef.current) return;
+    didAutoResendRef.current = true;
+    handleResend();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-white via-blue-50/30 to-primary-50/40">

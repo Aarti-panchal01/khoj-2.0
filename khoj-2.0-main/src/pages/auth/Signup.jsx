@@ -6,7 +6,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import { AuthAPI } from '../../lib/apiClient';
 import { motion } from 'framer-motion';
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
 
 const Signup = () => {
@@ -25,7 +25,7 @@ const Signup = () => {
       } else {
         navigate('/', { replace: true });
       }
-    } catch (error) {
+    } catch {
       navigate('/', { replace: true });
     }
   };
@@ -48,7 +48,7 @@ const Signup = () => {
     setError(result.error || 'Failed to create account');
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleSignup = async () => {
     setError('');
     setLoading(true);
     try {
@@ -56,20 +56,12 @@ const Signup = () => {
       const result = await signInWithPopup(auth, googleProvider);
       console.log('✅ Google signin successful:', result.user.email);
       
-      // Extract the Google OAuth ID token from the credential
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      const googleIdToken = credential.idToken;
-      
-      if (!googleIdToken) {
-        setLoading(false);
-        setError('Failed to get Google OAuth token');
-        return;
-      }
-      
-      console.log('✅ Google OAuth credential obtained');
+      const user = result.user;
+      const idToken = await user.getIdToken();
+      console.log('✅ ID token obtained');
       
       try {
-        const backendResponse = await AuthAPI.google({ credential: googleIdToken });
+        const backendResponse = await AuthAPI.google({ credential: idToken });
         console.log('✅ Backend authentication successful:', backendResponse);
         
         if (backendResponse.token) {
@@ -96,11 +88,11 @@ const Signup = () => {
       
       // Provide user-friendly error messages for Firebase errors
       if (firebaseError.code === 'auth/popup-closed-by-user') {
-        setError('Sign-in popup was closed');
+        setError('Sign-up popup was closed');
       } else if (firebaseError.code === 'auth/network-request-failed') {
         setError('Network error. Please check your internet connection');
       } else if (firebaseError.code === 'auth/operation-not-allowed') {
-        setError('Google sign-in is not enabled');
+        setError('Google sign-up is not enabled');
       } else if (firebaseError.code === 'auth/popup-blocked') {
         setError('Pop-up was blocked. Please allow pop-ups for this site');
       } else {
@@ -116,7 +108,7 @@ const Signup = () => {
         <div className="relative max-w-md">
           <h2 className="khoj-heading text-4xl font-normal text-white mb-4">Join Khoj</h2>
           <p className="text-primary-200 text-lg font-sans">
-            Create your secure campus account with email and a 6-digit passcode. No social login required.
+            Create your secure campus account with email, Google, or a 6-digit passcode.
           </p>
         </div>
       </div>
@@ -152,14 +144,13 @@ const Signup = () => {
             </motion.div>
           )}
 
-          {/* Continue with Google Button */}
           <Button 
-            onClick={handleGoogleLogin} 
+            onClick={handleGoogleSignup} 
             fullWidth 
             loading={loading}
             className="mb-4 bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg"
           >
-            🔍 Continue with Google
+            🔍 Sign up with Google
           </Button>
 
           {/* Divider */}
@@ -168,7 +159,7 @@ const Signup = () => {
               <div className="w-full border-t border-gray-300"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gradient-to-br from-white via-blue-50/30 to-primary-50/40 text-gray-500">Or create with email</span>
+              <span className="px-2 bg-gradient-to-br from-white via-blue-50/30 to-primary-50/40 text-gray-500">Or sign up with email</span>
             </div>
           </div>
 

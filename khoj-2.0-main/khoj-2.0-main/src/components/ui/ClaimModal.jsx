@@ -83,8 +83,8 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
           <div className="sticky top-0 bg-gradient-to-br from-primary-500 to-primary-700 px-5 sm:px-6 py-4 sm:py-5 border-b border-white/20 z-10">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold text-white">Claim This Item</h2>
-                <p className="text-sm text-primary-100 mt-1">Help us verify you're the rightful owner</p>
+                <h2 className="text-xl sm:text-2xl font-bold text-white">Claim Test • 3 Questions</h2>
+                <p className="text-sm text-primary-100 mt-1">Quick vibe-check so the finder can verify ownership</p>
               </div>
               <button
                 onClick={onClose}
@@ -120,12 +120,12 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
             </Card>
 
             {/* Info Alert */}
-            <Card className="p-4 mb-5 sm:mb-6 bg-blue-50 border-2 border-blue-200">
+            <Card className="p-4 mb-5 sm:mb-6 bg-primary-50 border-2 border-primary-200">
               <div className="flex gap-3">
-                <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                <AlertCircle className="w-5 h-5 text-primary-900 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-blue-900 mb-1">Verification Required</p>
-                  <p className="text-sm text-blue-700">
+                  <p className="text-sm font-extrabold text-ink-950 mb-1 khoj-heading">Verification required</p>
+                  <p className="text-sm text-ink-800">
                     Please answer these questions to help verify ownership. Your responses will be sent to the person who found this item.
                   </p>
                 </div>
@@ -144,7 +144,7 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
               <div>
                 <label className="flex items-center gap-2 text-sm sm:text-sm font-medium text-white mb-2">
                   <MapPin className="w-4 h-4" />
-                  Where did you lose this item? <span className="text-yellow-300">*</span>
+                  Where did you lose this item? <span className="text-primary-200">*</span>
                 </label>
                 <textarea
                   name="whereList"
@@ -162,7 +162,7 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
               <div>
                 <label className="flex items-center gap-2 text-sm sm:text-sm font-medium text-white mb-2">
                   <Calendar className="w-4 h-4" />
-                  When did you lose this item? <span className="text-yellow-300">*</span>
+                  When did you lose this item? <span className="text-primary-200">*</span>
                 </label>
                 <textarea
                   name="whenList"
@@ -180,7 +180,7 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
               <div>
                 <label className="flex items-center gap-2 text-sm sm:text-sm font-medium text-white mb-2">
                   <FileText className="w-4 h-4" />
-                  Tell one specific detail about this item <span className="text-yellow-300">*</span>
+                  Tell one specific detail about this item <span className="text-primary-200">*</span>
                 </label>
                 <textarea
                   name="specificDetails"
@@ -207,9 +207,10 @@ const ClaimModal = ({ isOpen, onClose, item, onClaimSuccess }) => {
                 </Button>
                 <Button
                   type="submit"
+                  variant="outline"
                   fullWidth
                   loading={loading}
-                  className="bg-white text-primary-700 hover:bg-white/90 shadow-lg order-1 sm:order-2"
+                  className="!bg-white !text-black font-semibold hover:!bg-primary-50 !border !border-primary-200 shadow-xl order-1 sm:order-2"
                 >
                   Submit Claim
                 </Button>

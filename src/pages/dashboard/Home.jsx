@@ -195,41 +195,45 @@ const Home = () => {
   }
 
   return (
-    <div className="space-y-4 sm:space-y-5 md:space-y-6 pb-20 md:pb-6">
+    <div className="space-y-6 pb-20 md:pb-6">
+      {/* Hero Section with Gradient Background */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+        className="bg-gradient-to-r from-blue-50 via-white to-blue-50/50 rounded-xl p-6 md:p-8 shadow-sm"
       >
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">
-            Khoj Lost & Found
-          </h1>
-          <p className="text-sm text-gray-600">
-            Browse posts across campus — fast, scannable, student-first.
-          </p>
-          {showFeedBanner && (
-            <p className="text-xs font-medium text-blue-700 mt-2">
-              Showing posts from {user.universityName || 'your university'}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex-1">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight mb-2">
+              Khoj Lost & Found
+            </h1>
+            <p className="text-sm md:text-base text-gray-600 mb-3">
+              Browse posts across campus — fast, scannable, student-first.
             </p>
-          )}
-          <div className="flex flex-wrap items-center gap-2 mt-2">
-            <Badge variant="primary" className="text-xs">
-              {feedLabel}
-            </Badge>
-            <span className="text-xs text-gray-500">{feedHint}</span>
+            {showFeedBanner && (
+              <p className="text-xs font-medium text-blue-700 mb-2">
+                Showing posts from {user.universityName || 'your university'}
+              </p>
+            )}
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge variant="primary" className="text-xs">
+                {feedLabel}
+              </Badge>
+              <span className="text-xs text-gray-500">{feedHint}</span>
+            </div>
           </div>
+          <Button
+            onClick={() => (isGuest ? navigate('/login') : navigate('/post'))}
+            icon={Package}
+            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] rounded-xl"
+          >
+            <span className="hidden sm:inline">{isGuest ? 'Sign in to post' : 'Post New Item'}</span>
+            <span className="sm:hidden">{isGuest ? 'Sign in' : 'Post Item'}</span>
+          </Button>
         </div>
-        <Button
-          onClick={() => (isGuest ? navigate('/login') : navigate('/post'))}
-          icon={Package}
-          className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
-        >
-          <span className="hidden sm:inline">{isGuest ? 'Sign in to post' : 'Post New Item'}</span>
-          <span className="sm:hidden">{isGuest ? 'Sign in' : 'Post Item'}</span>
-        </Button>
       </motion.div>
 
+      {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {stats.map((stat, index) => (
           <motion.div
@@ -238,17 +242,17 @@ const Home = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.05 }}
           >
-            <Card className="p-4 bg-white border border-gray-200 hover:shadow-sm transition-shadow">
+            <Card className="p-4 md:p-5 bg-white border border-gray-100 hover:shadow-md transition-all duration-200 hover:-translate-y-1 rounded-xl">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">{stat.label}</p>
-                  <p className="text-3xl font-bold text-gray-900 leading-none">
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1.5">{stat.label}</p>
+                  <p className="text-2xl md:text-3xl font-bold text-gray-900 leading-none">
                     {stat.value}
                   </p>
                   {stat.subtitle && <p className="text-xs text-gray-500 mt-1.5">{stat.subtitle}</p>}
                 </div>
-                <div className={`w-10 h-10 bg-${stat.color === 'primary' ? 'blue' : stat.color}-50 rounded-xl flex items-center justify-center flex-shrink-0`}>
-                  <stat.icon className={`w-5 h-5 text-${stat.color === 'primary' ? 'blue' : stat.color}-600`} />
+                <div className={`w-10 h-10 md:w-12 md:h-12 bg-${stat.color === 'primary' ? 'blue' : stat.color}-50 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:scale-110`}>
+                  <stat.icon className={`w-5 h-5 md:w-6 md:h-6 text-${stat.color === 'primary' ? 'blue' : stat.color}-600`} />
                 </div>
               </div>
             </Card>
@@ -256,18 +260,21 @@ const Home = () => {
         ))}
       </div>
 
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-        <Card className="p-5 bg-white border border-gray-200">
+      {/* Filter Section */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+        <Card className="p-4 md:p-6 bg-white border border-gray-100 shadow-sm rounded-xl">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-gray-700" />
+              <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                <Filter className="w-4 h-4 text-blue-600" />
+              </div>
               <h3 className="text-base font-semibold text-gray-900">Search & Filter</h3>
             </div>
             {hasActiveFilters && (
               <button
                 type="button"
                 onClick={handleClearFilters}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors hover:scale-105 active:scale-95 duration-200"
               >
                 Clear All
               </button>
@@ -316,7 +323,7 @@ const Home = () => {
             />
           </div>
           {hasActiveFilters && (
-            <div className="mt-3 pt-3 border-t border-gray-200">
+            <div className="mt-4 pt-4 border-t border-gray-100">
               <p className="text-sm text-gray-600">
                 Showing <span className="font-semibold text-gray-900">{filteredItems.length}</span> of{' '}
                 <span className="font-medium">{items.length}</span> items
@@ -342,22 +349,22 @@ const Home = () => {
           <p className="text-sm text-gray-600">Try adjusting your filters or search query</p>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
           {filteredItems.map((item, index) => (
             <motion.div
               key={item.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05, duration: 0.3 }}
+              transition={{ delay: index * 0.03, duration: 0.3 }}
               className="h-full"
             >
               <Card
                 hover
                 onClick={() => handleItemClick(item)}
-                className="h-full flex flex-col overflow-hidden bg-white border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer"
+                className="h-full flex flex-col overflow-hidden bg-white border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer rounded-xl group"
               >
                 {/* Fixed height image container */}
-                <div className="relative h-48 bg-gray-100 overflow-hidden flex-shrink-0">
+                <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden flex-shrink-0">
                   {item.images && item.images.length > 0 ? (
                     <img
                       src={item.images[0]}
@@ -376,20 +383,20 @@ const Home = () => {
                     </div>
                   )}
                   {(!item.images || item.images.length === 0) && (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-50">
-                      <Package className="w-12 h-12 text-gray-300" />
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
+                      <Package className="w-12 h-12 text-gray-300 group-hover:text-blue-400 transition-colors duration-300" />
                     </div>
                   )}
                   
                   {/* Badges */}
                   <div className="absolute top-3 left-3">
-                    <Badge variant={item.type === 'found' ? 'found' : 'lost'}>
+                    <Badge variant={item.type === 'found' ? 'found' : 'lost'} className="shadow-sm">
                       {item.type === 'found' ? 'Found' : 'Lost'}
                     </Badge>
                   </div>
                   {item.urgent && (
                     <div className="absolute top-3 right-3">
-                      <Badge variant="danger">Urgent</Badge>
+                      <Badge variant="danger" className="shadow-sm">Urgent</Badge>
                     </div>
                   )}
                 </div>
@@ -399,7 +406,7 @@ const Home = () => {
                   {/* Title and category */}
                   <div className="flex items-start justify-between mb-2 gap-2">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-gray-900 line-clamp-1 text-base">{item.title}</h3>
+                      <h3 className="font-semibold text-gray-900 line-clamp-1 text-base group-hover:text-blue-600 transition-colors duration-200">{item.title}</h3>
                       <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
                         {item.universityName}
                         {item.campusName ? ` • ${item.campusName}` : ''}
@@ -410,7 +417,7 @@ const Home = () => {
 
                   {/* Reward badge */}
                   {item.type === 'lost' && item.reward && item.reward !== 'none' && (
-                    <div className="mb-2 inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 border border-blue-200 rounded-full self-start">
+                    <div className="mb-2 inline-flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-blue-50 to-blue-100/50 border border-blue-200 rounded-full self-start">
                       <span className="text-sm">
                         {item.reward === 'gratitude' && '🙏'}
                         {item.reward === 'food_treat' && '🍕'}
@@ -456,7 +463,7 @@ const Home = () => {
                         </div>
                         <button
                           type="button"
-                          className="absolute inset-0 top-8 mx-0 flex flex-col items-center justify-center rounded-lg bg-white/90 backdrop-blur-sm text-center px-3 py-2 text-xs font-semibold text-blue-700 hover:bg-white transition-colors z-10"
+                          className="absolute inset-0 top-8 mx-0 flex flex-col items-center justify-center rounded-lg bg-white/95 backdrop-blur-sm text-center px-3 py-2 text-xs font-semibold text-blue-700 hover:bg-white hover:text-blue-800 transition-all duration-200 z-10"
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate('/login');

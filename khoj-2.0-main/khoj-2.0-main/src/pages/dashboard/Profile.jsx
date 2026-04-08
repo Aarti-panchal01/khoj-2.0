@@ -64,6 +64,16 @@ const Profile = () => {
     navigate(`/post?edit=${itemId}`);
   };
 
+  const handleToggleResolved = async (item) => {
+    const nextStatus = item.status === 'resolved' ? 'active' : 'resolved';
+    try {
+      await ItemsAPI.update(item.id, { status: nextStatus });
+      await loadUserItems();
+    } catch (error) {
+      console.error('Toggle status failed', error);
+    }
+  };
+
   const stats = {
     total: userItems.length,
     found: userItems.filter(i => i.type === 'found').length,
@@ -80,7 +90,7 @@ const Profile = () => {
         className="space-y-6"
       >
         {/* Profile Header */}
-        <div className="relative bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 rounded-2xl overflow-hidden shadow-xl">
+        <div className="relative bg-gradient-to-r from-primary-800 to-primary-950 rounded-2xl overflow-hidden shadow-xl">
           {/* Decorative Background Pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
@@ -105,14 +115,14 @@ const Profile = () => {
                   {user?.name}
                 </h1>
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
-                  {user?.college && (
+                  {user?.universityName && (
                     <Badge variant="primary" className="inline-flex items-center justify-center px-3 py-1 text-xs font-semibold text-primary-800 bg-white text-center">
-                      {user.college}
+                      {user.universityName}
                     </Badge>
                   )}
-                  {user?.campus && (
+                  {user?.campusName && (
                     <span className="text-xs font-semibold text-white/90 bg-white/20 rounded-full px-3 py-1">
-                      {user.campus}
+                      {user.campusName}
                     </span>
                   )}
                 </div>
@@ -125,8 +135,8 @@ const Profile = () => {
                   <div className="flex items-center justify-center sm:justify-start gap-2 text-white/90">
                     <Building2 className="w-4 h-4" />
                     <span className="text-sm">
-                      {user?.universityName || user?.college}
-                      {(user?.campusName || user?.campus) ? ` • ${user?.campusName || user?.campus}` : ''}
+                      {user?.universityName || '—'}
+                      {user?.campusName ? ` • ${user.campusName}` : ''}
                     </span>
                   </div>
                 </div>
@@ -139,7 +149,7 @@ const Profile = () => {
               {/* Reputation Badge */}
               <div className="flex-shrink-0">
                 <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 text-center min-w-[120px]">
-                  <Award className="w-8 h-8 text-yellow-300 mx-auto mb-2" />
+                  <Award className="w-8 h-8 text-primary-200 mx-auto mb-2" />
                   <p className="text-xs text-white/80 uppercase tracking-wider mb-1">Reputation</p>
                   <p className="text-3xl font-bold text-white">{user?.reputation || 0}</p>
                 </div>
@@ -151,7 +161,7 @@ const Profile = () => {
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <motion.div whileHover={{ scale: 1.02, y: -2 }} transition={{ duration: 0.2 }}>
-            <Card className="p-5 border-l-4 border-l-primary-500 bg-white hover:shadow-lg transition-shadow">
+            <Card className="p-5 bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">Total Posts</p>
@@ -165,11 +175,11 @@ const Profile = () => {
           </motion.div>
 
           <motion.div whileHover={{ scale: 1.02, y: -2 }} transition={{ duration: 0.2 }}>
-            <Card className="p-5 border-l-4 border-l-success-500 bg-white hover:shadow-lg transition-shadow">
+            <Card className="p-5 bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">Found Items</p>
-                  <p className="text-3xl font-bold text-success-600">{stats.found}</p>
+                  <p className="text-3xl font-bold text-gray-900">{stats.found}</p>
                 </div>
                 <div className="w-12 h-12 bg-success-100 rounded-xl flex items-center justify-center">
                   <Search className="w-6 h-6 text-success-600" />
@@ -179,11 +189,11 @@ const Profile = () => {
           </motion.div>
 
           <motion.div whileHover={{ scale: 1.02, y: -2 }} transition={{ duration: 0.2 }}>
-            <Card className="p-5 border-l-4 border-l-danger-500 bg-white hover:shadow-lg transition-shadow">
+            <Card className="p-5 bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">Lost Items</p>
-                  <p className="text-3xl font-bold text-danger-600">{stats.lost}</p>
+                  <p className="text-3xl font-bold text-gray-900">{stats.lost}</p>
                 </div>
                 <div className="w-12 h-12 bg-danger-100 rounded-xl flex items-center justify-center">
                   <Package className="w-6 h-6 text-danger-600" />
@@ -193,11 +203,11 @@ const Profile = () => {
           </motion.div>
 
           <motion.div whileHover={{ scale: 1.02, y: -2 }} transition={{ duration: 0.2 }}>
-            <Card className="p-5 border-l-4 border-l-warning-500 bg-white hover:shadow-lg transition-shadow">
+            <Card className="p-5 bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">Resolved</p>
-                  <p className="text-3xl font-bold text-warning-600">{stats.resolved}</p>
+                  <p className="text-3xl font-bold text-gray-900">{stats.resolved}</p>
                 </div>
                 <div className="w-12 h-12 bg-warning-100 rounded-xl flex items-center justify-center">
                   <Award className="w-6 h-6 text-warning-600" />
@@ -274,6 +284,17 @@ const Profile = () => {
                         {item.title}
                       </h3>
                       <div className="flex gap-2">
+                        <button
+                          onClick={() => handleToggleResolved(item)}
+                          className={`p-2 rounded-lg transition-all ${
+                            item.status === 'resolved'
+                              ? 'text-warning-700 bg-warning-50 hover:bg-warning-100'
+                              : 'text-success-700 bg-success-50 hover:bg-success-100'
+                          }`}
+                          title={item.status === 'resolved' ? 'Mark as Active' : 'Mark as Resolved'}
+                        >
+                          <Award className="w-4.5 h-4.5" />
+                        </button>
                         <button
                           onClick={() => handleEditClick(item.id)}
                           className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-all"
