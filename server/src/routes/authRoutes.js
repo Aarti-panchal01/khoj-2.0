@@ -39,25 +39,25 @@ const COOKIE_OPTS = {
   path: '/api/auth',
 };
 
-const createAccessToken = (user) =>
-  jwt.sign(
-    {
-      id: user._id,
-      email: user.email,
-      universityId: user.universityId,
-      campusId: user.campusId || null,
-      tv: user.tokenVersion,
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: ACCESS_TOKEN_EXPIRY }
-  );
+const createAccessToken = (user) => {
+  const payload = {
+    id: user._id,
+    email: user.email,
+    universityId: user.universityId,
+    campusId: user.campusId || null,
+    tv: user.tokenVersion !== undefined ? user.tokenVersion : 0,
+  };
+  console.log('🎫 Creating access token with payload:', payload);
+  return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRY });
+};
 
-const createRefreshToken = (user) =>
-  jwt.sign(
-    { id: user._id, tv: user.tokenVersion },
-    process.env.JWT_REFRESH_SECRET,
-    { expiresIn: REFRESH_TOKEN_EXPIRY }
-  );
+const createRefreshToken = (user) => {
+  const payload = {
+    id: user._id,
+    tv: user.tokenVersion !== undefined ? user.tokenVersion : 0,
+  };
+  return jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRY });
+};
 
 const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
 
@@ -325,12 +325,20 @@ router.post('/login', async (req, res) => {
 
     await user.resetLoginAttempts();
 
+    console.log('🔐 Creating tokens for user:', {
+      id: user._id,
+      email: user.email,
+      tokenVersion: user.tokenVersion,
+      hasTokenVersion: user.tokenVersion !== undefined,
+    });
+
     const accessToken = createAccessToken(user);
     const refreshToken = createRefreshToken(user);
 
     await User.findByIdAndUpdate(user._id, { refreshTokenHash: hashToken(refreshToken) });
 
     res.cookie(REFRESH_COOKIE_NAME, refreshToken, COOKIE_OPTS);
+    console.log('✅ Login successful for:', user.email);
     return res.json({ token: accessToken, user: formatUser(user) });
   } catch (error) {
     console.error('Login error:', error.name);
@@ -471,8 +479,15 @@ router.post('/google', async (req, res) => {
       }
     }
 
-    // Refresh user data
-    user = await User.findById(user._id);
+    // Refresh user data with tokenVersion
+    user = await User.findById(user._id).select('+tokenVersion');
+    
+    console.log('🔐 Creating tokens for Google user:', {
+      id: user._id,
+      email: user.email,
+      tokenVersion: user.tokenVersion,
+      hasTokenVersion: user.tokenVersion !== undefined,
+    });
     
     // Create tokens
     const accessToken = createAccessToken(user);
