@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Filter, MapPin, Calendar, AlertCircle, Package } from 'lucide-react';
 import { CATEGORIES } from '../../lib/constants';
+import { getRewardStyle } from '../../lib/rewardStyles';
 import Card from '../../components/ui/Card';
 import Badge from '../../components/ui/Badge';
 import Input from '../../components/ui/Input';
@@ -496,25 +497,17 @@ const Home = () => {
                       </Badge>
                     </motion.div>
                     
-                    {/* Reward Badge - Only for Lost Items */}
+                    {/* Reward Badge - Only for Lost Items with Distinct Colors */}
                     {item.type === 'lost' && item.reward && item.reward !== 'none' && (
                       <motion.div 
                         whileHover={{ scale: 1.05 }}
-                        className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-400 text-black text-xs font-bold rounded-full shadow-md backdrop-blur-sm"
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 ${getRewardStyle(item.reward).bgOpacity} ${getRewardStyle(item.reward).text} ${getRewardStyle(item.reward).border} border text-xs font-bold rounded-full shadow-md backdrop-blur-sm transition-all duration-200`}
                       >
                         <span className="text-sm">
-                          {item.reward === 'gratitude' && '🙏'}
-                          {item.reward === 'food_treat' && '🍕'}
-                          {item.reward === 'coffee' && '☕'}
-                          {item.reward === 'cash_reward' && '💰'}
-                          {item.reward === 'gift' && '🎁'}
+                          {getRewardStyle(item.reward).emoji}
                         </span>
                         <span>
-                          {item.reward === 'gratitude' && 'Thanks'}
-                          {item.reward === 'food_treat' && 'Food'}
-                          {item.reward === 'coffee' && 'Coffee'}
-                          {item.reward === 'cash_reward' && 'Cash'}
-                          {item.reward === 'gift' && 'Gift'}
+                          {getRewardStyle(item.reward).label}
                         </span>
                       </motion.div>
                     )}
