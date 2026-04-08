@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Plus, User, LogOut, Home, Bell, LogIn } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { NotificationsAPI } from '../../lib/apiClient';
 import Badge from '../ui/Badge';
@@ -38,7 +39,7 @@ const Navbar = () => {
   }, [user?.universityId]);
 
   return (
-    <nav className="bg-surface-0/85 backdrop-blur-md border-b border-ink-200 sticky top-0 z-30 shadow-sm">
+    <nav className="bg-white/70 backdrop-blur-lg border-b border-gray-200/50 sticky top-0 z-30 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14 sm:h-16">
           <Link to="/" className="flex items-center gap-2 sm:gap-3 group">
@@ -100,35 +101,53 @@ const Navbar = () => {
               <div className="hidden md:flex items-center gap-6">
                 <Link
                   to="/"
-                  className={`relative flex items-center gap-2 px-3 py-2 rounded-xl transition-colors ${
-                    isActive('/') ? 'bg-primary-50 text-primary-950 font-extrabold' : 'text-ink-700 hover:bg-surface-100 font-semibold'
+                  className={`relative flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 ${
+                    isActive('/') ? 'bg-blue-50 text-blue-950 font-bold' : 'text-gray-700 hover:bg-gray-50 font-semibold hover:text-blue-600'
                   }`}
                 >
                   <Home className="w-5 h-5" />
                   <span>Home</span>
-                  {isActive('/') && <span className="absolute -bottom-[10px] left-3 right-3 h-0.5 bg-primary-600 rounded-full" />}
+                  {isActive('/') && (
+                    <motion.span 
+                      layoutId="navbar-indicator"
+                      className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-blue-600 rounded-full"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
                 </Link>
 
                 <Link
                   to="/post"
-                  className={`relative flex items-center gap-2 px-3 py-2 rounded-xl transition-colors ${
-                    isActive('/post') ? 'bg-primary-50 text-primary-950 font-extrabold' : 'text-ink-700 hover:bg-surface-100 font-semibold'
+                  className={`relative flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 ${
+                    isActive('/post') ? 'bg-blue-50 text-blue-950 font-bold' : 'text-gray-700 hover:bg-gray-50 font-semibold hover:text-blue-600'
                   }`}
                 >
                   <Plus className="w-5 h-5" />
                   <span>Post Item</span>
-                  {isActive('/post') && <span className="absolute -bottom-[10px] left-3 right-3 h-0.5 bg-primary-600 rounded-full" />}
+                  {isActive('/post') && (
+                    <motion.span 
+                      layoutId="navbar-indicator"
+                      className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-blue-600 rounded-full"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
                 </Link>
 
                 <Link
                   to="/profile"
-                  className={`relative flex items-center gap-2 px-3 py-2 rounded-xl transition-colors ${
-                    isActive('/profile') ? 'bg-primary-50 text-primary-950 font-extrabold' : 'text-ink-700 hover:bg-surface-100 font-semibold'
+                  className={`relative flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 ${
+                    isActive('/profile') ? 'bg-blue-50 text-blue-950 font-bold' : 'text-gray-700 hover:bg-gray-50 font-semibold hover:text-blue-600'
                   }`}
                 >
                   <User className="w-5 h-5" />
                   <span>Profile</span>
-                  {isActive('/profile') && <span className="absolute -bottom-[10px] left-3 right-3 h-0.5 bg-primary-600 rounded-full" />}
+                  {isActive('/profile') && (
+                    <motion.span 
+                      layoutId="navbar-indicator"
+                      className="absolute -bottom-[17px] left-0 right-0 h-0.5 bg-blue-600 rounded-full"
+                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    />
+                  )}
                 </Link>
               </div>
 
