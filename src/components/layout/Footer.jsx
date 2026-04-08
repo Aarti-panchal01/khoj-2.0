@@ -1,4 +1,7 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const LinkedInIcon = () => (
   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -19,32 +22,72 @@ const MailIcon = () => (
 );
 
 const KhojMark = () => (
-  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-ink-950 ring-1 ring-primary-400/40">
-    <svg className="h-5 w-5 text-primary-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gray-900 ring-1 ring-blue-400/40">
+    <svg className="h-4 w-4 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
       <circle cx="11" cy="11" r="7" />
       <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
     </svg>
   </div>
 );
 
-const footerLink = 'text-gray-300 hover:text-white transition-all duration-200 hover:translate-x-1 inline-block text-sm';
+const AccordionSection = ({ title, children, isOpen, onToggle }) => (
+  <div className="border-b border-gray-800">
+    <button
+      onClick={onToggle}
+      className="w-full flex items-center justify-between py-3 text-left hover:bg-gray-800/50 transition-colors px-1"
+      aria-expanded={isOpen}
+    >
+      <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400">{title}</h3>
+      <motion.div
+        animate={{ rotate: isOpen ? 180 : 0 }}
+        transition={{ duration: 0.2, ease: 'easeInOut' }}
+      >
+        <ChevronDown className="w-4 h-4 text-gray-400" />
+      </motion.div>
+    </button>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.2, ease: 'easeInOut' }}
+          className="overflow-hidden"
+        >
+          <ul className="space-y-2 pb-3 px-1">
+            {children}
+          </ul>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </div>
+);
 
-const Footer = () => (
-  <footer className="mt-auto border-t border-gray-800 bg-gradient-to-br from-gray-900 via-gray-900 to-blue-950 text-gray-100">
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="space-y-4">
-          <div className="flex items-center gap-3">
+const footerLink = 'text-gray-300 hover:text-white transition-colors text-sm block py-1';
+
+const Footer = () => {
+  const [openSection, setOpenSection] = useState(null);
+
+  const toggleSection = (section) => {
+    setOpenSection(openSection === section ? null : section);
+  };
+
+  return (
+    <footer className="mt-auto border-t border-gray-800 bg-gradient-to-br from-gray-900 via-gray-900 to-blue-950 text-gray-100">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+        {/* Top Section - Always Visible */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
             <KhojMark />
             <div>
-              <p className="text-2xl font-extrabold text-white khoj-heading leading-none">Khoj</p>
-              <p className="text-xs font-extrabold text-blue-400 tracking-[0.16em] khoj-heading mt-1">DON&apos;T PANIC. POST IT.</p>
+              <p className="text-xl font-extrabold text-white khoj-heading leading-none">Khoj</p>
+              <p className="text-[10px] font-extrabold text-blue-400 tracking-[0.14em] khoj-heading">DON&apos;T PANIC. POST IT.</p>
             </div>
           </div>
-          <p className="text-sm text-gray-300 leading-relaxed">
-            Campus lost &amp; found for Bengaluru students.
+          <p className="text-xs text-gray-300 mb-3 leading-relaxed">
+            Campus lost &amp; found for students
           </p>
-          <div className="flex items-center gap-4 text-gray-400">
+          <div className="flex items-center gap-3 text-gray-400">
             <a href="https://www.linkedin.com/company/khoj-app" target="_blank" rel="noreferrer noopener" className="hover:text-blue-400 transition-all duration-200 hover:scale-110" aria-label="Khoj on LinkedIn">
               <LinkedInIcon />
             </a>
@@ -57,57 +100,93 @@ const Footer = () => (
           </div>
         </div>
 
-        <div>
-          <h3 className="text-xs font-extrabold uppercase tracking-[0.16em] text-gray-400 mb-5 khoj-heading">Platform</h3>
-          <ul className="space-y-3">
+        {/* Bengaluru Indicator - Subtle */}
+        <div className="mb-6 py-2 px-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
+          <p className="text-xs text-gray-400">Helping students across <span className="text-blue-400 font-semibold">Bengaluru</span></p>
+        </div>
+
+        {/* Mobile Accordion Sections */}
+        <div className="lg:hidden space-y-0">
+          <AccordionSection 
+            title="Platform" 
+            isOpen={openSection === 'platform'}
+            onToggle={() => toggleSection('platform')}
+          >
             <li><Link to="/" className={footerLink}>Home Feed</Link></li>
             <li><Link to="/post" className={footerLink}>Report an Item</Link></li>
             <li><Link to="/claims" className={footerLink}>My Claims</Link></li>
             <li><Link to="/profile" className={footerLink}>My Profile</Link></li>
             <li><Link to="/notifications" className={footerLink}>Notifications</Link></li>
-          </ul>
-        </div>
+          </AccordionSection>
 
-        <div>
-          <h3 className="text-xs font-extrabold uppercase tracking-[0.16em] text-gray-400 mb-5 khoj-heading">Company</h3>
-          <ul className="space-y-3">
+          <AccordionSection 
+            title="Company" 
+            isOpen={openSection === 'company'}
+            onToggle={() => toggleSection('company')}
+          >
             <li><Link to="/about" className={footerLink}>About Khoj</Link></li>
             <li><Link to="/how-it-works" className={footerLink}>How It Works</Link></li>
             <li><a href="https://www.linkedin.com/company/khoj-app" target="_blank" rel="noreferrer noopener" className={footerLink}>LinkedIn</a></li>
             <li><a href="https://www.instagram.com/official.khojapp" target="_blank" rel="noreferrer noopener" className={footerLink}>Instagram</a></li>
             <li><a href="mailto:khojapp.team@gmail.com" className={footerLink}>Contact Us</a></li>
-          </ul>
-        </div>
+          </AccordionSection>
 
-        <div>
-          <h3 className="text-xs font-extrabold uppercase tracking-[0.16em] text-gray-400 mb-5 khoj-heading">Legal</h3>
-          <ul className="space-y-3 mb-6">
+          <AccordionSection 
+            title="Legal" 
+            isOpen={openSection === 'legal'}
+            onToggle={() => toggleSection('legal')}
+          >
             <li><Link to="/privacy" className={footerLink}>Privacy Policy</Link></li>
             <li><Link to="/terms" className={footerLink}>Terms of Service</Link></li>
             <li><Link to="/community-guidelines" className={footerLink}>Community Guidelines</Link></li>
-          </ul>
-          <div className="rounded-2xl border border-blue-500/30 bg-gradient-to-br from-blue-500/10 to-purple-500/10 backdrop-blur-sm px-5 py-5 hover:border-blue-400/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20">
-            <p className="text-sm text-gray-300 mb-1 font-medium">Helping students across</p>
-            <p className="text-3xl font-extrabold text-blue-400 khoj-heading leading-none">Bengaluru</p>
-            <p className="text-xs text-gray-400 mt-2">Real-time campus activity</p>
+          </AccordionSection>
+        </div>
+
+        {/* Desktop Grid - Hidden on Mobile */}
+        <div className="hidden lg:grid grid-cols-3 gap-8 mb-8">
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Platform</h3>
+            <ul className="space-y-2">
+              <li><Link to="/" className={footerLink}>Home Feed</Link></li>
+              <li><Link to="/post" className={footerLink}>Report an Item</Link></li>
+              <li><Link to="/claims" className={footerLink}>My Claims</Link></li>
+              <li><Link to="/profile" className={footerLink}>My Profile</Link></li>
+              <li><Link to="/notifications" className={footerLink}>Notifications</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Company</h3>
+            <ul className="space-y-2">
+              <li><Link to="/about" className={footerLink}>About Khoj</Link></li>
+              <li><Link to="/how-it-works" className={footerLink}>How It Works</Link></li>
+              <li><a href="https://www.linkedin.com/company/khoj-app" target="_blank" rel="noreferrer noopener" className={footerLink}>LinkedIn</a></li>
+              <li><a href="https://www.instagram.com/official.khojapp" target="_blank" rel="noreferrer noopener" className={footerLink}>Instagram</a></li>
+              <li><a href="mailto:khojapp.team@gmail.com" className={footerLink}>Contact Us</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-4">Legal</h3>
+            <ul className="space-y-2">
+              <li><Link to="/privacy" className={footerLink}>Privacy Policy</Link></li>
+              <li><Link to="/terms" className={footerLink}>Terms of Service</Link></li>
+              <li><Link to="/community-guidelines" className={footerLink}>Community Guidelines</Link></li>
+            </ul>
           </div>
         </div>
       </div>
-    </div>
 
-    <div className="border-t border-gray-800">
-      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-gray-400">
-        <span>© 2026 Khoj · Built for campus students</span>
-        <span className="flex flex-wrap gap-x-4 gap-y-1">
-          <Link to="/privacy" className="hover:text-gray-200 transition-colors">Privacy</Link>
-          <span aria-hidden>·</span>
-          <Link to="/terms" className="hover:text-gray-200 transition-colors">Terms</Link>
-          <span aria-hidden>·</span>
-          <a href="mailto:khojapp.team@gmail.com" className="hover:text-gray-200 transition-colors">khojapp.team@gmail.com</a>
-        </span>
+      {/* Bottom Bar */}
+      <div className="border-t border-gray-800">
+        <div className="mx-auto max-w-7xl px-4 py-3 text-center">
+          <p className="text-xs text-gray-400">
+            © 2026 Khoj · <Link to="/privacy" className="hover:text-gray-200">Privacy</Link> · <Link to="/terms" className="hover:text-gray-200">Terms</Link>
+          </p>
+        </div>
       </div>
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};
 
 export default Footer;
