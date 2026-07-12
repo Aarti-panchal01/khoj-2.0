@@ -106,17 +106,9 @@ const sendVerificationEmail = async (to, otp, name) => {
       `,
     });
 
-    console.log('[OTP_DEBUG] sendMail success', {
-      to,
-      messageId: info?.messageId,
-    });
-
     return info;
   } catch (err) {
-    console.error('[OTP_DEBUG] sendMail error', {
-      to,
-      message: err?.message || err,
-    });
+    console.error('sendMail error:', err?.message || err);
 
     // Ensure the caller gets a meaningful status/message.
     err.status = err.status || 500;

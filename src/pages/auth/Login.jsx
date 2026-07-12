@@ -48,30 +48,24 @@ const Login = () => {
     setError('');
     setLoading(true);
     try {
-      console.log('🔐 Starting Google login...');
       const result = await signInWithPopup(auth, googleProvider);
-      console.log('✅ Google signin successful:', result.user.email);
-      
+
       const user = result.user;
       const idToken = await user.getIdToken();
-      console.log('✅ ID token obtained');
-      
+
       try {
         const backendResponse = await AuthAPI.google({ credential: idToken });
-        console.log('✅ Backend authentication successful:', backendResponse);
-        
+
         if (backendResponse.token) {
           // CRITICAL: Use setAuthToken to update both localStorage AND module cache
           setAuthToken(backendResponse.token);
           setUser(backendResponse.user);
-          console.log('✅ Token saved, user set');
           setLoading(false);
-          
+
           setTimeout(() => {
             afterAuth();
           }, 50);
         } else {
-          console.error('❌ No token in backend response:', backendResponse);
           setLoading(false);
           setError('Authentication failed: No token received from server');
         }

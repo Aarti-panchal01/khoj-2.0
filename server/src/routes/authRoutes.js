@@ -47,7 +47,6 @@ const createAccessToken = (user) => {
     campusId: user.campusId || null,
     tv: user.tokenVersion !== undefined ? user.tokenVersion : 0,
   };
-  console.log('🎫 Creating access token with payload:', payload);
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: ACCESS_TOKEN_EXPIRY });
 };
 
@@ -262,11 +261,6 @@ router.post('/resend-otp', async (req, res) => {
       return res.status(429).json({ message: 'Please wait before requesting a new code' });
     }
 
-    console.log('[OTP_DEBUG] resend-otp generating OTP', {
-      userId: String(user._id),
-      email: user.email,
-    });
-
     const otp = generateOtp();
     const otpHash = await bcrypt.hash(otp, 8);
 
@@ -277,16 +271,9 @@ router.post('/resend-otp', async (req, res) => {
     });
 
     try {
-      console.log('[OTP_DEBUG] resend-otp sending verification email', {
-        userId: String(user._id),
-        email: user.email,
-      });
       await sendVerificationEmail(user.email, otp, user.name);
     } catch (err) {
-      console.error('[OTP_DEBUG] resend-otp sendVerificationEmail failed', {
-        userId: String(user._id),
-        message: err?.message || err,
-      });
+      console.error('Resend OTP email failed:', err?.message || err);
       const status = err?.status || 500;
       const message = err?.publicMessage || 'Failed to send verification email';
       return res.status(status).json({ message });
@@ -325,20 +312,12 @@ router.post('/login', async (req, res) => {
 
     await user.resetLoginAttempts();
 
-    console.log('🔐 Creating tokens for user:', {
-      id: user._id,
-      email: user.email,
-      tokenVersion: user.tokenVersion,
-      hasTokenVersion: user.tokenVersion !== undefined,
-    });
-
     const accessToken = createAccessToken(user);
     const refreshToken = createRefreshToken(user);
 
     await User.findByIdAndUpdate(user._id, { refreshTokenHash: hashToken(refreshToken) });
 
     res.cookie(REFRESH_COOKIE_NAME, refreshToken, COOKIE_OPTS);
-    console.log('✅ Login successful for:', user.email);
     return res.json({ token: accessToken, user: formatUser(user) });
   } catch (error) {
     console.error('Login error:', error.name);
@@ -431,15 +410,9 @@ router.post('/google', async (req, res) => {
     let decoded;
     try {
       decoded = await admin.auth().verifyIdToken(idToken);
-      console.log('✅ Firebase token verified successfully');
-      console.log('   UID:', decoded.uid);
-      console.log('   Email:', decoded.email);
     } catch (verifyError) {
-      console.error('❌ Firebase verify error:', verifyError.code, verifyError.message);
-      return res.status(401).json({ 
-        message: 'Invalid Firebase token',
-        error: verifyError.message 
-      });
+      console.error('Firebase verify error:', verifyError.code);
+      return res.status(401).json({ message: 'Invalid Firebase token' });
     }
 
     // Extract user info from decoded token
@@ -454,7 +427,6 @@ router.post('/google', async (req, res) => {
     let user = await User.findOne({ email }).select('+googleSub +tokenVersion +refreshTokenHash');
 
     if (!user) {
-      console.log('📝 Creating new user for:', email);
       const passwordHash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
       user = await User.create({
         name: decoded.name || email.split('@')[0] || 'Student',
@@ -468,27 +440,17 @@ router.post('/google', async (req, res) => {
         campusName: '',
         isEmailVerified: Boolean(decoded.email_verified),
       });
-      console.log('✅ User created successfully:', user._id);
     } else {
-      console.log('✅ Existing user found:', user._id);
       // Update googleSub if not set
       if (!user.googleSub && uid) {
         user.googleSub = uid;
         await user.save();
-        console.log('✅ Updated user googleSub');
       }
     }
 
     // Refresh user data with tokenVersion
     user = await User.findById(user._id).select('+tokenVersion');
-    
-    console.log('🔐 Creating tokens for Google user:', {
-      id: user._id,
-      email: user.email,
-      tokenVersion: user.tokenVersion,
-      hasTokenVersion: user.tokenVersion !== undefined,
-    });
-    
+
     // Create tokens
     const accessToken = createAccessToken(user);
     const refreshToken = createRefreshToken(user);
@@ -498,12 +460,10 @@ router.post('/google', async (req, res) => {
     
     // Set cookie
     res.cookie(REFRESH_COOKIE_NAME, refreshToken, COOKIE_OPTS);
-    
-    console.log('✅ User logged in successfully:', email);
+
     return res.json({ token: accessToken, user: formatUser(user) });
   } catch (error) {
-    console.error('❌ Google auth error:', error.name || error.message);
-    console.error('   Stack:', error.stack);
+    console.error('Google auth error:', error.name || error.message);
     
     if (error.name === 'ZodError') {
       const firstError = error.errors[0];

@@ -21,8 +21,6 @@ const CustomSelect = ({
   
   useEffect(() => {
     if (options && options.length > 0) {
-      console.log('[CustomSelect] Options updated:', options.length, 'options available');
-      console.log('[CustomSelect] First option:', options[0]);
       // Force component to re-render when options change
       setForceRender(prev => prev + 1);
     }
@@ -44,35 +42,19 @@ const CustomSelect = ({
   }, []);
 
   const handleSelect = (optionValue) => {
-    console.log('[CustomSelect] Option selected:', optionValue);
     onChange({ target: { value: optionValue, name } });
     setIsOpen(false);
   };
 
   const handleToggleDropdown = () => {
-    console.log('[CustomSelect] Toggle dropdown. Current isOpen:', isOpen);
-    console.log('[CustomSelect] Options available:', options?.length || 0);
-    
     // Only open if we have options or if closing
     if (!isOpen || options.length > 0) {
       setIsOpen(!isOpen);
-    } else {
-      console.warn('[CustomSelect] Cannot open dropdown - no options available');
     }
   };
 
   const selectedOption = options.find(opt => opt.value === value);
   const displayValue = selectedOption ? selectedOption.label : placeholder;
-
-  // Log dropdown state for mobile debugging
-  useEffect(() => {
-    if (isOpen) {
-      console.log('[CustomSelect] Dropdown opened. Options count:', options?.length || 0);
-      console.log('[CustomSelect] Options array:', options);
-      console.log('[CustomSelect] Is array?', Array.isArray(options));
-      console.log('[CustomSelect] Force render count:', forceRender);
-    }
-  }, [isOpen, options, forceRender]);
 
   return (
     <div className={`w-full ${className}`} ref={dropdownRef}>

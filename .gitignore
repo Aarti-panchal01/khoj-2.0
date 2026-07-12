@@ -3,19 +3,22 @@ node_modules/
 server/node_modules/
 
 # ── Environment variables (NEVER commit these) ────────────────────────────────
+# Matches .env at any depth; keep .env.example tracked as the template.
 .env
-.env.local
-.env.development
-.env.development.local
-.env.test
-.env.test.local
-.env.production
-.env.production.local
-server/.env
-server/.env.local
-server/.env.development
-server/.env.production
-server/.env.production.local
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# ── Secret material (service accounts, keys, certs) ───────────────────────────
+*.pem
+*.key
+*.p12
+*.pfx
+serviceAccount*.json
+firebase-adminsdk*.json
+*-service-account*.json
 
 # ── Build outputs ─────────────────────────────────────────────────────────────
 dist/
@@ -48,6 +51,11 @@ Thumbs.db
 # ── Testing ───────────────────────────────────────────────────────────────────
 coverage/
 .nyc_output/
+
+# ── AI tooling scratch dirs ───────────────────────────────────────────────────
+.cursor/
+.kiro/
+.superdesign/
 
 # ── Misc ──────────────────────────────────────────────────────────────────────
 *.tmp

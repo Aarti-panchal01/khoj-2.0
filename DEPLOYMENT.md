@@ -184,7 +184,7 @@ Before you begin, make sure you have:
    Replace `<password>` with your actual password and add database name:
 
    ```
-   mongodb+srv://khoj_admin:a7B9cD2eF4gH6iJ8k@khoj-cluster.xxxxx.mongodb.net/khoj?retryWrites=true&w=majority
+   mongodb+srv://khoj_admin:YOUR_PASSWORD@khoj-cluster.xxxxx.mongodb.net/khoj?retryWrites=true&w=majority
    ```
 
    Save this - you'll need it soon!
