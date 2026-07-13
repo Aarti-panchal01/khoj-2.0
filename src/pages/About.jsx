@@ -44,6 +44,23 @@ const About = () => (
             </p>
           </div>
         </div>
+
+        <div className="mt-8 rounded-2xl border border-primary-200 bg-primary-50 px-4 py-4">
+          <p className="text-xs font-extrabold tracking-[0.16em] khoj-heading text-ink-600">WHO</p>
+          <p className="mt-1 text-sm text-ink-800">
+            Khoj was founded by{' '}
+            <a
+              href="https://aarti-tech-portfolio.vercel.app"
+              target="_blank"
+              rel="noreferrer noopener"
+              className="font-semibold text-primary-900 underline underline-offset-2 hover:text-primary-700"
+            >
+              Aarti Panchal
+            </a>
+            , a PES University student who watched one too many lost items drown in campus WhatsApp groups
+            and decided they deserved better.
+          </p>
+        </div>
       </div>
     </div>
   </div>
