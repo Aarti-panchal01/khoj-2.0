@@ -183,6 +183,9 @@ const Footer = () => {
           <p className="text-xs text-gray-400">
             © 2026 Khoj · <Link to="/privacy" className="hover:text-gray-200">Privacy</Link> · <Link to="/terms" className="hover:text-gray-200">Terms</Link>
           </p>
+          <p className="mt-1 text-xs text-gray-500">
+            Built by <a href="https://aarti-tech-portfolio.vercel.app" target="_blank" rel="noreferrer noopener" className="text-gray-400 hover:text-blue-400 transition-colors">Aarti Panchal</a>
+          </p>
         </div>
       </div>
     </footer>
