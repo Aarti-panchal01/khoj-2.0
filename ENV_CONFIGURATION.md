@@ -412,7 +412,7 @@ JWT_REFRESH_EXPIRY=7d
 
 - [ ] DNS A record: `@` → Vercel IP (`76.76.21.21`)
 - [ ] DNS CNAME: `www` → `cname.vercel-dns.com`
-- [ ] DNS CNAME: `api` → `khoj-backend.onrender.com`
+- [ ] DNS CNAME: `api` to `khoj-2-0.onrender.com`
 - [ ] DNS propagated (test with `nslookup`)
 - [ ] SSL certificates auto-provisioned
 

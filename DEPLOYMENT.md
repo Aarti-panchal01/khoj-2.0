@@ -319,7 +319,7 @@ We'll use **Render** (free tier) for the backend.
 
    Once deployed, you'll see:
    ```
-   https://khoj-backend.onrender.com
+   https://api.khojapp.in
    ```
 
    **Copy this URL** - you'll need it for frontend!
@@ -328,7 +328,7 @@ We'll use **Render** (free tier) for the backend.
 
    In your browser or terminal:
    ```bash
-   curl https://khoj-backend.onrender.com/health
+   curl https://api.khojapp.in/health
 
    # Should return:
    {"status":"ok"}
@@ -336,7 +336,7 @@ We'll use **Render** (free tier) for the backend.
 
    Test campuses endpoint:
    ```bash
-   curl https://khoj-backend.onrender.com/api/campuses
+   curl https://api.khojapp.in/api/campuses
 
    # Should return college data
    ```
@@ -359,7 +359,7 @@ We'll use **Render** (free tier) for the backend.
    ```
    Add a CNAME record:
    Name: api
-   Value: khoj-backend.onrender.com
+   Value: khoj-2-0.onrender.com
    ```
 
    **Save these instructions** - we'll configure DNS later!
@@ -523,7 +523,7 @@ Where did you buy `khojapp.in`? Common registrars:
    |------|-----------|-----------------|-----|
    | **A** | `@` | `76.76.21.21` | 3600 |
    | **CNAME** | `www` | `cname.vercel-dns.com` | 3600 |
-   | **CNAME** | `api` | `khoj-backend.onrender.com` | 3600 |
+   | **CNAME** | `api` | `khoj-2-0.onrender.com` | 3600 |
 
    **Explanation:**
    - `@` (root domain) → Points to Vercel IP (frontend)
