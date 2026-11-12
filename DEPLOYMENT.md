@@ -302,6 +302,12 @@ We'll use **Render** (free tier) for the backend.
    | `JWT_ACCESS_EXPIRY` | `15m` |
    | `JWT_REFRESH_EXPIRY` | `7d` |
 
+   If the app is using its Vercel domain instead, set `CLIENT_ORIGIN` to
+   `https://khoj-2-0.vercel.app`. Also add that exact host under Firebase
+   Console → Authentication → Settings → Authorized domains. Keep
+   `VITE_API_URL=https://api.khojapp.in/api` while that API hostname remains
+   active. The raw Render hostname may not serve requests directly.
+
    **Generate JWT Secret**:
    ```bash
    # Run this in your terminal

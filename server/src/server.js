@@ -22,6 +22,7 @@ const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const cookieParser = require('cookie-parser');
 
+const { createCorsOptions } = require('./config/cors');
 const connectDB = require('./config/db');
 const seedUniversities = require('./utils/seedUniversities');
 const authRoutes = require('./routes/authRoutes');
@@ -36,35 +37,7 @@ const app = express();
 app.set('trust proxy', 1);
 
 // ─── CORS ─────────────────────────────────────────────────────────────────────
-const normalizeOrigin = (value) => String(value || '').trim().replace(/\/+$/, '');
-const allowedOrigins = process.env.CLIENT_ORIGIN.split(',')
-  .map((o) => normalizeOrigin(o))
-  .filter(Boolean);
-const trustedProdDomainRegex = /^https:\/\/([a-z0-9-]+\.)?khojapp\.in$/i;
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow no-origin requests (health checks, curl, Postman, direct browser hit)
-      if (!origin) {
-        return callback(null, true);
-      }
-      const normalizedOrigin = normalizeOrigin(origin);
-      if (
-        allowedOrigins.includes(normalizedOrigin) ||
-        (IS_PROD && trustedProdDomainRegex.test(normalizedOrigin))
-      ) {
-        callback(null, true);
-      } else {
-        callback(new Error(`Origin ${normalizedOrigin} not allowed by CORS`));
-      }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    maxAge: 86400,
-  })
-);
+app.use(cors(createCorsOptions(process.env.CLIENT_ORIGIN, IS_PROD)));
 
 // ─── Security headers ─────────────────────────────────────────────────────────
 app.use(helmet({
